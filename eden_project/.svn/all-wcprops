@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/subversion/!svn/ver/66166/eden/trunk/eden_project/eden_project
+END
+wsgi.py
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/subversion/!svn/ver/66164/eden/trunk/eden_project/eden_project/wsgi.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/subversion/!svn/ver/66164/eden/trunk/eden_project/eden_project/__init__.py
+END
+settings.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/subversion/!svn/ver/66164/eden/trunk/eden_project/eden_project/settings.py
+END
+urls.py
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/subversion/!svn/ver/66164/eden/trunk/eden_project/eden_project/urls.py
+END

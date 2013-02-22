@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}EDEN Timeseries Data{% endblock title %}
+
+{% block content_header %} EDEN Timeseries Data {% endblock content_header %}
+
+{% block script %}
+	<script type="text/javascript"
+	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+	  
+	<script type="text/javascript">
+		  var g2 = new Dygraph(
+		    document.getElementById("graph"),
+		    "/static/data.csv", // path to CSV file
+		    {
+		    	visibility: [True]		
+		    }          // options
+		  );
+	</script>
+
+{% endblock script %}
+
+{% block content %}
+  
+<div class="form_input_field">
+	<form name="hydrograph_query" id=hydrograph_form method="GET" action=".">{% csrf_token %}
+		{{query_form.non_field_errors}}
+		{{query_form.field_errors}}
+		<table>
+			<tr>
+				<p><label for="{{ query_form.timeseries_start.html_name }}"><b>Timeseries Start: </b></label>{{ query_form.timeseries_start }}</p>
+			</tr>
+			<tr>
+				<p><label for="{{ query_form.timeseries_end.html_name }}"><b>Timeseries end: </b></label>{{ query_form.timeseries_end }}</p>
+			</tr>
+			<tr>
+				<p><label for="{{ query_form.site_list.html_name }}"><b>Site List: </b></label>{{ query_form.site_list }}</p>
+			</tr>
+			
+			<tr>
+				<td>
+					<input name="hydrograph_query" type="submit" value="Execute">	
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+{% if changed %}
+	<div id="graph">
+	</div>
+{% else %}
+	<p>Nothing to graph</p>
+{% endif %}
+
+		<script type="text/javascript">
+  var g2 = new Dygraph(
+    document.getElementById("graph"),
+    "/static/data.csv", // path to CSV file
+    {}          // options
+  );
+		</script>
+
+<!--  <img src="{{ STATIC_URL }}js/652px-Iridium2.jpg" /> -->
+
+
+<!-- 
+<html>
+<head>
+<script type="text/javascript"
+  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+<script type="text/javascript"
+  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+</head>
+<body>
+<div id="graphdiv"></div>
+<script type="text/javascript">
+  g = new Dygraph(
+    // containing div
+    document.getElementById("graphdiv"),
+    {{ dygraph_data|safe }},
+    { labels: {{ dygraph_labels|safe }} 
+    }
+   );
+</script>
+</body>
+</html>
+-->
+
+<!-- 
+<html>
+<head>
+<script type="text/javascript"
+  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+</head>
+<body>
+<div id="graphdiv"></div>
+<script type="text/javascript">
+  g = new Dygraph(
+
+    // containing div
+    document.getElementById("graphdiv"),
+    [
+     [1,10,100],
+     [2,20,80],
+     [3,50,60],
+     [4,70,80]
+   ],
+   {
+     labels: [ "x", "A", "B" ]
+
+   });
+</script>
+</body>
+</html>
+-->
+<!-- 
+<html>
+<head>
+<script type="text/javascript"
+  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+<script type="text/javascript"
+  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+</head>
+<body>
+<div id="graphdiv"></div>
+<script type="text/javascript">
+  g = new Dygraph(
+
+    // containing div
+    document.getElementById("graphdiv"),
+
+    // CSV or path to a CSV file.
+    "Date,Temperature\n" +
+    "2008-05-07,75\n" +
+    "2008-05-08,70\n" +
+    "2008-05-09,80\n"
+
+  );
+</script>
+</body>
+</html>
+-->
+{% endblock content %}
