@@ -2,6 +2,9 @@
 
 import csv
 import MySQLdb as mdb
+from sqlobject.sqlbuilder import *
+from sqlobject.mysql import builder
+
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render
@@ -60,6 +63,15 @@ def _query_mysql(host, user, schema, password, query):
         con.close()
         
         return result
+    
+def _generate_error_file(filename, write_list):
+    target = open(filename, 'wb')
+    for item in write_list:
+        target.write(str(item))
+        target.write('\n')
+    target.close()
+    
+    return 'File writing complete.'
         
     
         
@@ -100,7 +112,16 @@ def eden_page(request):
                 time_start = query_form.cleaned_data['timeseries_start']
                 time_end = query_form.cleaned_data['timeseries_end']
                 eden_station = query_form.cleaned_data['site_list']
+                
+                selected_stations =[]
+                selected_stations.append(eden_station)
+                
                 #qs = EdenStageView.objects.filter(datetime__gte = time_start).filter(datetime__lte = time_end).filter(stage = eden_station).only('datetime', 'station')
+
+                form_list = [time_start, time_end, eden_station]
+                
+                _generate_error_file('error.txt', form_list)
+                
                 '''
                 station_query = """
                 SELECT stn.station_name
@@ -115,8 +136,8 @@ def eden_page(request):
                                             query=complete_station_query)
                 '''
                 list_of_stations = []
-                for station in eden_station:
-                    station_name = station
+                for station in selected_stations:
+                    station_name = str(station)
                     cleaned_station_name = station_name.replace("+", "")
                     column_name = 'stg.stage_%s' % (cleaned_station_name)
                     list_of_stations.append(column_name)
@@ -135,7 +156,7 @@ def eden_page(request):
                                              query=complete_statement)
                 
                 
-                _csv_dump(stage_query_results, 'static/data.csv')
+                _write_dictionary_to_csv(stage_query_results, 'static/data.csv')
                 
                 
                 
