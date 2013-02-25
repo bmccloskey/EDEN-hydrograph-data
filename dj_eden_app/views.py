@@ -2,8 +2,9 @@
 
 import csv
 import MySQLdb as mdb
-from sqlobject.sqlbuilder import *
-from sqlobject.mysql import builder
+#from sqlobject.sqlbuilder import *
+#from sqlobject.mysql import builder
+#from sqlobject.util import csvexport
 
 
 from django.core.urlresolvers import reverse
@@ -15,6 +16,9 @@ from forms import TimeSeriesFilterForm
 from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 
 def _csv_dump(qs, outfile_path):
+    '''
+    Writes the results of a django queryset to csv.
+    '''
     
     qs_model = qs.model
     csv_writer = csv.writer(open(outfile_path, 'wb'))
@@ -38,15 +42,30 @@ def _csv_dump(qs, outfile_path):
         
 def _write_dictionary_to_csv(dic_list, outfile_path):
     
+    '''
+    Writes a list of dictionaries to a csv file.
+    The dictionary keys appear as headers in the file,
+    with "datetime" being the first column.
+    '''
+    
     key_list = dic_list[0].keys()
+    sorted_key_list = []
+    for key in key_list:
+        if key == 'datetime':
+            sorted_key_list.insert(0, key)
+        else:
+            sorted_key_list.append(key)
     csv_file = open(outfile_path, 'wb')
-    dict_writer = csv.DictWriter(csv_file, key_list)
-    dict_writer.writer.writerow(key_list)
-    dict_writer.writerows
+    dict_writer = csv.DictWriter(csv_file, sorted_key_list)
+    dict_writer.writer.writerow(sorted_key_list)
+    dict_writer.writerows(dic_list)
     
         
 def _query_mysql(host, user, schema, password, query):
-    
+    '''
+    Executes a query on a MySQL database and returns
+    the results as a list of dictionaries.
+    '''
     try:
         con = None
         con = mdb.connect(host, user, password, schema)
@@ -65,6 +84,12 @@ def _query_mysql(host, user, schema, password, query):
         return result
     
 def _generate_error_file(filename, write_list):
+    '''
+    Writes the contents of a list of a text file.
+    Used for troubleshooting purposes (e.g.
+    makes sure queries are returned as expected, 
+    formatting is correct).
+    '''
     target = open(filename, 'wb')
     for item in write_list:
         target.write(str(item))
@@ -73,7 +98,6 @@ def _generate_error_file(filename, write_list):
     
     return 'File writing complete.'
         
-    
         
 """       
 def dygraph_array_creation(qs):
@@ -118,9 +142,9 @@ def eden_page(request):
                 
                 #qs = EdenStageView.objects.filter(datetime__gte = time_start).filter(datetime__lte = time_end).filter(stage = eden_station).only('datetime', 'station')
 
-                form_list = [time_start, time_end, eden_station]
+                #form_list = [time_start, time_end, eden_station]
                 
-                _generate_error_file('error.txt', form_list)
+                #_generate_error_file('error.txt', form_list)
                 
                 '''
                 station_query = """
@@ -139,14 +163,14 @@ def eden_page(request):
                 for station in selected_stations:
                     station_name = str(station)
                     cleaned_station_name = station_name.replace("+", "")
-                    column_name = 'stg.stage_%s' % (cleaned_station_name)
+                    column_name = 'stg.`stage_%s`' % (cleaned_station_name)
                     list_of_stations.append(column_name)
                     
                 stage_stations = ', '.join(list_of_stations)
-                stage_select = "SELECT %s" % (stage_stations)
+                stage_select = "SELECT stg.datetime, %s" % (stage_stations)
                 stage_from = "FROM stage stg"
                 stage_where = "WHERE stg.datetime >= '%s' AND stg.datetime < '%s'" % (time_start, time_end)
-                complete_statement = "%s\n%s\%s" % (stage_select, stage_from, stage_where)
+                complete_statement = "%s\n%s\n%s" % (stage_select, stage_from, stage_where)
                 
                 
                 stage_query_results = _query_mysql(host=DB_HOST, 
@@ -155,6 +179,8 @@ def eden_page(request):
                                              schema=DB_SCHEMA, 
                                              query=complete_statement)
                 
+                
+                #_generate_error_file('mysql_results.txt', stage_query_results)
                 
                 _write_dictionary_to_csv(stage_query_results, 'static/data.csv')
                 
