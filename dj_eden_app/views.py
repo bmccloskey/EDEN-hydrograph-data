@@ -40,7 +40,7 @@ def _csv_dump(qs, outfile_path):
             row.append(value)
         csv_writer.writerow(row)
         
-def _write_dictionary_to_csv(dic_list, outfile_path):
+def _write_dictionary_to_csv(dic_list, outfile_path, first_column):
     
     '''
     Writes a list of dictionaries to a csv file.
@@ -51,7 +51,7 @@ def _write_dictionary_to_csv(dic_list, outfile_path):
     key_list = dic_list[0].keys()
     sorted_key_list = []
     for key in key_list:
-        if key == 'datetime':
+        if key == first_column:
             sorted_key_list.insert(0, key)
         else:
             sorted_key_list.append(key)
@@ -136,15 +136,13 @@ def eden_page(request):
                 time_start = query_form.cleaned_data['timeseries_start']
                 time_end = query_form.cleaned_data['timeseries_end']
                 eden_station = query_form.cleaned_data['site_list']
-                
-                selected_stations =[]
-                selected_stations.append(eden_station)
+
                 
                 #qs = EdenStageView.objects.filter(datetime__gte = time_start).filter(datetime__lte = time_end).filter(stage = eden_station).only('datetime', 'station')
 
-                #form_list = [time_start, time_end, eden_station]
+                form_list = [time_start, time_end, eden_station]
                 
-                #_generate_error_file('error.txt', form_list)
+                _generate_error_file('error.txt', form_list)
                 
                 '''
                 station_query = """
@@ -160,11 +158,21 @@ def eden_page(request):
                                             query=complete_station_query)
                 '''
                 list_of_stations = []
-                for station in selected_stations:
+                for unicode_station in eden_station:
+                    station = unicode_station.encode('utf-8')
                     station_name = str(station)
-                    cleaned_station_name = station_name.replace("+", "")
-                    column_name = 'stg.`stage_%s`' % (cleaned_station_name)
-                    list_of_stations.append(column_name)
+                    try:
+                        string_length = len(station_name)
+                        plus_position = station_name.rfind('+')
+                        if plus_position >= 0: # removes plus signs in the event that appear in the station name (doesn't look like it should)
+                            extranous_text = station_name[plus_position:string_length]
+                            cleaned_station_name = station_name.replace(extranous_text, "")
+                        else:
+                            cleaned_station_name = station_name
+                        column_name = 'stg.`stage_%s`' % (cleaned_station_name)
+                        list_of_stations.append(column_name)
+                    except (ValueError):
+                        continue
                     
                 stage_stations = ', '.join(list_of_stations)
                 stage_select = "SELECT stg.datetime, %s" % (stage_stations)
@@ -172,21 +180,26 @@ def eden_page(request):
                 stage_where = "WHERE stg.datetime >= '%s' AND stg.datetime < '%s'" % (time_start, time_end)
                 complete_statement = "%s\n%s\n%s" % (stage_select, stage_from, stage_where)
                 
-                
                 stage_query_results = _query_mysql(host=DB_HOST, 
                                              password=DB_PASSWORD, 
                                              user=DB_USER, 
                                              schema=DB_SCHEMA, 
                                              query=complete_statement)
                 
+                _generate_error_file('sql_statement.txt', [complete_statement])
                 
-                #_generate_error_file('mysql_results.txt', stage_query_results)
-                
-                _write_dictionary_to_csv(stage_query_results, 'static/data.csv')
-                
+                _generate_error_file('mysql_results.txt', stage_query_results)
                 
                 
-                         
+                if len(stage_query_results) > 0:
+                
+                    _write_dictionary_to_csv(dic_list = stage_query_results, 
+                                             outfile_path = 'static/data.csv',
+                                             first_column = 'datetime')
+                
+                else:
+                    pass
+                                 
                 if query_form.has_changed():
                     changed = True
                    
