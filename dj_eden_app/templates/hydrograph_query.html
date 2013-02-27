@@ -24,8 +24,8 @@
   
 <div class="form_input_field">
 	<form name="hydrograph_query" id=hydrograph_form method="GET" action=".">{% csrf_token %}
-		{{query_form.non_field_errors}}
-		{{query_form.field_errors}}
+		{{ query_form.non_field_errors }}
+		{{ query_form.field_errors }}
 		<table>
 			<tr>
 				<p><label for="{{ query_form.timeseries_start.html_name }}"><b>Timeseries Start: </b></label>{{ query_form.timeseries_start }}</p>
@@ -40,6 +40,9 @@
 			<tr>
 				<td>
 					<input name="hydrograph_query" type="submit" value="Execute">	
+				</td>
+				<td>
+					<a href="{% url timeseries_download %}">Download Data</a>
 				</td>
 			</tr>
 		</table>
@@ -61,84 +64,4 @@
   );
 		</script>
 
-<!--  <img src="{{ STATIC_URL }}js/652px-Iridium2.jpg" /> -->
-
-
-<!-- 
-<html>
-<head>
-<script type="text/javascript"
-  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
-<script type="text/javascript"
-  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
-</head>
-<body>
-<div id="graphdiv"></div>
-<script type="text/javascript">
-  g = new Dygraph(
-    // containing div
-    document.getElementById("graphdiv"),
-    {{ dygraph_data|safe }},
-    { labels: {{ dygraph_labels|safe }} 
-    }
-   );
-</script>
-</body>
-</html>
--->
-
-<!-- 
-<html>
-<head>
-<script type="text/javascript"
-  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
-</head>
-<body>
-<div id="graphdiv"></div>
-<script type="text/javascript">
-  g = new Dygraph(
-
-    // containing div
-    document.getElementById("graphdiv"),
-    [
-     [1,10,100],
-     [2,20,80],
-     [3,50,60],
-     [4,70,80]
-   ],
-   {
-     labels: [ "x", "A", "B" ]
-
-   });
-</script>
-</body>
-</html>
--->
-<!-- 
-<html>
-<head>
-<script type="text/javascript"
-  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
-<script type="text/javascript"
-  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
-</head>
-<body>
-<div id="graphdiv"></div>
-<script type="text/javascript">
-  g = new Dygraph(
-
-    // containing div
-    document.getElementById("graphdiv"),
-
-    // CSV or path to a CSV file.
-    "Date,Temperature\n" +
-    "2008-05-07,75\n" +
-    "2008-05-08,70\n" +
-    "2008-05-09,80\n"
-
-  );
-</script>
-</body>
-</html>
--->
 {% endblock content %}

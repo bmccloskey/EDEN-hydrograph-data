@@ -9,7 +9,8 @@ import MySQLdb as mdb
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render
-
+from django.core.servers.basehttp import FileWrapper
+from django.http import HttpResponse
 
 from models import *
 from forms import TimeSeriesFilterForm
@@ -60,6 +61,21 @@ def _write_dictionary_to_csv(dic_list, outfile_path, first_column):
     dict_writer.writer.writerow(sorted_key_list)
     dict_writer.writerows(dic_list)
     
+def _write_csv_for_download(dj_response, dic_list, first_column):
+    
+    key_list = dic_list[0].keys()
+    sorted_key_list = []
+    for key in key_list:
+        if key == first_column:
+            sorted_key_list.insert(0, key)
+        else:
+            sorted_key_list.append(key)
+    dict_writer = csv.DictWriter(dj_response, sorted_key_list)
+    dict_writer.writer.writerow(sorted_key_list)
+    dict_writer.writerows(dic_list)
+    
+    return dj_response
+  
         
 def _query_mysql(host, user, schema, password, query):
     '''
@@ -215,4 +231,94 @@ def eden_page(request):
     else:
         query_form = TimeSeriesFilterForm()
     return render (request, template_name, {'query_form': query_form,})  
+
+def timeseries_csv_download(request, *args, **kwargs):
+    """
+    view for creation of csv downloads of
+    EDEN data.
+    """
+    template_name = 'hydrograph_query.html'
+    
+    if request.method == 'GET':
+        query_form = TimeSeriesFilterForm(request.GET)
+
+        if not query_form.has_changed():
+            return render(request, template_name, {'query_form': query_form,})
+
+        if query_form.is_bound:
+            if query_form.is_valid():
+                time_start = query_form.cleaned_data['timeseries_start']
+                time_end = query_form.cleaned_data['timeseries_end']
+                eden_station = query_form.cleaned_data['site_list']
+
                 
+                #qs = EdenStageView.objects.filter(datetime__gte = time_start).filter(datetime__lte = time_end).filter(stage = eden_station).only('datetime', 'station')
+
+                form_list = [time_start, time_end, eden_station]
+                
+                _generate_error_file('error.txt', form_list)
+                
+                list_of_stations = []
+                for unicode_station in eden_station:
+                    station = unicode_station.encode('utf-8')
+                    station_name = str(station)
+                    try:
+                        string_length = len(station_name)
+                        plus_position = station_name.rfind('+')
+                        if plus_position >= 0: # removes plus signs in the event that appear in the station name (doesn't look like it should)
+                            extranous_text = station_name[plus_position:string_length]
+                            cleaned_station_name = station_name.replace(extranous_text, "")
+                        else:
+                            cleaned_station_name = station_name
+                        column_name = 'stg.`stage_%s`' % (cleaned_station_name)
+                        list_of_stations.append(column_name)
+                    except (ValueError):
+                        continue
+                    
+                stage_stations = ', '.join(list_of_stations)
+                stage_select = "SELECT stg.datetime, %s" % (stage_stations)
+                stage_from = "FROM stage stg"
+                stage_where = "WHERE stg.datetime >= '%s' AND stg.datetime < '%s'" % (time_start, time_end)
+                complete_statement = "%s\n%s\n%s" % (stage_select, stage_from, stage_where)
+                
+                stage_query_results = _query_mysql(host=DB_HOST, 
+                                             password=DB_PASSWORD, 
+                                             user=DB_USER, 
+                                             schema=DB_SCHEMA, 
+                                             query=complete_statement)
+                
+                _generate_error_file('sql_statement.txt', [complete_statement])
+                
+                _generate_error_file('mysql_results.txt', stage_query_results)
+                
+                
+                if len(stage_query_results) > 0:
+                
+                    _write_dictionary_to_csv(dic_list = stage_query_results, 
+                                             outfile_path = 'static/data.csv',
+                                             first_column = 'datetime')
+                
+                else:
+                    pass
+                
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+                
+                key_list = stage_query_results[0].keys()
+                sorted_key_list = []
+                for key in key_list:
+                    if key == 'datetime':
+                        sorted_key_list.insert(0, key)
+                    else:
+                        sorted_key_list.append(key)
+                dict_writer = csv.DictWriter(response, sorted_key_list)
+                dict_writer.writer.writerow(sorted_key_list)
+                dict_writer.writerows(stage_query_results)
+                
+                #dygraph_array = dygraph_array_creation(qs)
+                
+                return response
+            
+    else:
+        query_form = TimeSeriesFilterForm()
+    return render (request, template_name, {'query_form': query_form,})  
