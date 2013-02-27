@@ -83,7 +83,7 @@ class Station(models.Model):
     coastal = models.CharField(max_length=24, blank=True)
     
     def __unicode__(self):
-        return self.station_name
+        return self.station_name_web
     
     class Meta:
         db_table = u'station'
