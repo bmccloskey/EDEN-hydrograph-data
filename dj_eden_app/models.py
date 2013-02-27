@@ -1,49 +1,10 @@
 from django.db import models
 
-# Create your models here.
-class EdenTimeseries(models.Model):
-    id_pk = models.IntegerField(primary_key = True)
-    datatime = models.DateTimeField(blank = False, null = False, auto_now_add = False)
-    stage_3A9 = models.DecimalField(blank = False, null = False, max_digits = 10, decimal_places = 2)
-    flag = models.CharField(null = True, blank = True, max_length = 50,)
-    
-    def __unicode__(self):
-        return u'%s with value %s' % (self.datatime, self.stage_3A9)
-    
-    class Meta:
-        db_table = 'timeseries'
-        managed = False
-        ordering = ['datatime']
-       
-class EdenStageView(models.Model):
-    #id = models.IntegerField(primary_key = True)
-    station = models.ForeignKey('Station', db_column = 'station')
-    datetime = models.DateTimeField(blank = False, null = False, auto_now_add = False)
-    stage = models.DecimalField(blank = False, null = False, max_digits = 10, decimal_places = 2)
-    flag = models.CharField(blank = True, null = True, max_length = 50,)
-    
-    def __unicode__(self):
-        return u"station: %s, measurement: %s" % (self.station, self.stage)
-    
-    class Meta:
-        db_table = 'stage_view'
-        managed = False
-        ordering = ['station']
-   
-
-class EdenSites(models.Model):
-    site_code = models.CharField(max_length = 50, primary_key = True, db_column = 'station')
-    
-    def __unicode__(self):
-        return self.site_code
-    
-    class Meta:
-        db_table = 'eden_site_list'
-        managed = False
-        ordering = ['site_code']
-        
-        
+# Create your models here.        
 class Station(models.Model):
+    '''
+    List of EDEN stations
+    '''
     station_id = models.IntegerField(primary_key=True)
     station_name = models.CharField(max_length=72)
     operating_agency_id = models.IntegerField()
@@ -90,6 +51,9 @@ class Station(models.Model):
         managed = False
         
 class Stage(models.Model):
+    '''
+    EDEN timeseries data. This not used at present.
+    '''
     datetime = models.DateTimeField(primary_key=True)
     stage_2a300 = models.DecimalField(decimal_places=2, null=True, max_digits=6, db_column='stage_2A300', blank=True) # Field name made lowercase.
     flag_2a300 = models.CharField(max_length=3, db_column='flag_2A300', blank=True) # Field name made lowercase.
