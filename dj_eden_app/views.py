@@ -2,20 +2,13 @@
 
 import csv
 import MySQLdb as mdb
-#from sqlobject.sqlbuilder import *
-#from sqlobject.mysql import builder
-#from sqlobject.util import csvexport
-
 
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, render
-from django.core.servers.basehttp import FileWrapper
+from django.shortcuts import render
 from django.http import HttpResponse
 
-from models import *
 from forms import TimeSeriesFilterForm
-from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
-from eden_sql_builder import *
+from eden_sql_builder import create_query_and_colnames
 
 def _csv_dump(qs, outfile_path):
     '''
@@ -115,7 +108,15 @@ def _generate_error_file(filename, write_list):
     
     return 'File writing complete.'
 
-def _generate_safe_station_names(selected_stations, first_column, flags):
+def _generate_safe_station_names(selected_stations, first_column = 'datetime', flags = False):
+    """
+    Creates a SQL safe list of sites selected by a user.
+    This function will also include first_column
+    as the first item in the list. The first_column is 'datetime',
+    by default. In addition, station flags can also be included if
+    flags is set to True; the default is False.
+    
+    """
     
     list_of_stations = []
     for unicode_station in selected_stations:
@@ -164,6 +165,7 @@ def dygraph_array_creation(qs):
     
     return dygraph_data_array
 """
+
 def eden_page(request):
     """
     Allows a user to select a site,
@@ -189,13 +191,10 @@ def eden_page(request):
                 
                 #_generate_error_file('error.txt', form_list)
                 
-                get_request = [request.GET]
+                #get_request = [request.GET]
                 
-                _generate_error_file('request.txt', get_request)
-                
-                #query_columns = _generate_safe_station_names(selected_stations = eden_station, first_column = 'datetime')
-
-                
+                #_generate_error_file('request.txt', get_request)
+    
                 str_time_start = str(time_start)
                 str_time_end = str(time_end)
 
@@ -209,28 +208,35 @@ def eden_page(request):
                 #dygraph_array = dygraph_array_creation(qs)
                 
                 if u'hydrograph_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations = eden_station, first_column = 'datetime', flags = False)
+                    query_columns = _generate_safe_station_names(selected_stations = eden_station, 
+                                                                 first_column = 'datetime', 
+                                                                 flags = False)
+                    
                     create_query_and_colnames(columnNames = query_columns, 
-                          start_date = str_time_start, 
-                          end_date = str_time_end,
-                          outpath = 'static/data.csv')
+                                              start_date = str_time_start, 
+                                              end_date = str_time_end,
+                                              outpath = 'static/data.csv')
+                    
                     return render (request, template_name, {'query_form': query_form,
                     'changed':changed,
                               })
                 
                  
                 if u'download_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations = eden_station, first_column = 'datetime', flags = True)
+                    query_columns = _generate_safe_station_names(selected_stations = eden_station, 
+                                                                 first_column = 'datetime', 
+                                                                 flags = True)
                     response = HttpResponse(content_type = 'text/csv')
-                    response['Content-Disposition'] = 'attachment; filename="test_download.csv'
+                    response['Content-Disposition'] = 'attachment; filename="eden_data_download.csv'
                     
-                    create_csv_download(columnNames = query_columns, 
+                    create_query_and_colnames(columnNames = query_columns, 
                                                           start_date = str_time_start, 
                                                           end_date = str_time_end,
-                                                          outpath = response)
+                                                          outpath = response,
+                                                          csv_download = True)
 
                     return response
                 
     else:
         query_form = TimeSeriesFilterForm()
-    return render (request, template_name, {'query_form': query_form,})  
+    return render (request, template_name, {'query_form': query_form,})
