@@ -28,7 +28,15 @@ def data(stations, beginDate=None, endDate=None, maxCount=4000):
     if beginDate and endDate:
         clause = stage.c.datetime.between(beginDate, endDate)
 
-    # TODO thin data set if count > maxCount
+    # thin data set if count > maxCount
+    countExpression = func.count(stage.c.datetime)
+    rowCount = engine.execute(select([countExpression], clause)).scalar()
+    if maxCount and rowCount > maxCount:
+        subClause = func.hour(stage.c.datetime) == 0
+        if clause is not None:
+            clause = and_(clause, subClause)
+        else:
+            clause = subClause
 
     s = select(selectColumns, clause)
 
