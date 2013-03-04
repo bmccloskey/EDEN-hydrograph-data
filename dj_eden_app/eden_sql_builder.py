@@ -1,6 +1,5 @@
 from sqlalchemy import *
 from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
-from sqlalchemy.sql import select
 import csv
 
 engine = create_engine("mysql://", \
