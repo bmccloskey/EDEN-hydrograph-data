@@ -4,7 +4,7 @@ from models import Station
 
 def convert_qs_to_list(qs):
     """
-    creates a list which is used for the multi-select list
+    creates a list of tuples which is used for the multi-select list
     on the application. The "str_object" is the site name
     used for queries in views.py, while "display_str" is
     the display name on the web page.
