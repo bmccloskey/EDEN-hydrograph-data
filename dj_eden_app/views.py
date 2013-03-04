@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from forms import TimeSeriesFilterForm
-from eden_sql_builder import create_query_and_colnames
+from stage_data import create_query_and_colnames
 
 def _csv_dump(qs, outfile_path):
     '''
