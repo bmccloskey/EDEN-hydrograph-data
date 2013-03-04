@@ -9,15 +9,26 @@ conn = builder()(user=DB_USER,
                  host=DB_HOST,
                  db=DB_SCHEMA)
 
+class NoDash(Style):
+
+    """
+    This style corrects column names from a-b to a__b
+    """
+
+    def pythonAttrToDBColumn(self, attr):
+        return attr.replace("__", "-")
+
+    def dbColumnToPythonAttr(self, col):
+        return col.replace("-", "__")
+
 class Stage(SQLObject):
-    
+
     _connection = conn
     datetime = DateTimeCol()
-       
+
     class sqlmeta:
         idName = 'datetime'
         idType = str
         fromDatabase = True
         table = 'Stage'
-        style = MixedCaseStyle(longID=True)
-        
+        style = NoDash
