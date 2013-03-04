@@ -13,6 +13,8 @@ from forms import TimeSeriesFilterForm
 from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 from eden_sql_builder import *
 
+# smaple_change
+
 def _csv_dump(qs, outfile_path):
     '''
     Writes the results of a django queryset to csv.
