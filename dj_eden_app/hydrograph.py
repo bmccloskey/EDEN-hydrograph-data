@@ -16,6 +16,7 @@ def png(stations, destination, **kwargs):
     """
     data = stage_data.data(stations, **kwargs)
 
+    # TODO Might prefer to build xList and yList by iteration rather than comprehension, to ease memory burden
     dataList = list(data)
 
     xList = [r[0] for r in dataList]
