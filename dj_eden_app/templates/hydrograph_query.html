@@ -8,15 +8,7 @@
 	<script type="text/javascript"
 	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
 	  
-	<script type="text/javascript">
-		  var g2 = new Dygraph(
-		    document.getElementById("graph"),
-		    "/static/data.csv", // path to CSV file
-		    {
-		    	visibility: [True]		
-		    }          // options
-		  );
-	</script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-extra.js"></script>
 
 {% endblock script %}
 
@@ -58,12 +50,18 @@
 	<p>Nothing to graph</p>
 {% endif %}
 
-		<script type="text/javascript">
-  var g2 = new Dygraph(
-    document.getElementById("graph"),
-    "/static/data.csv", // path to CSV file
-    {}          // options
-  );
-		</script>
+	<script type="text/javascript">
+		 var g2 = new Dygraph(
+		   document.getElementById("graph"),
+		   "/static/data.csv", // path to CSV file
+		   {
+		   	ylabel: "Water Level (ft)",
+		   	xlabel: "Date"
+		   }          // options
+		 );
+	</script>
+	
+	<img id="eden_plot"/>
+		
 
 {% endblock content %}

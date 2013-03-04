@@ -4,14 +4,11 @@ import csv
 import MySQLdb as mdb
 
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, render
-from django.core.servers.basehttp import FileWrapper
+from django.shortcuts import render
 from django.http import HttpResponse
 
-from models import *
 from forms import TimeSeriesFilterForm
-from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
-from eden_sql_builder import *
+from eden_sql_builder import create_query_and_colnames
 
 def _csv_dump(qs, outfile_path):
     '''
@@ -168,6 +165,7 @@ def dygraph_array_creation(qs):
     
     return dygraph_data_array
 """
+
 def eden_page(request):
     """
     Allows a user to select a site,
@@ -241,4 +239,4 @@ def eden_page(request):
                 
     else:
         query_form = TimeSeriesFilterForm()
-    return render (request, template_name, {'query_form': query_form,})  
+    return render (request, template_name, {'query_form': query_form,})

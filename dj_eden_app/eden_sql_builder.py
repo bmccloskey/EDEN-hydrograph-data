@@ -58,9 +58,13 @@ def create_query_and_colnames(columnNames, start_date, end_date, outpath, csv_do
     all_results = result_gen.fetchall()
     
     if csv_download == True:
-        downloadable_csv(header = header_key, results = all_results, output = outpath)
+        downloadable_csv(header = header_key, 
+                         results = all_results, 
+                         output = outpath)
         
     else:
-        write_csv(header = header_key, results = all_results, outfile_path = outpath)
+        write_csv(header = header_key, 
+                  results = all_results, 
+                  outfile_path = outpath)
     
-    return "Hooray, the data has been written to a .csv!"
+    return "Hooray, the data has been written to a csv!"
