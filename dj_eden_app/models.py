@@ -50,6 +50,24 @@ class Station(models.Model):
         db_table = u'station'
         managed = False
         
+        
+class StationDatum(models.Model):
+    station_id = models.IntegerField(primary_key=True)
+    vertical_conversion = models.FloatField(null=True, blank=True)
+    datum_survey_history = models.CharField(max_length=120, blank=True)
+    convert_to_navd88_feet = models.FloatField()
+    convert_to_navd88_feet_pre2003 = models.FloatField(null=True, blank=True)
+    convert_to_navd88_feet_pre2004 = models.FloatField(null=True, blank=True)
+    conversion_id = models.IntegerField()
+    conversion_year = models.TextField(blank=True) # This field type is a guess.
+    
+    def __unicode__(self):
+        return '%s: %s' % (self.station_id, self.convert_to_navd88_feet)
+    
+    class Meta:
+        db_table = u'station_datum'
+        managed = False
+        
 class Stage(models.Model):
     '''
     EDEN timeseries data. This not used at present.

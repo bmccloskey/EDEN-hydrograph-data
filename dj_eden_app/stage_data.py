@@ -14,6 +14,9 @@ def prepend(item, seq):
 meta = MetaData(bind=engine)
 
 stage = Table('stage', meta, autoload=True)
+station = Table('station', meta, autoload = True)
+station_datum = Table('station_datum', meta, autoload = True)
+stat_datum_vw = Table('stat_datum_vw', meta, autoload = True)
 
 def data(stations, beginDate=None, endDate=None, maxCount=4000):
     columnNames = ['datetime']
@@ -43,6 +46,7 @@ def data(stations, beginDate=None, endDate=None, maxCount=4000):
 
     return engine.execute(s)
 
+"""
 if __name__ == "__main__":
 
     columnNames = ['datetime', 'stage_G-3567', 'stage_2A300']
@@ -62,8 +66,9 @@ if __name__ == "__main__":
         rs.close()
 
     print
-    
-def write_csv(header, results, outfile_path):
+"""   
+ 
+def write_csv(header, results, outfile_path, wl_correction):
     '''
     Writes a csv file to the specified outfile_path.
     This file is not ammenable for user download.
@@ -75,7 +80,7 @@ def write_csv(header, results, outfile_path):
     csv_writer.writerows(results)
     csv_file.close()
     
-def downloadable_csv(header, results, output):
+def downloadable_csv(header, results, output, wl_correction):
     '''
     Creates a csv file in an HTTP response
     for use download.
@@ -84,13 +89,8 @@ def downloadable_csv(header, results, output):
     csv_writer = csv.writer(output)
     csv_writer.writerow(header)
     csv_writer.writerows(results)
-        
 
-meta = MetaData(bind=engine)
-
-stage = Table('stage', meta, autoload=True)
-
-def create_query_and_colnames(columnNames, start_date, end_date, outpath, csv_download = False):
+def create_query_and_colnames(columnNames, start_date, end_date, outpath, datum_correction, csv_download = False):
     """
     Takes a list of column names, start/end date,
     output path, and returns the MySQL query results.
@@ -112,11 +112,13 @@ def create_query_and_colnames(columnNames, start_date, end_date, outpath, csv_do
     if csv_download == True:
         downloadable_csv(header = header_key, 
                          results = all_results, 
-                         output = outpath)
+                         output = outpath,
+                         wl_correction = datum_correction)
         
     else:
         write_csv(header = header_key, 
                   results = all_results, 
-                  outfile_path = outpath)
+                  outfile_path = outpath,
+                  wl_correction = datum_correction)
     
     return "Hooray, the data has been written to a csv!"

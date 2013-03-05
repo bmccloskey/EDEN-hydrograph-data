@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse
 
+from models import Station
 from forms import TimeSeriesFilterForm
 from stage_data import create_query_and_colnames
 
@@ -187,13 +188,13 @@ def eden_page(request):
                 time_end = query_form.cleaned_data['timeseries_end']
                 eden_station = query_form.cleaned_data['site_list']
 
-                #form_list = [time_start, time_end, eden_station]
+                form_list = [time_start, time_end, eden_station]
                 
-                #_generate_error_file('error.txt', form_list)
+                _generate_error_file('error.txt', form_list)
                 
-                #get_request = [request.GET]
+                get_request = [request.GET]
                 
-                #_generate_error_file('request.txt', get_request)
+                _generate_error_file('request.txt', get_request)
     
                 str_time_start = str(time_start)
                 str_time_end = str(time_end)
@@ -205,10 +206,22 @@ def eden_page(request):
                 else:
                     pass
                 
+                station_id_list = []
+                for station_id in eden_station:
+                    id_number = int(station_id)
+                    station_id_list.append(id_number)
+                    
+                station_queryset = Station.objects.filter(station_id__in = station_id_list)
+                
+                station_name_list = []
+                for station_object in station_queryset:
+                    station_web_name = station_object.station_name_web.encode('utf-8')
+                    station_name_list.append(station_web_name)
+                
                 #dygraph_array = dygraph_array_creation(qs)
                 
                 if u'hydrograph_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations = eden_station, 
+                    query_columns = _generate_safe_station_names(selected_stations = station_name_list, 
                                                                  first_column = 'datetime', 
                                                                  flags = False)
                     
@@ -218,12 +231,14 @@ def eden_page(request):
                                               outpath = 'static/data.csv')
                     
                     return render (request, template_name, {'query_form': query_form,
-                    'changed':changed,
-                              })
-                
+                                                            'changed':changed,
+                                                            'time_start': str(time_start),
+                                                            'time_end': str(time_end)
+                                                                      })
+                                                        
                  
                 if u'download_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations = eden_station, 
+                    query_columns = _generate_safe_station_names(selected_stations = station_name_list, 
                                                                  first_column = 'datetime', 
                                                                  flags = True)
                     response = HttpResponse(content_type = 'text/csv')

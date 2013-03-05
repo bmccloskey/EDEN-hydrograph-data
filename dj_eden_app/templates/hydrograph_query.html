@@ -44,6 +44,8 @@
 </div>
 
 {% if changed %}
+	<div id="hydrograph_label"></div>
+
 	<div id="graph">
 	</div>
 {% else %}
@@ -56,12 +58,12 @@
 		   "/static/data.csv", // path to CSV file
 		   {
 		   	ylabel: "Water Level (ft)",
-		   	xlabel: "Date"
+		   	xlabel: "Date",
+		   	drawPoints: true,
+		   	strokeWidth: 0.0,
+		   	labelsDiv: "hydrograph_label"
 		   }          // options
 		 );
 	</script>
-	
-	<img id="eden_plot"/>
-		
 
 {% endblock content %}
