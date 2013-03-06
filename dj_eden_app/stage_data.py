@@ -43,26 +43,6 @@ def data(stations, beginDate=None, endDate=None, maxCount=4000):
 
     return engine.execute(s)
 
-if __name__ == "__main__":
-
-    columnNames = ['datetime', 'stage_G-3567', 'stage_2A300']
-    selectColumns = [stage.c[cn] for cn in columnNames]
-
-    print "**alchemical query"
-    s = select(selectColumns, \
-               stage.c.datetime.between('2008-03-01', '2008-03-02'))
-    print s
-
-    print "*results"
-    rs = engine.execute(s)
-    try:
-        for r in prepend(columnNames, rs):
-            print ",".join(map(str, r))
-    finally:
-        rs.close()
-
-    print
-    
 def write_csv(header, results, outfile_path):
     '''
     Writes a csv file to the specified outfile_path.
@@ -85,10 +65,6 @@ def downloadable_csv(header, results, output):
     csv_writer.writerow(header)
     csv_writer.writerows(results)
         
-
-meta = MetaData(bind=engine)
-
-stage = Table('stage', meta, autoload=True)
 
 def create_query_and_colnames(columnNames, start_date, end_date, outpath, csv_download = False):
     """
@@ -120,3 +96,31 @@ def create_query_and_colnames(columnNames, start_date, end_date, outpath, csv_do
                   outfile_path = outpath)
     
     return "Hooray, the data has been written to a csv!"
+
+def example_data_set():
+    columnNames = ['datetime', 'stage_G-3567', 'stage_2A300']
+    selectColumns = [stage.c[cn] for cn in columnNames]
+    s = select(selectColumns, \
+               stage.c.datetime.between('2008-03-01', '2008-03-02'))
+    return s
+
+if __name__ == "__main__":
+
+    columnNames = ['datetime', 'stage_G-3567', 'stage_2A300']
+    selectColumns = [stage.c[cn] for cn in columnNames]
+
+    print "**alchemical query"
+    s = select(selectColumns, \
+               stage.c.datetime.between('2008-03-01', '2008-03-02'))
+    print s
+
+    print "*results"
+    rs = engine.execute(s)
+    try:
+        for r in prepend(columnNames, rs):
+            print ",".join(map(str, r))
+    finally:
+        rs.close()
+
+    print
+    

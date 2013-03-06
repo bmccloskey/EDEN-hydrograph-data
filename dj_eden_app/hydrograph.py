@@ -4,9 +4,18 @@ Created on Mar 4, 2013
 @author: rhayes
 '''
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend
+from matplotlib.pyplot import savefig, figure, plot_date, legend,xticks,axes
 
 import stage_data
+import textwrap
+
+_label_width = 12
+def _clean_label(s):
+    label = s.replace("stage_","",1) 
+    if len(label) > _label_width:
+	label = label.replace("_"," ")
+	label = textwrap.fill(label,width=_label_width)
+    return label
 
 def png(stations, destination, **kwargs):
     """
@@ -23,20 +32,27 @@ def png(stations, destination, **kwargs):
     yList = [r[1:] for r in dataList]
 
     figure()
+    axes([0.1,0.3,0.5,0.5])
     plot_date(xList, yList, '-')
-    legend(stations)
+    labels = [ _clean_label(s) for s in stations ]
+    legend(labels, loc='upper left', bbox_to_anchor = (1,1))
+    xticks(rotation=60)
 
     savefig(destination, format="png")
 
     return len(xList)
 
 if __name__ == "__main__":
-    ct = png(['stage_2A300', 'stage_G-3567'], "/tmp/hg1.png", beginDate="2004-01-01", endDate="2010-01-01")
+    ct = png(['stage_2A300', 'stage_G-3567'], "/tmp/hg1.png", beginDate="2004-01-01", endDate="2010-01-01",maxCount=600)
     print "hg1.png", ct
 
-    ct = png(['stage_2A300', 'stage_G-3567'], "/tmp/hg2.png")
+    ct = png(['stage_2A300', 'stage_G-3567'], "/tmp/hg2.png",maxCount=600)
     print "hg2.png", ct
 
-    ct = png(['stage_2A300', 'stage_G-3567'], "/tmp/hg3.png", beginDate="2004-01-01", endDate="2004-03-01")
+    ct = png(['stage_2A300', 'stage_G-3567'], "/tmp/hg3.png", beginDate="2004-01-01", endDate="2004-03-01",maxCount=600)
     print "hg3.png", ct
 
+    ct = png(['stage_L31NN', 'stage_Chatham_River_near_the_Watson_Place'], "/tmp/hg4.png", beginDate="2011-09-01", endDate="2011-12-31", maxCount=600)
+    print "hg4.png", ct
+
+   
