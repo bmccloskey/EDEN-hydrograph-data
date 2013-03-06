@@ -1,0 +1,10 @@
+create or replace view station_datum_vw
+as select
+st.station_id,
+CONCAT('stage_', st.station_name_web) as stage_name,
+sd.convert_to_navd88_feet
+from
+station st,
+station_datum sd
+where
+st.station_id = sd.station_id;
