@@ -40,6 +40,10 @@ def data_for_download(stations, **kwargs):
 def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, navd88Offset={}):
     sel = select([stage.c.datetime])
 
+    # make the world safe for simple calls like _query_for_plot("2A300")
+    if isinstance(stations, basestring):
+        stations = [stations]
+
     for gage in stations:
         stage_name = "stage_" + gage
         flag_name = "flag_" + gage
@@ -66,6 +70,10 @@ def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, navd8
 
 def _query_for_download(stations, beginDate=None, endDate=None, navd88Offset={}):
     sel = select([stage.c.datetime])
+
+    # make the world safe for simple calls like _query_for_plot("2A300")
+    if isinstance(stations, basestring):
+        stations = [stations]
 
     for gage in stations:
         stage_name = "stage_" + gage
@@ -135,30 +143,19 @@ def create_query_and_colnames(columnNames, start_date, end_date, outpath, csv_do
 
     return "Hooray, the data has been written to a csv!"
 
-def example_data_set():
-    columnNames = ['datetime', 'stage_G-3567', 'stage_2A300']
-    selectColumns = [stage.c[cn] for cn in columnNames]
-    s = select(selectColumns, \
-               stage.c.datetime.between('2008-03-01', '2008-03-02'))
-    return s
-
 if __name__ == "__main__":
 
-    columnNames = ['datetime', 'stage_G-3567', 'stage_2A300']
-    selectColumns = [stage.c[cn] for cn in columnNames]
+    gages = ['G-3567', '2A300', 'L31NN', 'Chatham_River_near_the_Watson_Place']
 
-    print "**alchemical query"
-    s = select(selectColumns, \
-               stage.c.datetime.between('2008-03-01', '2008-03-02'))
-    print s
+    d4p = data_for_plot(gages, beginDate="2010-01-01", endDate="2010-03-01", maxCount=800)
+    print d4p.keys()
+    for row in d4p.fetchmany(10):
+        print row
+    d4p.close()
 
-    print "*results"
-    rs = engine.execute(s)
-    try:
-        for r in prepend(columnNames, rs):
-            print ",".join(map(str, r))
-    finally:
-        rs.close()
-
-    print
+    d4d = data_for_download(gages[0:2], beginDate="2010-01-01", endDate="2010-03-01")
+    print d4d.keys()
+    for row in d4d.fetchmany(8):
+        print row
+    d4d.close()
 
