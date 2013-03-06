@@ -27,15 +27,20 @@ def data_for_plot(stations, **kwargs):
     q = _query_for_plot(stations, **kwargs)
     return q.execute()
 
-def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, navd88Offset=None):
+def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, navd88Offset={}):
     sel = select([stage.c.datetime])
 
     for gage in stations:
         stage_name = "stage_" + gage
         flag_name = "flag_" + gage
-        sel = sel.column(func.if_(stage.c[flag_name] == None, stage.c[stage_name], None).label(stage_name))
+        offset = navd88Offset.get(gage) or 0
+        sel = sel.column(func.if_(stage.c[flag_name] == None,
+                                  func.if_(stage.c[stage_name] == None, None, offset + stage.c[stage_name]),
+                                  None).label(stage_name))
         est_stage_name = stage_name + " est"
-        sel = sel.column(func.if_(stage.c[flag_name] != None, stage.c[stage_name], None).label(est_stage_name))
+        sel = sel.column(func.if_(stage.c[flag_name] != None,
+                                  func.if_(stage.c[stage_name] == None, None, offset + stage.c[stage_name]),
+                                  None).label(est_stage_name))
 
     if beginDate is not None:
         sel = sel.where(stage.c.datetime >= beginDate)
@@ -47,6 +52,23 @@ def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, navd8
     count = countQuery.execute().scalar()
     if maxCount and count > maxCount:
         sel = sel.where(func.hour(stage.c.datetime) == 0)
+
+    return sel
+
+def _query_for_download(stations, beginDate=None, endDate=None, navd88Offset={}):
+    sel = select([stage.c.datetime])
+
+    for gage in stations:
+        stage_name = "stage_" + gage
+        flag_name = "flag_" + gage
+        offset = navd88Offset.get(gage) or 0
+        sel = sel.column(offset + stage.c[stage_name])
+        sel = sel.column(offset + stage.c[flag_name])
+
+    if beginDate is not None:
+        sel = sel.where(stage.c.datetime >= beginDate)
+    if endDate is not None:
+        sel = sel.where(stage.c.datetime <= endDate)
 
     return sel
 

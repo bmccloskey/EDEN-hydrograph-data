@@ -8,6 +8,7 @@ from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes
 
 import stage_data
 import textwrap
+import seq
 
 _label_width = 12
 def _clean_label(s):
@@ -26,11 +27,15 @@ def png(stations, destination, **kwargs):
     data = stage_data.data_for_plot(stations, **kwargs)
     keys = data.keys()
 
-    # TODO Might prefer to build xList and yList by iteration rather than comprehension, to ease memory burden
-    dataList = list(data)
+    # Prefer to build xList and yList by iteration rather than comprehension, to ease memory burden
+    xList = []
+    yList = []
 
-    xList = [r[0] for r in dataList]
-    yList = [r[1:] for r in dataList]
+    for row in data:
+        xList.append(row[0])
+        yList.append(row[1:])
+
+    # could collapse some of the data ranges, perhaps
 
     figure()
     axes([0.1, 0.3, 0.5, 0.5])
@@ -53,7 +58,13 @@ if __name__ == "__main__":
     ct = png(['2A300', 'G-3567'], "/tmp/hg3.png", beginDate="2004-01-01", endDate="2004-03-01", maxCount=600)
     print "hg3.png", ct
 
-    ct = png(['L31NN', 'Chatham_River_near_the_Watson_Place'], "/tmp/hg4.png", beginDate="2011-09-01", endDate="2011-12-31", maxCount=600)
+    ct = png(['L31NN', 'Chatham_River_near_the_Watson_Place'], "/tmp/hg4.png", beginDate="2011-09-01", endDate="2011-12-31",
+             maxCount=600)
     print "hg4.png", ct
+
+    navd88dict = {'Chatham_River_near_the_Watson_Place':4}
+    ct = png(['L31NN', 'Chatham_River_near_the_Watson_Place'], "/tmp/hg4a.png", beginDate="2011-09-01", endDate="2011-12-31",
+             maxCount=600, navd88Offset=navd88dict)
+    print "hg4a.png", ct
 
 
