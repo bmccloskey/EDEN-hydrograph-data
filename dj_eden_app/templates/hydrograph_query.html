@@ -31,11 +31,15 @@
 			
 			<tr>
 				<td>
-					<input name="hydrograph_query" type="submit" value="Execute">	
+					<input name="hydrograph_query" type="submit" value="Update">	
 				</td>
 		
 				<td>
-					<input name="download_query" type="submit" value="Download Data">
+{% if plot_params %}
+				    <a href="{% url dj_eden_app.views.timeseries_csv_download %}?{{ plot_params }}">Download Data</a>
+{% else %}
+                    <button type="button" disabled="true">Download Data</button>
+{% endif %}
 				</td>
 			
 			</tr>
@@ -43,27 +47,38 @@
 	</form>
 </div>
 
-{% if changed %}
+{% if plot_params %}
+<h2>Dynamic Graph</h2>
 	<div id="hydrograph_label"></div>
 
 	<div id="graph">
+	<noscript>
+	    <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&max_count=600" />
+	</noscript>
 	</div>
+	
+    <script type="text/javascript">
+         var g2 = new Dygraph(
+           document.getElementById("graph"),
+           "{% url dj_eden_app.views.plot_data %}?{{ plot_params }}&max_count=100",
+           {
+            ylabel: "Water Level (ft)",
+            xlabel: "Date"
+           }          // options
+         );
+    </script>
+
+<h2>Server-generated Image</h2>
+
+        <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&max_count=600" />
+        
+<h2>Data Download</h2>
+
+	<a href="{% url dj_eden_app.views.timeseries_csv_download %}?{{ plot_params }}">Download Data</a>
+	
 {% else %}
-	<p>Nothing to graph</p>
+	   <p>Graph will be here.</p>
 {% endif %}
 
-	<script type="text/javascript">
-		 var g2 = new Dygraph(
-		   document.getElementById("graph"),
-		   "/static/data.csv", // path to CSV file
-		   {
-		   	ylabel: "Water Level (ft)",
-		   	xlabel: "Date",
-		   	drawPoints: true,
-		   	strokeWidth: 0.0,
-		   	labelsDiv: "hydrograph_label"
-		   }          // options
-		 );
-	</script>
 
 {% endblock content %}

@@ -3,12 +3,13 @@ Created on Mar 4, 2013
 
 @author: rhayes
 '''
+import matplotlib
+matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes
 
 import stage_data
 import textwrap
-import seq
 
 _label_width = 12
 def _clean_label(s):

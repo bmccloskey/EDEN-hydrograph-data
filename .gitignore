@@ -1,2 +1,8 @@
+<<<<<<< HEAD
 /model_inspection.py
 /request.txt
+=======
+play
+secure.py
+*.pyc
+>>>>>>> master_repo/master
