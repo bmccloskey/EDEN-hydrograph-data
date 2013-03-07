@@ -11,6 +11,9 @@ engine = create_engine("mysql://", \
 meta = MetaData(bind=engine)
 
 stage = Table('stage', meta, autoload=True)
+station = Table('station', meta, autoload = True)
+station_datum = Table('station_datum', meta, autoload = True)
+stat_datum_vw = Table('stat_datum_vw', meta, autoload = True)
 
 class IfFunc(GenericFunction):
     name = "if"
@@ -99,7 +102,7 @@ def write_csv(results, outfile):
     # TODO Does this pull up all the rows? If so, should iterate here
     csv_writer.writerows(results)
 
-def downloadable_csv(header, results, output):
+def downloadable_csv(header, results, output, wl_correction):
     '''
     Creates a csv file in an HTTP response
     for use download.
