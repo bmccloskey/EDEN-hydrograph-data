@@ -51,14 +51,14 @@
 <h2>Dynamic Graph</h2>
 	<div id="graph">
 	<noscript>
-	    <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&maxCount=600" />
+	    <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&max_count=600" />
 	</noscript>
 	</div>
 	
     <script type="text/javascript">
          var g2 = new Dygraph(
            document.getElementById("graph"),
-           "{% url dj_eden_app.views.plot_data %}?{{ plot_params }}&maxCount=100",
+           "{% url dj_eden_app.views.plot_data %}?{{ plot_params }}&max_count=100",
            {
             ylabel: "Water Level (ft)",
             xlabel: "Date"
@@ -68,7 +68,7 @@
 
 <h2>Server-generated Image</h2>
 
-        <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&maxCount=600" />
+        <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&max_count=600" />
         
 <h2>Data Download</h2>
 

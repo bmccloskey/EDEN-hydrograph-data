@@ -2,7 +2,7 @@
 
 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.safestring import mark_safe
 
 from forms import TimeSeriesFilterForm
@@ -14,60 +14,71 @@ import hydrograph
 
 def timeseries_csv_download(request):
     # TODO Pull gage list up to list of model objects
-    # TODO use form or inline fields to validate input
-    gages = request.GET.getlist("gage")
-    beginDate = request.GET.get("beginDate")
-    endDate = request.GET.get("endDate")
 
-    response = HttpResponse(content_type='text/csv')
+    form = TimeSeriesFilterForm(request.GET)
 
-    results = stage_data.data_for_download(gages,
-                                       beginDate=beginDate,
-                                       endDate=endDate
-                                       )
-    stage_data.write_csv(results, response)
-    return response
+    if (form.is_valid()):
+        gages = form.cleaned_data['site_list']
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        response = HttpResponse(content_type='text/csv')
+
+        results = stage_data.data_for_download(
+                        gages,
+                        beginDate=beginDate,
+                        endDate=endDate
+                    )
+        stage_data.write_csv(results, response)
+        return response
+    else:
+        return HttpResponseBadRequest(form.errors)
+
 
 def plot_data(request):
     # TODO Pull gage list up to list of model objects
-    # TODO use form or inline fields to validate input
-    gages = request.GET.getlist("gage")
-    beginDate = request.GET.get("beginDate")
-    endDate = request.GET.get("endDate")
-    try:
-        maxCount = int(request.GET.get("maxCount"))
-    except (exceptions.ValueError, exceptions.TypeError):
-        maxCount = None
-    response = HttpResponse(content_type='text/csv')
+    form = TimeSeriesFilterForm(request.GET)
 
-    results = stage_data.data_for_plot(gages,
+    if form.is_valid():
+        gages = form.cleaned_data['site_list']
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+        maxCount = form.cleaned_data["max_count"]
+
+        response = HttpResponse(content_type='text/csv')
+
+        results = stage_data.data_for_plot(gages,
                                        beginDate=beginDate,
                                        endDate=endDate,
                                        maxCount=maxCount
                                        )
-    stage_data.write_csv(results, response)
-    return response
+        stage_data.write_csv(results, response)
+        return response
+    else:
+        return HttpResponseBadRequest(form.errors)
 
 def plot_image(request):
     # TODO Pull gage list up to list of model objects
-    # TODO use form or inline fields to validate input
-    gages = request.GET.getlist("gage")
-    beginDate = request.GET.get("beginDate")
-    endDate = request.GET.get("endDate")
-    try:
-        maxCount = int(request.GET.get("maxCount"))
-    except (exceptions.ValueError, exceptions.TypeError):
-        maxCount = None
 
-    response = HttpResponse(content_type='image/png')
+    form = TimeSeriesFilterForm(request.GET)
 
-    hydrograph.png(gages, response,
+    if form.is_valid():
+        gages = form.cleaned_data['site_list']
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+        maxCount = form.cleaned_data["max_count"]
+
+        response = HttpResponse(content_type='image/png')
+
+        hydrograph.png(gages, response,
                    beginDate=beginDate,
                    endDate=endDate,
                    maxCount=maxCount
-    )
+                   )
 
-    return response
+        return response
+    else:
+        return HttpResponseBadRequest(form.errors)
 
 def eden_page(request):
     """
@@ -77,6 +88,7 @@ def eden_page(request):
     """
 
     template_name = 'hydrograph_query.html'
+    query_form = TimeSeriesFilterForm()
 
     if request.method == 'GET':
         query_form = TimeSeriesFilterForm(request.GET)
@@ -84,23 +96,19 @@ def eden_page(request):
         if not query_form.has_changed():
             return render(request, template_name, {'query_form': query_form, })
 
-        if query_form.is_bound:
-            if query_form.is_valid():
+        if query_form.is_valid():
 
-                time_start = query_form.cleaned_data['timeseries_start']
-                time_end = query_form.cleaned_data['timeseries_end']
-                eden_station = query_form.cleaned_data['site_list']
+            # Avoid the troublesome Nones.
+            plot_params = {}
+            for k, v in query_form.cleaned_data.items():
+                if v:
+                    plot_params[k] = v
 
-                plot_params = { 'gage':eden_station }
-                if time_start:
-                    plot_params['beginDate'] = time_start
-                if time_end:
-                    plot_params['endDate'] = time_end
+            plot_param_str = urllib.urlencode(plot_params, doseq=True);
 
-                plot_param_str = urllib.urlencode(plot_params, doseq=True);
-
-                return render(request, template_name, {'query_form': query_form,
+            return render(request, template_name, {'query_form': query_form,
                                                       'plot_params': mark_safe(plot_param_str)})
     else:
-        query_form = TimeSeriesFilterForm()
+        pass
+
     return render (request, template_name, {'query_form': query_form, })

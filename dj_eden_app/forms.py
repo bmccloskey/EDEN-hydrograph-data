@@ -1,4 +1,4 @@
-from django.forms import Form, DateTimeField, MultipleChoiceField, SelectMultiple
+from django.forms import Form, DateTimeField, MultipleChoiceField, SelectMultiple, IntegerField
 from models import Station
 
 
@@ -29,3 +29,4 @@ class TimeSeriesFilterForm(Form):
     site_list = MultipleChoiceField(choices=convert_qs_to_list(queryset),
                                     required=True,
                                     widget=SelectMultiple(attrs={'size':'25'}))
+    max_count = IntegerField(required=False)
