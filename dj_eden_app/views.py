@@ -3,14 +3,16 @@
 import csv
 import MySQLdb as mdb
 
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.utils.safestring import mark_safe
 
 from forms import TimeSeriesFilterForm
-from stage_data import create_query_and_colnames
+
 import stage_data
 import exceptions
+import urllib
+import hydrograph
 
 def _csv_dump(qs, outfile_path):
     '''
@@ -172,21 +174,44 @@ def timeseries_csv_download():
     return None
 
 def plot_data(request):
-    gages = request.GET.getlist("gage")
     # TODO Pull gage list up to list of model objects
-    response = HttpResponse(content_type='text/csv')
+    # TODO use form or inline fields to validate input
+    gages = request.GET.getlist("gage")
     beginDate = request.GET.get("beginDate")
     endDate = request.GET.get("endDate")
     try:
         maxCount = int(request.GET.get("maxCount"))
-    except exceptions.ValueError:
+    except (exceptions.ValueError, exceptions.TypeError):
         maxCount = None
+    response = HttpResponse(content_type='text/csv')
+
     results = stage_data.data_for_plot(gages,
                                        beginDate=beginDate,
                                        endDate=endDate,
                                        maxCount=maxCount
                                        )
     stage_data.write_csv(results, response)
+    return response
+
+def plot_image(request):
+    # TODO Pull gage list up to list of model objects
+    # TODO use form or inline fields to validate input
+    gages = request.GET.getlist("gage")
+    beginDate = request.GET.get("beginDate")
+    endDate = request.GET.get("endDate")
+    try:
+        maxCount = int(request.GET.get("maxCount"))
+    except (exceptions.ValueError, exceptions.TypeError):
+        maxCount = None
+
+    response = HttpResponse(content_type='image/png')
+
+    hydrograph.png(gages, response,
+                   beginDate=beginDate,
+                   endDate=endDate,
+                   maxCount=maxCount
+    )
+
     return response
 
 def eden_page(request):
@@ -206,60 +231,21 @@ def eden_page(request):
 
         if query_form.is_bound:
             if query_form.is_valid():
+
                 time_start = query_form.cleaned_data['timeseries_start']
                 time_end = query_form.cleaned_data['timeseries_end']
                 eden_station = query_form.cleaned_data['site_list']
 
-                # form_list = [time_start, time_end, eden_station]
+                plot_params = { 'gage':eden_station }
+                if time_start:
+                    plot_params['beginDate'] = time_start
+                if time_end:
+                    plot_params['endDate'] = time_end
 
-                # _generate_error_file('error.txt', form_list)
+                plot_param_str = urllib.urlencode(plot_params, doseq=True);
 
-                # get_request = [request.GET]
-
-                # _generate_error_file('request.txt', get_request)
-
-                str_time_start = str(time_start)
-                str_time_end = str(time_end)
-
-
-                if query_form.has_changed():
-                    changed = True
-
-                else:
-                    pass
-
-                # dygraph_array = dygraph_array_creation(qs)
-
-                if u'hydrograph_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations=eden_station,
-                                                                 first_column='datetime',
-                                                                 flags=False)
-
-                    create_query_and_colnames(columnNames=query_columns,
-                                              start_date=str_time_start,
-                                              end_date=str_time_end,
-                                              outpath='static/data.csv')
-
-                    return render (request, template_name, {'query_form': query_form,
-                    'changed':changed,
-                              })
-
-
-                if u'download_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations=eden_station,
-                                                                 first_column='datetime',
-                                                                 flags=True)
-                    response = HttpResponse(content_type='text/csv')
-                    response['Content-Disposition'] = 'attachment; filename="eden_data_download.csv'
-
-                    create_query_and_colnames(columnNames=query_columns,
-                                                          start_date=str_time_start,
-                                                          end_date=str_time_end,
-                                                          outpath=response,
-                                                          csv_download=True)
-
-                    return response
-
+                return render(request, template_name, {'query_form': query_form,
+                                                      'plot_params':mark_safe(plot_param_str)})
     else:
         query_form = TimeSeriesFilterForm()
     return render (request, template_name, {'query_form': query_form, })

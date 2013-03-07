@@ -31,7 +31,7 @@
 			
 			<tr>
 				<td>
-					<input name="hydrograph_query" type="submit" value="Execute">	
+					<input name="hydrograph_query" type="submit" value="Update">	
 				</td>
 		
 				<td>
@@ -43,22 +43,32 @@
 	</form>
 </div>
 
+{% if plot_params %}
+<h2>Dynamic Graph</h2>
 	<div id="graph">
-	   <p>Nothing to graph</p>
+	<noscript>
+	    <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&maxCount=600" />
+	</noscript>
 	</div>
-
-	<script type="text/javascript">
-		 var g2 = new Dygraph(
-		   document.getElementById("graph"),
-		   "{% url dj_eden_app.views.plot_data %}?gage=2A300&gage=L31NN&beginDate=2010-10-01&endDate=2011-01-01&maxCount=100", // path to CSV file
-		   {
-		   	ylabel: "Water Level (ft)",
-		   	xlabel: "Date"
-		   }          // options
-		 );
-	</script>
 	
-	<img id="eden_plot"/>
-		
+    <script type="text/javascript">
+         var g2 = new Dygraph(
+           document.getElementById("graph"),
+           "{% url dj_eden_app.views.plot_data %}?{{ plot_params }}&maxCount=100",
+           {
+            ylabel: "Water Level (ft)",
+            xlabel: "Date"
+           }          // options
+         );
+    </script>
+
+<h2>Server-generated Image</h2>
+
+        <img id="eden_plot" src="{% url dj_eden_app.views.plot_image %}?{{ plot_params }}&maxCount=600" />
+	
+{% else %}
+	   <p>Graph will be here.</p>
+{% endif %}
+
 
 {% endblock content %}

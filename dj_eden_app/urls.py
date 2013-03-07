@@ -7,6 +7,7 @@ from django.conf import settings
 
 urlpatterns = patterns('dj_eden_app.views',
                        url(r'^plot_data$', 'plot_data'),
+                       url(r'^plot_image$', 'plot_image'),
                       url(r'^timeseries/$', 'eden_page', name='eden_timeseries'),
                       url(r'^data_download/$', 'timeseries_csv_download', name='timeseries_download')
     # Examples:
