@@ -170,8 +170,21 @@ def dygraph_array_creation(qs):
     return dygraph_data_array
 """
 
-def timeseries_csv_download():
-    return None
+def timeseries_csv_download(request):
+    # TODO Pull gage list up to list of model objects
+    # TODO use form or inline fields to validate input
+    gages = request.GET.getlist("gage")
+    beginDate = request.GET.get("beginDate")
+    endDate = request.GET.get("endDate")
+
+    response = HttpResponse(content_type='text/csv')
+
+    results = stage_data.data_for_download(gages,
+                                       beginDate=beginDate,
+                                       endDate=endDate
+                                       )
+    stage_data.write_csv(results, response)
+    return response
 
 def plot_data(request):
     # TODO Pull gage list up to list of model objects

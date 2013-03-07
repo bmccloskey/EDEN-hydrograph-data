@@ -8,8 +8,8 @@ from django.conf import settings
 urlpatterns = patterns('dj_eden_app.views',
                        url(r'^plot_data$', 'plot_data'),
                        url(r'^plot_image$', 'plot_image'),
-                      url(r'^timeseries/$', 'eden_page', name='eden_timeseries'),
-                      url(r'^data_download/$', 'timeseries_csv_download', name='timeseries_download')
+                       url(r'^data_download$', 'timeseries_csv_download'),
+                      url(r'^timeseries/?$', 'eden_page', name='eden_timeseries'),
     # Examples:
     # url(r'^$', 'eden_example.views.home', name='home'),
     # url(r'^eden_example/', include('eden_example.foo.urls')),
