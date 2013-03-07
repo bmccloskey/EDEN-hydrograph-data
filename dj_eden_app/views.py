@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.safestring import mark_safe
 
 from models import Station
-from forms import TimeSeriesFilterForm
+from forms import TimeSeriesFilterForm 
 
 import stage_data
 import exceptions

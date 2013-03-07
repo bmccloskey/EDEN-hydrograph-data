@@ -1,5 +1,6 @@
-Django==1.4.4
+Django==1.4.5
 SQLAlchemy==0.8.0b2
-## FIXME: could not find svn URL in dependency_links for this package:
-flup==1.0.3.dev-20110405
+matplotlib==1.2.0
 mysql-python==1.2.4
+numpy==1.7.0
+pycairo==1.10.0

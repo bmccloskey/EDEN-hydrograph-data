@@ -44,10 +44,9 @@ def png(stations, destination, **kwargs):
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
-
     savefig(destination, format="png")
 
-    return len(xList)
+    return (len(xList), len(yList))
 
 if __name__ == "__main__":
     ct = png(['2A300', 'G-3567'], "/tmp/hg1.png", beginDate="2004-01-01", endDate="2010-01-01", maxCount=600)
