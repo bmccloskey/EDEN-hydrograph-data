@@ -8,7 +8,6 @@ from django.utils.safestring import mark_safe
 from forms import TimeSeriesFilterForm
 
 import stage_data
-import exceptions
 import urllib
 import hydrograph
 
@@ -32,7 +31,7 @@ def timeseries_csv_download(request):
         stage_data.write_csv(results, response)
         return response
     else:
-        return HttpResponseBadRequest(form.errors)
+        return HttpResponseBadRequest(",".join(form.errors))
 
 
 def plot_data(request):
@@ -55,7 +54,7 @@ def plot_data(request):
         stage_data.write_csv(results, response)
         return response
     else:
-        return HttpResponseBadRequest(form.errors)
+        return HttpResponseBadRequest(",".join(form.errors))
 
 def plot_image(request):
     # TODO Pull gage list up to list of model objects
@@ -78,7 +77,7 @@ def plot_image(request):
 
         return response
     else:
-        return HttpResponseBadRequest(form.errors)
+        return HttpResponseBadRequest(",".join(form.errors))
 
 def eden_page(request):
     """
