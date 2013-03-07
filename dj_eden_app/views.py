@@ -9,21 +9,23 @@ from django.http import HttpResponse
 
 from forms import TimeSeriesFilterForm
 from stage_data import create_query_and_colnames
+import stage_data
+import exceptions
 
 def _csv_dump(qs, outfile_path):
     '''
     Writes the results of a django queryset to csv.
     '''
-    
+
     qs_model = qs.model
     csv_writer = csv.writer(open(outfile_path, 'wb'))
-    
+
     headers = []
     for field in qs_model._meta.fields:
         if field.name != 'id' and field.name != 'flag' and field.name != 'station':
             headers.append(field.name)
     csv_writer.writerow(headers)
-    
+
     for qs_object in qs:
         row = []
         for field in headers:
@@ -34,15 +36,15 @@ def _csv_dump(qs, outfile_path):
                 value = value.encode('utf-8')
             row.append(value)
         csv_writer.writerow(row)
-        
+
 def _write_dictionary_to_csv(dic_list, outfile_path, first_column):
-    
+
     '''
     Writes a list of dictionaries to a csv file.
     The dictionary keys appear as headers in the file,
     with "datetime" being the first column.
     '''
-    
+
     key_list = dic_list[0].keys()
     sorted_key_list = []
     for key in key_list:
@@ -54,9 +56,9 @@ def _write_dictionary_to_csv(dic_list, outfile_path, first_column):
     dict_writer = csv.DictWriter(csv_file, sorted_key_list)
     dict_writer.writer.writerow(sorted_key_list)
     dict_writer.writerows(dic_list)
-    
+
 def _write_csv_for_download(dj_response, dic_list, first_column):
-    
+
     key_list = dic_list[0].keys()
     sorted_key_list = []
     for key in key_list:
@@ -67,10 +69,10 @@ def _write_csv_for_download(dj_response, dic_list, first_column):
     dict_writer = csv.DictWriter(dj_response, sorted_key_list)
     dict_writer.writer.writerow(sorted_key_list)
     dict_writer.writerows(dic_list)
-    
+
     return dj_response
-  
-        
+
+
 def _query_mysql(host, user, schema, password, query):
     '''
     Executes a query on a MySQL database and returns
@@ -84,15 +86,15 @@ def _query_mysql(host, user, schema, password, query):
         data = cur.fetchall()
         columns = [desc[0] for desc in cur.description]
         result = [dict(zip(columns, record)) for record in data]
-        
+
     except mdb.Error, e:
         result = "Error %d: %s" % (e.args[0], e.args[1])
-        
+
     if con:
         con.close()
-        
+
         return result
-    
+
 def _generate_error_file(filename, write_list):
     '''
     Writes the contents of a list of a text file.
@@ -105,10 +107,10 @@ def _generate_error_file(filename, write_list):
         target.write(str(item))
         target.write('\n')
     target.close()
-    
+
     return 'File writing complete.'
 
-def _generate_safe_station_names(selected_stations, first_column = 'datetime', flags = False):
+def _generate_safe_station_names(selected_stations, first_column='datetime', flags=False):
     """
     Creates a SQL safe list of sites selected by a user.
     This function will also include first_column
@@ -117,7 +119,7 @@ def _generate_safe_station_names(selected_stations, first_column = 'datetime', f
     flags is set to True; the default is False.
     
     """
-    
+
     list_of_stations = []
     for unicode_station in selected_stations:
         station = unicode_station.encode('utf-8')
@@ -125,29 +127,29 @@ def _generate_safe_station_names(selected_stations, first_column = 'datetime', f
         try:
             string_length = len(station_name)
             plus_position = station_name.rfind('+')
-            if plus_position >= 0: # removes plus signs in the event that appear in the station name (doesn't look like it should)
+            if plus_position >= 0:  # removes plus signs in the event that appear in the station name (doesn't look like it should)
                 extranous_text = station_name[plus_position:string_length]
                 cleaned_station_name = station_name.replace(extranous_text, "")
             else:
                 cleaned_station_name = station_name
             column_name = 'stage_%s' % (cleaned_station_name)
             list_of_stations.append(column_name)
-            
+
             if flags == True:
                 flag_name = 'flag_%s' % (cleaned_station_name)
                 list_of_stations.append(flag_name)
             else:
                 pass
-            
+
         except (ValueError):
             continue
-            
+
     list_of_stations.insert(0, first_column)
 
     return list_of_stations
-    
-        
-        
+
+
+
 """       
 def dygraph_array_creation(qs):
     
@@ -166,20 +168,41 @@ def dygraph_array_creation(qs):
     return dygraph_data_array
 """
 
+def timeseries_csv_download():
+    return None
+
+def plot_data(request):
+    gages = request.GET.getlist("gage")
+    # TODO Pull gage list up to list of model objects
+    response = HttpResponse(content_type='text/csv')
+    beginDate = request.GET.get("beginDate")
+    endDate = request.GET.get("endDate")
+    try:
+        maxCount = int(request.GET.get("maxCount"))
+    except exceptions.ValueError:
+        maxCount = None
+    results = stage_data.data_for_plot(gages,
+                                       beginDate=beginDate,
+                                       endDate=endDate,
+                                       maxCount=maxCount
+                                       )
+    stage_data.write_csv(results, response)
+    return response
+
 def eden_page(request):
     """
     Allows a user to select a site,
     date in order to view a dygraph
     plot of results.
     """
-    
+
     template_name = 'hydrograph_query.html'
-    
+
     if request.method == 'GET':
         query_form = TimeSeriesFilterForm(request.GET)
 
         if not query_form.has_changed():
-            return render(request, template_name, {'query_form': query_form,})
+            return render(request, template_name, {'query_form': query_form, })
 
         if query_form.is_bound:
             if query_form.is_valid():
@@ -187,56 +210,56 @@ def eden_page(request):
                 time_end = query_form.cleaned_data['timeseries_end']
                 eden_station = query_form.cleaned_data['site_list']
 
-                #form_list = [time_start, time_end, eden_station]
-                
-                #_generate_error_file('error.txt', form_list)
-                
-                #get_request = [request.GET]
-                
-                #_generate_error_file('request.txt', get_request)
-    
+                # form_list = [time_start, time_end, eden_station]
+
+                # _generate_error_file('error.txt', form_list)
+
+                # get_request = [request.GET]
+
+                # _generate_error_file('request.txt', get_request)
+
                 str_time_start = str(time_start)
                 str_time_end = str(time_end)
 
-                         
+
                 if query_form.has_changed():
                     changed = True
-                   
+
                 else:
                     pass
-                
-                #dygraph_array = dygraph_array_creation(qs)
-                
+
+                # dygraph_array = dygraph_array_creation(qs)
+
                 if u'hydrograph_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations = eden_station, 
-                                                                 first_column = 'datetime', 
-                                                                 flags = False)
-                    
-                    create_query_and_colnames(columnNames = query_columns, 
-                                              start_date = str_time_start, 
-                                              end_date = str_time_end,
-                                              outpath = 'static/data.csv')
-                    
+                    query_columns = _generate_safe_station_names(selected_stations=eden_station,
+                                                                 first_column='datetime',
+                                                                 flags=False)
+
+                    create_query_and_colnames(columnNames=query_columns,
+                                              start_date=str_time_start,
+                                              end_date=str_time_end,
+                                              outpath='static/data.csv')
+
                     return render (request, template_name, {'query_form': query_form,
                     'changed':changed,
                               })
-                
-                 
+
+
                 if u'download_query' in request.GET:
-                    query_columns = _generate_safe_station_names(selected_stations = eden_station, 
-                                                                 first_column = 'datetime', 
-                                                                 flags = True)
-                    response = HttpResponse(content_type = 'text/csv')
+                    query_columns = _generate_safe_station_names(selected_stations=eden_station,
+                                                                 first_column='datetime',
+                                                                 flags=True)
+                    response = HttpResponse(content_type='text/csv')
                     response['Content-Disposition'] = 'attachment; filename="eden_data_download.csv'
-                    
-                    create_query_and_colnames(columnNames = query_columns, 
-                                                          start_date = str_time_start, 
-                                                          end_date = str_time_end,
-                                                          outpath = response,
-                                                          csv_download = True)
+
+                    create_query_and_colnames(columnNames=query_columns,
+                                                          start_date=str_time_start,
+                                                          end_date=str_time_end,
+                                                          outpath=response,
+                                                          csv_download=True)
 
                     return response
-                
+
     else:
         query_form = TimeSeriesFilterForm()
-    return render (request, template_name, {'query_form': query_form,})
+    return render (request, template_name, {'query_form': query_form, })

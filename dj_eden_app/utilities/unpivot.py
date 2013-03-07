@@ -17,7 +17,7 @@ try:
 	cur = con.cursor()
 
 	cur.execute("select * from stage limit 1")
-	
+
 	onion = ''
 
 	view = "create view stage_view as \n"
@@ -34,7 +34,7 @@ try:
 			onion = " union\n"
 	print view
 except mdb.Error, e:
-	print "Error %d: %s" % (e.args[0],e.args[1])
+	print "Error %d: %s" % (e.args[0], e.args[1])
 	sys.exit(1)
 finally:
 	if con:

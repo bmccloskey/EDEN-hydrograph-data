@@ -43,17 +43,14 @@
 	</form>
 </div>
 
-{% if changed %}
 	<div id="graph">
+	   <p>Nothing to graph</p>
 	</div>
-{% else %}
-	<p>Nothing to graph</p>
-{% endif %}
 
 	<script type="text/javascript">
 		 var g2 = new Dygraph(
 		   document.getElementById("graph"),
-		   "/static/data.csv", // path to CSV file
+		   "{% url dj_eden_app.views.plot_data %}?gage=2A300&gage=L31NN&beginDate=2010-10-01&endDate=2011-01-01&maxCount=100", // path to CSV file
 		   {
 		   	ylabel: "Water Level (ft)",
 		   	xlabel: "Date"

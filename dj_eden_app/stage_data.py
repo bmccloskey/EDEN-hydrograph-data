@@ -89,17 +89,15 @@ def _query_for_download(stations, beginDate=None, endDate=None, navd88Offset={})
 
     return sel
 
-def write_csv(header, results, outfile_path):
+def write_csv(results, outfile):
     '''
-    Writes a csv file to the specified outfile_path.
-    This file is not ammenable for user download.
+    Writes a csv file to the specified outfile file-like object.
     '''
 
-    csv_file = open(outfile_path, 'wb')
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(header)
+    csv_writer = csv.writer(outfile)
+    csv_writer.writerow(results.keys())
+    # TODO Does this pull up all the rows? If so, should iterate here
     csv_writer.writerows(results)
-    csv_file.close()
 
 def downloadable_csv(header, results, output):
     '''
