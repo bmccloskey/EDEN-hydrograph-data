@@ -5,8 +5,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.safestring import mark_safe
 
-from models import Station
-from forms import TimeSeriesFilterForm 
+from forms import TimeSeriesFilterForm
+from text_export import write_file
 
 import stage_data
 import exceptions
@@ -107,8 +107,21 @@ def eden_page(request):
 
             plot_param_str = urllib.urlencode(plot_params, doseq=True);
 
+            if query_form.cleaned_data['timeseries_start']:
+                str_tstart = '"%s"' % query_form.cleaned_data['timeseries_start']
+            else:
+                str_tstart = None
+                
+            if query_form.cleaned_data['timeseries_end']:
+                str_tend = '"%s"' % query_form.cleaned_data['timeseries_end']
+            else:
+                str_tend = None
+
             return render(request, template_name, {'query_form': query_form,
-                                                      'plot_params': mark_safe(plot_param_str)})
+                                                      'plot_params': mark_safe(plot_param_str),
+                                                      'str_tstart': str_tstart,
+                                                      'str_tend': str_tend,
+                                                      })
     else:
         pass
 

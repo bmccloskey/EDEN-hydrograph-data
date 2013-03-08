@@ -44,6 +44,7 @@ def png(stations, destination, **kwargs):
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
+    
     savefig(destination, format="png")
 
     return (len(xList), len(yList))

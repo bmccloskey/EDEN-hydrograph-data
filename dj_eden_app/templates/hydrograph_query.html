@@ -65,7 +65,10 @@
             ylabel: "Water Level (ft)",
             xlabel: "Date",
             drawPoints: true,
-            strokeWidth: 0.0
+            strokeWidth: 0.0,
+            dateWindow: [ Date.parse( {{ str_tstart }} ),
+                          Date.parse( {{ str_tend }})
+                         ]
            }          // options
          );
     </script>
