@@ -5,10 +5,10 @@ Publish hydrograph pages and data for EDEN (Everglades Depth Estimation Network)
 
 Project Set-up
 
-Environment set-up
-1. The requirements listed in requirements.txt must be installed in the Python environment before running this application. 
+Environment set-up  
+1. The requirements listed in requirements.txt must be installed in the Python environment before running this application.   
 
-Certain files will need to be created before the application can be run. These files have not been included in version control for security reasons:
+Certain files will need to be created before the application can be run. These files have not been included in version control for security reasons:  
 
 1. local_settings.py  
 
