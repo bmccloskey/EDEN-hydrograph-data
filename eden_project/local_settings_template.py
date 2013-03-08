@@ -8,7 +8,7 @@
 from sys import argv
 import os.path
 
-from secret_key import SECRET_KEY
+from secret_key import DJ_SECRET_KEY
 
 PROJECT_HOME = os.path.dirname(__file__)
 SITE_HOME = PROJECT_HOME.rsplit('/', 1)[0]
@@ -75,4 +75,4 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-# SECRET_KEY = 'removed for security reasons'
+SECRET_KEY = DJ_SECRET_KEY
