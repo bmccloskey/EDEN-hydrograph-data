@@ -1,6 +1,5 @@
-import seq
+import dj_eden_app.seq as seq
 import unittest
-import itertools
 from itertools import islice, count
 
 def ident(x):
