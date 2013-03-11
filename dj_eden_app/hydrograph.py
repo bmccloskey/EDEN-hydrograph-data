@@ -19,16 +19,15 @@ def _clean_label(s):
         label = textwrap.fill(label, width=_label_width)
     return label
 
-def plot_many(data, destination):
+def plot_many(data, destination, begin_date, end_date):
     """
     Produce a PNG plot of the data series.
     destination can be any file-like object, or a string (file name)
     stations and kwargs are passed to stage_data.data
     """
     keys = data.keys()
-    
-    beginDate = kwargs['beginDate']
-    endDate = kwargs['endDate']
+    beginDate = begin_date
+    endDate = end_date
 
     # Prefer to build xList and yList by iteration rather than comprehension, to ease memory burden
     xList = []
@@ -43,7 +42,7 @@ def plot_many(data, destination):
     figure()
     axes([0.1, 0.3, 0.5, 0.5])
     plot_date(xList, yList, '-')
-    xlim(xmin = beginDate, xmax = endDate)
+    #xlim(xmin = beginDate, xmax = endDate)
     axhline(y = 0.5)
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
@@ -53,7 +52,7 @@ def plot_many(data, destination):
 
 def png(data, destination):
 
-    ct = plot_many(data, destination)
+    ct = plot_many(data, destination, beginDate, endDate)
     savefig(destination, format="png")
 
     return ct
