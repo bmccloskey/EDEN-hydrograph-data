@@ -6,7 +6,7 @@ Created on Mar 4, 2013
 import matplotlib
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim
 
 import stage_data
 import textwrap
@@ -27,6 +27,9 @@ def png(stations, destination, **kwargs):
     """
     data = stage_data.data_for_plot(stations, **kwargs)
     keys = data.keys()
+    
+    beginDate = kwargs['beginDate']
+    endDate = kwargs['endDate']
 
     # Prefer to build xList and yList by iteration rather than comprehension, to ease memory burden
     xList = []
@@ -41,6 +44,8 @@ def png(stations, destination, **kwargs):
     figure()
     axes([0.1, 0.3, 0.5, 0.5])
     plot_date(xList, yList, '-')
+    xlim(xmin = beginDate, xmax = endDate)
+    axhline(y = 0.5)
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
