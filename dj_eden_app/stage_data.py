@@ -11,9 +11,9 @@ engine = create_engine("mysql://", \
 meta = MetaData(bind=engine)
 
 stage = Table('stage', meta, autoload=True)
-station = Table('station', meta, autoload = True)
-station_datum = Table('station_datum', meta, autoload = True)
-stat_datum_vw = Table('stat_datum_vw', meta, autoload = True)
+# station = Table('station', meta, autoload = True)
+# station_datum = Table('station_datum', meta, autoload = True)
+# stat_datum_vw = Table('stat_datum_vw', meta, autoload = True)
 
 class IfFunc(GenericFunction):
     name = "if"
@@ -40,22 +40,36 @@ def data_for_download(stations, **kwargs):
     q = _query_for_download(stations, **kwargs)
     return q.execute()
 
-def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, navd88Offset={}):
-    sel = select([stage.c.datetime])
+def _columns(gage, station):
+    data_col = stage.c["stage_" + gage]
+    flag_col = stage.c["flag_" + gage]
+
+    if station:
+        offset = station.stationdatum.convert_to_navd88_feet
+        # use corrected data unless data is null
+        data_corrected = func.if_(data_col == None, None, data_col + offset).label("stage_" + gage)
+    else:
+        data_corrected = data_col
+
+    return (data_col, flag_col, data_corrected)
+
+def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, station_dict={}):
+    sel = select([stage.c.datetime]).order_by(stage.c.datetime)
 
     # make the world safe for simple calls like _query_for_plot("2A300")
     if isinstance(stations, basestring):
         stations = [stations]
 
     for gage in stations:
-        stage_name = "stage_" + gage
-        flag_name = "flag_" + gage
-        offset = navd88Offset.get(gage) or 0
-        sel = sel.column(func.if_(stage.c[flag_name] == None,
-                                  func.if_(stage.c[stage_name] == None, None, offset + stage.c[stage_name]),
+        station = station_dict.get(gage)
+
+        (data_col, flag_col, data_corrected) = _columns(gage, station)
+
+        sel = sel.column(func.if_(flag_col == None,
+                                  data_corrected,
                                   None).label(gage))
-        sel = sel.column(func.if_(stage.c[flag_name] != None,
-                                  func.if_(stage.c[stage_name] == None, None, offset + stage.c[stage_name]),
+        sel = sel.column(func.if_(flag_col != None,
+                                  data_corrected,
                                   None).label(gage + " est"))
 
     if beginDate is not None:
@@ -71,19 +85,20 @@ def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, navd8
 
     return sel
 
-def _query_for_download(stations, beginDate=None, endDate=None, navd88Offset={}):
-    sel = select([stage.c.datetime])
+def _query_for_download(stations, beginDate=None, endDate=None, station_dict={}):
+    sel = select([stage.c.datetime]).order_by(stage.c.datetime)
 
     # make the world safe for simple calls like _query_for_plot("2A300")
     if isinstance(stations, basestring):
         stations = [stations]
 
     for gage in stations:
-        stage_name = "stage_" + gage
-        flag_name = "flag_" + gage
-        offset = navd88Offset.get(gage) or 0
-        sel = sel.column(func.if_(stage.c[stage_name] == None, None, offset + stage.c[stage_name]).label(stage_name))
-        sel = sel.column(stage.c[flag_name])
+        station = station_dict.get(gage)
+
+        (data_col, flag_col, data_corrected) = _columns(gage, station)
+
+        sel = sel.column(data_corrected)
+        sel = sel.column(flag_col)
 
     if beginDate is not None:
         sel = sel.where(stage.c.datetime >= beginDate)
@@ -113,50 +128,24 @@ def downloadable_csv(header, results, output):
     csv_writer.writerows(results)
 
 
-def create_query_and_colnames(columnNames, start_date, end_date, outpath, csv_download=False):
-    """
-    Takes a list of column names, start/end date,
-    output path, and returns the MySQL query results.
-    A downloadable csv will be generated if
-    csv_download is set as True (default is False).
-    """
-    selectColumns = [stage.c[cn] for cn in columnNames]
-
-    s = select(selectColumns, \
-               stage.c.datetime.between(start_date, end_date))
-
-    # generators can only be used once... there are separate generators for the headers and results
-    header_gen = engine.execute(s)
-    result_gen = engine.execute(s)
-
-    header_key = header_gen._metadata.keys
-    all_results = result_gen.fetchall()
-
-    if csv_download == True:
-        downloadable_csv(header=header_key,
-                         results=all_results,
-                         output=outpath)
-
-    else:
-        write_csv(header=header_key,
-                  results=all_results,
-                  outfile_path=outpath)
-
-    return "Hooray, the data has been written to a csv!"
-
 if __name__ == "__main__":
 
     gages = ['G-3567', '2A300', 'L31NN', 'Chatham_River_near_the_Watson_Place']
 
     d4p = data_for_plot(gages, beginDate="2010-01-01", endDate="2010-03-01", maxCount=800)
     print d4p.keys()
-    for row in d4p.fetchmany(10):
+    assert len(d4p.keys()) == 1 + 2 * len(gages)
+    for row in d4p.fetchmany(4):
         print row
+        assert row.datetime is not None
     d4p.close()
 
-    d4d = data_for_download(gages[0:2], beginDate="2010-01-01", endDate="2010-03-01")
+    subgages = gages[0:2]
+    d4d = data_for_download(subgages, beginDate="2010-01-01", endDate="2010-03-01")
     print d4d.keys()
-    for row in d4d.fetchmany(8):
+    assert len(d4d.keys()) == 1 + 2 * len(subgages)
+    for row in d4d.fetchmany(4):
         print row
+        assert "flag_" + gages[0] in row
     d4d.close()
 

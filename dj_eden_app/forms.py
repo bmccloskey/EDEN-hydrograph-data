@@ -1,6 +1,6 @@
-from django.forms import Form, DateTimeField, MultipleChoiceField, SelectMultiple, IntegerField
+from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, IntegerField
 from models import Station
-
+import datetime
 
 def convert_qs_to_list(qs):
     """
@@ -21,21 +21,17 @@ def convert_qs_to_list(qs):
     return choice_list
 
 def convert_qs_to_list_of_tuples(qs):
-    choice_list = []
-    for mod_obj in qs:
-        station_id = mod_obj.station_id
-        display_str = mod_obj.station_name_web.replace('_', ' ')
-        site_tuple = (station_id, display_str)
-        choice_list.append(site_tuple)
-        
+    choice_list = [ (mod_obj.station_id,
+                     mod_obj.station_name_web.replace('_', ' '))
+                   for mod_obj in qs]
     return choice_list
 
 class TimeSeriesFilterForm(Form):
 
     queryset = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
-
-    timeseries_start = DateTimeField(required=False)
-    timeseries_end = DateTimeField(required=False)
+    today = datetime.date.today()
+    timeseries_start = DateField(required=False, initial=today.replace(year=today.year - 1))
+    timeseries_end = DateField(required=False, initial=today)
     site_list = MultipleChoiceField(choices=convert_qs_to_list(queryset),
                                     required=True,
                                     widget=SelectMultiple(attrs={'size':'25'}))

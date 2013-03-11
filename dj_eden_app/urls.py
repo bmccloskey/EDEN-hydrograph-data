@@ -1,15 +1,17 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
+import dj_eden_app.views.data_views as data_views
+import dj_eden_app.views.page as page_views
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('dj_eden_app.views',
-                       url(r'^plot_data$', 'plot_data'),
-                       url(r'^plot_image$', 'plot_image'),
-                       url(r'^data_download$', 'timeseries_csv_download'),
-                       url(r'^timeseries/?$', 'eden_page', name='eden_timeseries'),
+urlpatterns = patterns('',
+                       url(r'^plot_data$', data_views.plot_data),
+                       url(r'^plot_image$', data_views.plot_image),
+                       url(r'^data_download$', data_views.timeseries_csv_download),
+                       url(r'^timeseries/?$', page_views.eden_page, name='eden_timeseries'),
     # Examples:
     # url(r'^$', 'eden_example.views.home', name='home'),
     # url(r'^eden_example/', include('eden_example.foo.urls')),
