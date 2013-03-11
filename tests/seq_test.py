@@ -44,6 +44,24 @@ class TestPrepend(unittest.TestCase):
 		outlist = list(islice(outgen, 0, 10))
 		self.assertEquals(outlist, range(100, 110))
 
+class TestUnique(unittest.TestCase):
+	def test_empty(self):
+		outlist = seq.unique([]);
+		self.assertEquals([], outlist, "empty")
+
+	def test_unchanged(self):
+		a = [1, 6, 3, 8]
+		outlist = seq.unique(a)
+		self.assertEquals(a, outlist, "unchanged")
+
+	def test_changed(self):
+		outlist = seq.unique([1, 2, 1, 3, 2, 5])
+		self.assertEquals([1, 2, 3, 5], outlist, "changed")
+
+	def test_changed_obj(self):
+		outlist = seq.unique([self, "abc", self, "def", "abc"])
+		self.assertEquals([self, "abc", "def"], outlist, "objects")
+
 if __name__ == '__main__':
 	unittest.main()
 
