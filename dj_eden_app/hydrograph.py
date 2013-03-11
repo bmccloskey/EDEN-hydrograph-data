@@ -19,7 +19,7 @@ def _clean_label(s):
         label = textwrap.fill(label, width=_label_width)
     return label
 
-def png(stations, destination, **kwargs):
+def plot_many(stations, destination, **kwargs):
     """
     Produce a PNG plot of the data series.
     destination can be any file-like object, or a string (file name)
@@ -44,9 +44,15 @@ def png(stations, destination, **kwargs):
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
+
+    return len(xList)
+
+def png(stations, destination, **kwargs):
+
+    ct = plot_many(stations, destination, **kwargs)
     savefig(destination, format="png")
 
-    return (len(xList), len(yList))
+    return ct
 
 if __name__ == "__main__":
     ct = png(['2A300', 'G-3567'], "/tmp/hg1.png", beginDate="2004-01-01", endDate="2010-01-01", maxCount=600)
@@ -62,9 +68,5 @@ if __name__ == "__main__":
              maxCount=600)
     print "hg4.png", ct
 
-    navd88dict = {'Chatham_River_near_the_Watson_Place':4}
-    ct = png(['L31NN', 'Chatham_River_near_the_Watson_Place'], "/tmp/hg4a.png", beginDate="2011-09-01", endDate="2011-12-31",
-             maxCount=600, navd88Offset=navd88dict)
-    print "hg4a.png", ct
 
 

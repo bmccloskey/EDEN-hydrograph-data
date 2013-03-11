@@ -15,7 +15,7 @@
 {% block content %}
   
 <div class="form_input_field">
-	<form name="hydrograph_query" id=hydrograph_form method="GET" action=".">{% csrf_token %}
+	<form name="hydrograph_query" id=hydrograph_form method="GET" action="">{% csrf_token %}
 		{{ query_form.non_field_errors }}
 		{{ query_form.field_errors }}
 		<table>
