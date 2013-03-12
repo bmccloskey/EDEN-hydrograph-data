@@ -92,22 +92,6 @@ def plot_image(request):
                                         maxCount=maxCount,
                                         station_dict=station_dict
                                         )
-        date_list = []
-        if beginDate is None and endDate is None:
-            # second query done -- first query cannot be used as it will be closed
-            sec_data = stage_data.data_for_plot(gages,
-                                beginDate=beginDate,
-                                endDate=endDate,
-                                maxCount=maxCount,
-                                station_dict=station_dict
-                                )
-            for row in sec_data:
-                date_list.append(row[0])
-            
-            # determine the min and max dates if date range is not given my the user    
-            beginDate = min(date_list)
-            endDate = max(date_list)
-            
 
         hydrograph.png(data, response, beginDate, endDate)
 
