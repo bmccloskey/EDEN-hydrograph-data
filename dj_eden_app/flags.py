@@ -58,11 +58,45 @@ def flag_col(g):
 def value_col(g):
     return stage.c['stage_' + g]
 
+def hourly_query(gage, dry_value):
+    "Query for hourly data for single gage.  Result will have three columns: datetime, data (or none), flag."
+    dt = stage.c.datetime
+
+    # base query, raw values
+    query_by_hour = select([dt])
+    f = flag_col(gage)
+    s = value_col(gage)
+    (flag, val) = hourly_data(f, s, dry_value)
+    query_by_hour = query_by_hour.column(val.label('data'))
+    query_by_hour = query_by_hour.column(flag.label('flag'))
+
+    return query_by_hour
+
+def daily_query(gage, dry_value):
+    "Query for daily average data for single gage.  Result will have three columns: date, averaged data (or None), flag."
+    dt = stage.c.datetime
+    date = func.date(dt)
+    dm = func.min(date).label("date")
+
+    # base query, daily means
+    query_by_day = select([dm]).group_by(date)
+    f = flag_col(gage)
+    s = value_col(gage)
+    (flag, val) = daily_data(f, s, dry_value)
+    query_by_day = query_by_day.column(val.label('average'))
+    query_by_day = query_by_day.column(flag.label('flag'))
+    # just to verify that we are really grouping
+    query_by_day = query_by_day.column(func.count(dt).label("count"))
+
+    return query_by_day
+
 if __name__ == '__main__':
     from dj_eden_app.stage_data import stage
     gages = ['2A300', 'G-3567']
 
     dt = stage.c['datetime']
+
+    # these queries could be pulled out to a multi-station query -- parameters would be station objects to get dry values
 
     # base query, raw values
     query_by_hour = select([dt])
@@ -76,9 +110,11 @@ if __name__ == '__main__':
     print "hourly"
     print str(query_by_hour)
 
-    dm = func.min(dt)
+
     # base query, daily means
-    query_by_day = select([dm]).group_by(func.date(dt))
+    dm = func.min(func.date(dt))
+    date = dm.label("date")
+    query_by_day = select([date]).group_by(func.date(dt))
     for g in gages:
         f = flag_col(g)
         s = value_col(g)
@@ -91,12 +127,24 @@ if __name__ == '__main__':
     print "daily"
     print str(query_by_day)
 
+    def _exercise(q):
+        "Exercise a query"
+        rs = q.execute()
+        print "\t", rs.keys()
+        vv = rs.fetchmany(30)
+        for v in vv:
+            print "\t", v
+
     # does it really work?
     q = query_by_day.where(dt >= '2001-01-01')
-    rs = q.execute()
-    print "\t", rs.keys()
-    vv = rs.fetchmany(30)
-    for v in vv:
-        print "\t", v
+    _exercise(q)
+
+    # single-gage queries
+    print "daily query"
+    q = daily_query('G-3567', 4.9)
+    q = q.where(dt >= '2003-06-28')
+    print str(q)
+    _exercise(q)
+
 
 
