@@ -63,20 +63,9 @@ if __name__ == '__main__':
     gages = ['2A300', 'G-3567']
 
     dt = stage.c['datetime']
-    dm = func.min(dt)
-    query_by_day = select([dm]).group_by(func.date(dt))
-    for g in gages:
-        f = flag_col(g)
-        s = value_col(g)
-        (flag, val) = daily_data(f, s, 4.2)
-        query_by_day = query_by_day.column(val.label(g + ' avg'))
-        query_by_day = query_by_day.column(flag.label(g + ' flag'))
-    # just to verify that we are really grouping
-    query_by_day = query_by_day.column(func.count(dt).label("ct"))
 
-    print str(query_by_day)
-
-    query_by_hour = select([stage.c['datetime']])
+    # base query, raw values
+    query_by_hour = select([dt])
     for g in gages:
         f = flag_col(g)
         s = value_col(g)
@@ -84,5 +73,30 @@ if __name__ == '__main__':
         query_by_hour = query_by_hour.column(val.label(g))
         query_by_hour = query_by_hour.column(flag.label(g + ' flag'))
 
+    print "hourly"
     print str(query_by_hour)
+
+    dm = func.min(dt)
+    # base query, daily means
+    query_by_day = select([dm]).group_by(func.date(dt))
+    for g in gages:
+        f = flag_col(g)
+        s = value_col(g)
+        (flag, val) = daily_data(f, s, 4.5)
+        query_by_day = query_by_day.column(val.label(g + ' avg'))
+        query_by_day = query_by_day.column(flag.label(g + ' flag'))
+    # just to verify that we are really grouping
+    query_by_day = query_by_day.column(func.count(dt).label("ct"))
+
+    print "daily"
+    print str(query_by_day)
+
+    # does it really work?
+    q = query_by_day.where(dt >= '2001-01-01')
+    rs = q.execute()
+    print "\t", rs.keys()
+    vv = rs.fetchmany(30)
+    for v in vv:
+        print "\t", v
+
 
