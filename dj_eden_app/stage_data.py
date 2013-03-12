@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 from sqlalchemy.sql import *
-from sqlalchemy.sql.functions import GenericFunction
+from sqlalchemy.sql.functions import GenericFunction, min, max
 from seq import prepend
 import csv
 
@@ -76,7 +76,7 @@ def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, stati
         sel = sel.where(stage.c.datetime >= beginDate)
     if endDate is not None:
         sel = sel.where(stage.c.datetime <= endDate)
-
+        
     # thin the data if there are too many points
     countQuery = sel.alias("forCount").count()
     count = countQuery.execute().scalar()
@@ -117,7 +117,7 @@ def write_csv(results, outfile):
     # TODO Does this pull up all the rows? If so, should iterate here
     csv_writer.writerows(results)
 
-def downloadable_csv(header, results, output, wl_correction):
+def downloadable_csv(header, results, output):
     '''
     Creates a csv file in an HTTP response
     for use download.

@@ -3,6 +3,8 @@ from django.http import HttpResponse, HttpResponseBadRequest
 
 from .. models import Station
 from .. forms import TimeSeriesFilterForm
+from sqlalchemy.sql.functions import min, max
+from sqlalchemy.sql import func
 import logging
 
 # Get an instance of a logger
@@ -93,7 +95,7 @@ def plot_image(request):
                                         station_dict=station_dict
                                         )
 
-        hydrograph.png(data, response)
+        hydrograph.png(data, response, beginDate, endDate)
 
         return response
     else:
