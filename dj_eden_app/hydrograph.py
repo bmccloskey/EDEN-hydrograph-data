@@ -6,7 +6,7 @@ Created on Mar 4, 2013
 import matplotlib
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, scatter
 
 import textwrap
 
@@ -41,9 +41,9 @@ def plot_many(data, destination, begin_date, end_date):
 
     figure()
     axes([0.1, 0.3, 0.5, 0.5])
-    plot_date(xList, yList, '-')
+    plot_date(xList, yList, 'o', markersize=2.5)
     xlim(xmin = beginDate, xmax = endDate)
-    axhline(y = 0.5)
+    #axhline(y = 0.5) could be used for depicting ground elevation
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)

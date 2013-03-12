@@ -126,6 +126,8 @@ def downloadable_csv(header, results, output):
     csv_writer = csv.writer(output)
     csv_writer.writerow(header)
     csv_writer.writerows(results)
+    
+
 
 
 if __name__ == "__main__":
