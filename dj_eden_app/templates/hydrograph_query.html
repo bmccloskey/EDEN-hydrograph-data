@@ -66,11 +66,9 @@
             xlabel: "Date",
             drawPoints: true,
             strokeWidth: 0.0,
-            {% if str_start and str_tend %}
             dateWindow: [ Date.parse( "{{ str_tstart }}" ),
                           Date.parse( "{{ str_tend }}" )
                          ]
-            {% endif %}
            }          // options
          );
     </script>
