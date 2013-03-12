@@ -93,7 +93,7 @@ def plot_image(request):
                                         station_dict=station_dict
                                         )
 
-        hydrograph.png(data, response)
+        hydrograph.png(data, response, beginDate, endDate)
 
         return response
     else:

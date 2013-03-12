@@ -48,9 +48,21 @@ def eden_page(request):
                     plot_params[k] = v
 
             plot_query_str = urllib.urlencode(plot_params, doseq=True);
+            
+            if query_form.cleaned_data['timeseries_start']:
+                str_tstart = '%s' % query_form.cleaned_data['timeseries_start']
+            else:
+                str_tstart = None
+                
+            if query_form.cleaned_data['timeseries_end']:
+                str_tend = '%s' % query_form.cleaned_data['timeseries_end']
+            else:
+                str_tend = None
 
             return render(request, template_name, {'query_form': query_form,
-                                                      'plot_params': mark_safe(plot_query_str)})
+                                                   'plot_params': mark_safe(plot_query_str),
+                                                   'str_tstart': str_tstart,
+                                                   'str_tend': str_tend,})
     else:
         pass
 
