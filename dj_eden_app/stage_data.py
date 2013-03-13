@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 from sqlalchemy.sql import *
-from sqlalchemy.sql.functions import GenericFunction, min, max
+from sqlalchemy.sql.functions import GenericFunction
 from seq import prepend
 import csv
 
