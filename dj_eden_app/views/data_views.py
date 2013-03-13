@@ -1,15 +1,15 @@
 # Create your views here.
 from django.http import HttpResponse, HttpResponseBadRequest
 
-from .. models import Station
-from .. forms import TimeSeriesFilterForm
+from dj_eden_app.models import Station
+from dj_eden_app.forms import TimeSeriesFilterForm
 import logging
 
 # Get an instance of a logger
 _logger = logging.getLogger(__name__)
 
-from .. import stage_data
-from .. import hydrograph
+import dj_eden_app.stage_data as stage_data
+import dj_eden_app.hydrograph as hydrograph
 from .. import nwis_rdb
 
 def timeseries_csv_download(request):
@@ -44,6 +44,13 @@ def _station_dict(gages):
     station_dict = dict((s.station_name_web, s) for s in stations)
 
     return station_dict
+
+def station_list(gages):
+    value = []
+    for g in gages:
+        s = Station.objects.get(station_name_web=g)
+        value.append(s)
+    return value
 
 def plot_data(request):
     # TODO Pull gage list up to list of model objects
