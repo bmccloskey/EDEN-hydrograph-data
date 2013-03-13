@@ -14,7 +14,7 @@ _D = literal_column("'D'", String)
 _O = literal_column("'O'", String)
 _E = literal_column("'E'", String)
 
-def hourly_data(flag_expr, value_expr, dry_elev):
+def hourly_data_expr(flag_expr, value_expr, dry_elev):
     flag = expression.case([
                      ((flag_expr == _M) or (value_expr == None), _M),
                       (value_expr < dry_elev, _D),
@@ -39,7 +39,7 @@ I.e., if _all_ 24 hourly values are missing, flag "M"; if the daily mean is belo
 
 # note that avg(all nulls) -> null
 
-def daily_data(flag_expr, value_expr, dry_elev):
+def daily_data_expr(flag_expr, value_expr, dry_elev):
     flag_expr = expression.case([
                                  (flag_expr == None, _O)
                                  ],
@@ -66,14 +66,14 @@ def hourly_query(gage, dry_value):
     query_by_hour = select([dt])
     f = flag_col(gage)
     s = value_col(gage)
-    (flag, val) = hourly_data(f, s, dry_value)
+    (flag, val) = hourly_data_expr(f, s, dry_value)
     query_by_hour = query_by_hour.column(val.label('data'))
     query_by_hour = query_by_hour.column(flag.label('flag'))
 
     return query_by_hour
 
-def daily_query(gage, dry_value):
-    "Query for daily average data for single gage.  Result will have three columns: date, averaged data (or None), flag."
+def daily_query_1(gage, dry_value):
+    "Query for daily average data for single gage.  Result will have these columns: date, averaged data (or None), flag, min, max, count"
     dt = stage.c.datetime
     date = func.date(dt)
     dm = func.min(date).label("date")
@@ -82,10 +82,12 @@ def daily_query(gage, dry_value):
     query_by_day = select([dm]).group_by(date)
     f = flag_col(gage)
     s = value_col(gage)
-    (flag, val) = daily_data(f, s, dry_value)
+    (flag, val) = daily_data_expr(f, s, dry_value)
     query_by_day = query_by_day.column(val.label('average'))
     query_by_day = query_by_day.column(flag.label('flag'))
     # just to verify that we are really grouping
+    query_by_day = query_by_day.column(func.min(s).label("min"))
+    query_by_day = query_by_day.column(func.max(s).label("max"))
     query_by_day = query_by_day.column(func.count(dt).label("count"))
 
     return query_by_day
@@ -103,7 +105,7 @@ if __name__ == '__main__':
     for g in gages:
         f = flag_col(g)
         s = value_col(g)
-        (flag, val) = hourly_data(f, s, 4.2)
+        (flag, val) = hourly_data_expr(f, s, 4.2)
         query_by_hour = query_by_hour.column(val.label(g))
         query_by_hour = query_by_hour.column(flag.label(g + ' flag'))
 
@@ -118,7 +120,7 @@ if __name__ == '__main__':
     for g in gages:
         f = flag_col(g)
         s = value_col(g)
-        (flag, val) = daily_data(f, s, 4.5)
+        (flag, val) = daily_data_expr(f, s, 4.5)
         query_by_day = query_by_day.column(val.label(g + ' avg'))
         query_by_day = query_by_day.column(flag.label(g + ' flag'))
     # just to verify that we are really grouping
@@ -141,7 +143,7 @@ if __name__ == '__main__':
 
     # single-gage queries
     print "daily query"
-    q = daily_query('G-3567', 4.9)
+    q = daily_query_1('G-3567', 4.9)
     q = q.where(dt >= '2003-06-28')
     print str(q)
     _exercise(q)
