@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 import dj_eden_app.stage_data as stage_data
 import dj_eden_app.hydrograph as hydrograph
-from .. import nwis_rdb
+import dj_eden_app.nwis_rdb as nwis_rdb
 
 def timeseries_csv_download(request):
     # TODO Pull gage list up to list of model objects
