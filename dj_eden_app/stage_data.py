@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 from sqlalchemy.sql import *
-from sqlalchemy.sql.functions import GenericFunction, min, max
+from sqlalchemy.sql.functions import GenericFunction
 from seq import prepend
 import csv
 
@@ -107,12 +107,14 @@ def _query_for_download(stations, beginDate=None, endDate=None, station_dict={})
 
     return sel
 
-def write_csv(results, outfile):
+def write_csv(results, outfile, metadata=None):
     '''
     Writes a csv file to the specified outfile file-like object.
     '''
 
     csv_writer = csv.writer(outfile)
+    if metadata != None:
+        csv_writer.writerow(metadata)
     csv_writer.writerow(results.keys())
     # Iterate, because csv.writerows pulls up all rows to a list
     for r in results:

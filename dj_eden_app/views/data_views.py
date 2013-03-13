@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 import dj_eden_app.stage_data as stage_data
 import dj_eden_app.hydrograph as hydrograph
+import dj_eden_app.nwis_rdb as nwis_rdb
 
 def timeseries_csv_download(request):
     # TODO Pull gage list up to list of model objects
@@ -21,6 +22,8 @@ def timeseries_csv_download(request):
         _logger.info("csv download, gages is %s" % (gages))
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
+        
+        query_metadata = nwis_rdb.create_rdf_header(nwis_rdb.HEADER_MESSAGE, nwis_rdb.EDEN_CONTACT, nwis_rdb.END_OF_HEADER, form.cleaned_data)
 
         response = HttpResponse(content_type='text/csv')
 
@@ -29,7 +32,7 @@ def timeseries_csv_download(request):
                         beginDate=beginDate,
                         endDate=endDate
                     )
-        stage_data.write_csv(results, response)
+        stage_data.write_csv(results=results, outfile=response, metadata=query_metadata)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -72,7 +75,7 @@ def plot_data(request):
                                         station_dict=station_dict
                                         )
 
-        stage_data.write_csv(data, response)
+        stage_data.write_csv(results=data, outfile=response)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))

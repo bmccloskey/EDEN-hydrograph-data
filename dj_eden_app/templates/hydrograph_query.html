@@ -57,19 +57,24 @@
 	</noscript>
 	</div>
 	
+	<input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
+	<input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
+	
 	<!-- used django html tag to deal with cases where user does not specify a date range -->
     <script type="text/javascript">
+    	var dateStart = document.getElementById("start_date").value;
+    	var dateEnd = document.getElementById("end_date").value;
          var g2 = new Dygraph(
            document.getElementById("graph"),
            "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100",
            {
-            ylabel: "Water Level (ft)",
+            ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
             drawPoints: true,
             strokeWidth: 0.0,
             {% if str_tstart != None and str_tend != None %}
-            dateWindow: [ Date.parse( "{{ str_tstart }}" ),
-                          Date.parse( "{{ str_tend }}" )
+            dateWindow: [ Date.parse( dateStart ),
+                          Date.parse( dateEnd )
                          ]
             {% endif %}
            }          // options
