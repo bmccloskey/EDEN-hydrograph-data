@@ -43,13 +43,23 @@ def plot_many(data, destination, begin_date, end_date):
     axes([0.1, 0.3, 0.5, 0.5])
     plot_date(xList, yList, 'o', markersize=2.5)
     if beginDate != None and endDate != None:
-        xlim(xmin = beginDate, xmax = endDate)
-    #axhline(y = 0.5) could be used for depicting ground elevation
+        xlim(xmin=beginDate, xmax=endDate)
+    # axhline(y = 0.5) could be used for depicting ground elevation
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
 
     return len(xList)
+
+_line_style_ = {
+                'D': ":^",  # dotted with triangles
+                'O': "-d",  # solid with diamonds
+                'E': ":+",  # dotted with crosses
+                'M': " ",  # blank
+                }
+
+def line_style(flag):
+    return _line_style_.get(flag) or "-"
 
 def png(data, destination, beginDate, endDate):
 

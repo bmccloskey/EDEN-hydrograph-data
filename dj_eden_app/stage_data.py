@@ -76,7 +76,7 @@ def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, stati
         sel = sel.where(stage.c.datetime >= beginDate)
     if endDate is not None:
         sel = sel.where(stage.c.datetime <= endDate)
-        
+
     # thin the data if there are too many points
     countQuery = sel.alias("forCount").count()
     count = countQuery.execute().scalar()
@@ -114,20 +114,9 @@ def write_csv(results, outfile):
 
     csv_writer = csv.writer(outfile)
     csv_writer.writerow(results.keys())
-    # TODO Does this pull up all the rows? If so, should iterate here
-    csv_writer.writerows(results)
-
-def downloadable_csv(header, results, output):
-    '''
-    Creates a csv file in an HTTP response
-    for use download.
-    '''
-
-    csv_writer = csv.writer(output)
-    csv_writer.writerow(header)
-    csv_writer.writerows(results)
-    
-
+    # Iterate, because csv.writerows pulls up all rows to a list
+    for r in results:
+        csv_writer.writerow(r)
 
 
 if __name__ == "__main__":
