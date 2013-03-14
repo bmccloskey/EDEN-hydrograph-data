@@ -6,3 +6,4 @@ matplotlib==1.2.0
 mysql-python==1.2.4
 numpy==1.7.0
 pycairo==1.10.0
+pytz==2012j
