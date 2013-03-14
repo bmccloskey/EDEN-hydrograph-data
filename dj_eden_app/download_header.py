@@ -51,9 +51,10 @@ def convert_dms_string_to_decimal(geo_tuple):
     return display_number
     
 
-def create_rdb_header(message, contact, header_end, query_info, param_qs):
+def create_metadata_header(message, contact, header_end, query_info, param_qs):
     '''
-    Generates the header for data downloads.
+    Generates the header for data downloads. This not
+    in NWIS RDB format, but will provide the same information.
     '''
     nwis_message = message
     nwis_contact = contact

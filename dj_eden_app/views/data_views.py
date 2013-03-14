@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 import dj_eden_app.stage_data as stage_data
 import dj_eden_app.hydrograph as hydrograph
-import dj_eden_app.nwis_rdb as nwis_rdb
+from dj_eden_app.download_header import create_metadata_header
 from dj_eden_app.eden_headers import HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER
 
 def timeseries_csv_download(request):
@@ -26,7 +26,7 @@ def timeseries_csv_download(request):
         
         station_qs = Station.objects.filter(station_name_web__in=gages)
         
-        query_metadata = nwis_rdb.create_rdb_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_qs)
+        query_metadata = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_qs)
 
         response = HttpResponse(content_type='text/csv')
 
