@@ -10,7 +10,8 @@ _logger = logging.getLogger(__name__)
 
 import dj_eden_app.stage_data as stage_data
 import dj_eden_app.hydrograph as hydrograph
-import dj_eden_app.nwis_rdb as nwis_rdb
+from dj_eden_app.download_header import create_metadata_header
+from dj_eden_app.eden_headers import HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER
 
 def timeseries_csv_download(request):
     # TODO Pull gage list up to list of model objects
@@ -23,9 +24,9 @@ def timeseries_csv_download(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
         
-        data_type = 'Hourly Water Level, NAVD88(ft)' # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
+        station_qs = Station.objects.filter(station_name_web__in=gages)
         
-        query_metadata = nwis_rdb.create_rdb_header(nwis_rdb.HEADER_MESSAGE, nwis_rdb.EDEN_CONTACT, nwis_rdb.END_OF_HEADER, form.cleaned_data, data_type)
+        query_metadata = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_qs)
 
         response = HttpResponse(content_type='text/csv')
 
