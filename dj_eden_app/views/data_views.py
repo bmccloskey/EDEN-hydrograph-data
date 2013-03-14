@@ -23,7 +23,9 @@ def timeseries_csv_download(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
         
-        query_metadata = nwis_rdb.create_rdf_header(nwis_rdb.HEADER_MESSAGE, nwis_rdb.EDEN_CONTACT, nwis_rdb.END_OF_HEADER, form.cleaned_data)
+        data_type = 'Hourly Water Level, NAVD88(ft)' # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
+        
+        query_metadata = nwis_rdb.create_rdb_header(nwis_rdb.HEADER_MESSAGE, nwis_rdb.EDEN_CONTACT, nwis_rdb.END_OF_HEADER, form.cleaned_data, data_type)
 
         response = HttpResponse(content_type='text/csv')
 
