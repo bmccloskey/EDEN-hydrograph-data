@@ -17,13 +17,13 @@ _O = literal_column("'O'", String)
 _E = literal_column("'E'", String)
 
 def hourly_data_expr(flag_expr, value_expr, dry_elev):
-    flag = expression.case([
+    flag_expr = expression.case([
                             (flag_expr == _M, _M),
                             (value_expr == None, _M),
                             (value_expr < dry_elev, _D),
                             (flag_expr == None, _O)],
                            else_=_E)
-    return (flag, value_expr)
+    return (flag_expr, value_expr)
 
 
 """
@@ -45,9 +45,10 @@ I.e., if _all_ 24 hourly values are missing, flag "M"; if the daily mean is belo
 
 def daily_data_expr(flag_expr, value_expr, dry_elev):
     flag_expr = expression.case([
-                                 (flag_expr == None, _O)
-                                 ],
-                                else_=flag_expr)
+                                (flag_expr == _M, _M),
+                                (flag_expr == None, _O),
+                                ],
+                                else_=_E)
     flag_expr = expression.case([
                             (func.avg(value_expr) == None, _M),
                             (func.avg(value_expr) < dry_elev, _D),
@@ -66,9 +67,11 @@ def value_col(g):
     return stage.c['stage_' + g]
 
 
-def hourly_columns(gage, dry_value):
+def hourly_columns(gage, dry_value, navd88correction=None):
     f = flag_col(gage)
     s = value_col(gage)
+    if navd88correction:
+        s = s + navd88correction
     flag, val = hourly_data_expr(f, s, dry_value)
     return flag, val
 
@@ -90,9 +93,11 @@ def hourly_query_1(gage, dry_value):
     return query_by_hour
 
 
-def daily_columns(gage, dry_value):
+def daily_columns(gage, dry_value, navd88correction=None):
     f = flag_col(gage)
     raw = value_col(gage)
+    if navd88correction:
+        raw = raw + navd88correction
     flag, summary = daily_data_expr(f, raw, dry_value)
     return flag, summary, raw
 

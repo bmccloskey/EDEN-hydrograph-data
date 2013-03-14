@@ -107,6 +107,58 @@ def _query_for_download(stations, beginDate=None, endDate=None, station_dict={})
 
     return sel
 
+def _infer_rdb_types(resultset):
+    '''
+    Infer the RDB type codes for a row, from a DB API Cursor
+    See http://www.python.org/dev/peps/pep-0249/#cursor-objects
+    '''
+    desc = resultset.cursor.description
+    dialect = resultset.dialect.dbapi
+    value = []
+    # RDB type row like 5s,10n,12s...
+    # s for string
+    # n for number
+    # d for date
+    for d in desc:
+        (name, type_code, display_size, internal_size, precision, scale, null_ok) = d
+        if type_code == dialect.DATETIME or type_code == dialect.DATE:
+            value.append("%dd" % (display_size))
+        elif type_code == dialect.NUMBER or 246 == type_code:  # HACK for MySQL
+            value.append("%dn" % (display_size))
+        else:
+            value.append("%ds" % (display_size))
+
+    return value
+
+def write_rdb(results, outfile, metadata=[]):
+    '''
+    Write an NWIS RDB to outfile.
+    RDB is like csv with a header, see http://help.waterdata.usgs.gov/faq/automated-retrievals#MR
+    or http://waterdata.usgs.gov/nwis?tab_delimited_format_info
+    '''
+    # write the metadata before the CSV body -- no escaping
+    for r in metadata:
+        outfile.write("# " + r + "\r\n")
+    csv_writer = csv.writer(outfile, dialect='excel-tab', lineterminator='\r\n')
+    csv_writer.writerow(results.keys())
+
+    if hasattr(results, 'cursor') and hasattr(results, 'dialect'):
+        type_codes = _infer_rdb_types(results)
+    else:
+        # totally fake
+        type_codes = len(results.keys()) * ["12s"]
+    csv_writer.writerow(type_codes)
+
+    # TODO write RDB type row like 5s,10n,12s...
+    # s for string
+    # n for number
+    # d for date
+
+    # Iterate, because csv.writerows pulls up all rows to a list
+    for r in results:
+        csv_writer.writerow(r)
+
+
 def write_csv(results, outfile, metadata=None):
     '''
     Writes a csv file to the specified outfile file-like object.

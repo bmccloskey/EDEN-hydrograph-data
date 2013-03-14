@@ -10,8 +10,7 @@ def daily_query(*stations):
         navd88correction = s.stationdatum.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
-        # TODO use navd88 correction
-        flag, val, raw = daily_columns(gage_name, dry_value)
+        flag, val, raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
 
         q = q.column(val.label(gage_name + " avg"))
         q = q.column(flag.label(gage_name + " flag"))
@@ -26,8 +25,8 @@ def hourly_query(*stations):
         navd88correction = s.stationdatum.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
-        # TODO use navd88 correction
-        flag, val = hourly_columns(gage_name, dry_value)
+        # use navd88 correction
+        flag, val = hourly_columns(gage_name, dry_value, navd88correction=navd88correction)
 
         q = q.column(val.label(gage_name))
         q = q.column(flag.label(gage_name + " flag"))

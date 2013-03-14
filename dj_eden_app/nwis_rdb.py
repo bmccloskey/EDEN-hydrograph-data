@@ -37,7 +37,7 @@ def timezone_conversion(tz):
     utc_time = utc.localize(utc_dt)
     time_in_tz = utc_time.astimezone(op_tz)
     display_time = time_in_tz.strftime(dt_format)
-    
+
     return str(display_time)
 
 def create_rdb_header(warning, contact, header_end, query_info, data_type):
@@ -45,9 +45,9 @@ def create_rdb_header(warning, contact, header_end, query_info, data_type):
     nwis_contact = contact
     convert_time = timezone_conversion('US/Eastern')
     download_time = 'Retrieved: %s' % convert_time
+    header_list = [nwis_warning, nwis_contact, download_time]
+
     query_info_list = query_info.items()
-    parameter_string = ''
-    returned_data = 'Parameter Requested: %s' % data_type
     for element in query_info_list:
         key, value = element
         display_key = key.replace('_', ' ')
@@ -61,10 +61,10 @@ def create_rdb_header(warning, contact, header_end, query_info, data_type):
         else:
             parameter_value = value
             parameter = '%s: %s\n' % (display_key, parameter_value)
-            
-        parameter_string += parameter
-    parameter_string += returned_data
-    header_string = "%s\n%s\n%s\n%s\n%s\n" % (nwis_warning, nwis_contact, download_time, parameter_string, header_end)
-    header_as_list = [header_string]
-    
-    return header_as_list
+
+        header_list.append(parameter)
+    returned_data = 'Parameter Requested: %s' % data_type
+    header_list.append(returned_data)
+    header_list.append(header_end)
+
+    return header_list
