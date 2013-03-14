@@ -1,29 +1,7 @@
 import datetime
 import types
 import pytz
-
-# test commit
-
-HEADER_MESSAGE = """
------------------------------------------ MESSAGE ---------------------------------------------
-Thank you for retrieving data from the Exploring and Viewing EDEN (EVE)
-application.
-
-Note:
-All times are reported in Eastern Time unless otherwise specified.
-
-Flag Dictionary:
-
-null: original measured value
-M: missing value - not value provided by the originating agency, no estimated data available
-G: gapfilled - EDEN estimated values to fill gaps in original data
-H: hindcast - nominally estimated data from before the period of record for the gage began
-E: estimated - timestamps for which measured points were provided by the agencies, but 
-               data was identified as spurious and overwritten with EDEN estimated values
-"""
-EDEN_CONTACT = "Contact:   fake_email@usgs.gov"
-
-END_OF_HEADER = "---------------------------------------------------------------------------------------------"
+from decimal import Decimal
 
 def timezone_conversion(tz):
     '''
@@ -40,31 +18,76 @@ def timezone_conversion(tz):
     
     return str(display_time)
 
-def create_rdb_header(warning, contact, header_end, query_info, data_type):
-    nwis_warning = warning
+def convert_string_tuple(data_string, delimiter):
+    '''
+    Converts a limited string a tuple for further processing.
+    '''
+    string_list = data_string.split(delimiter)
+    string_tuple = tuple(string_list)
+    
+    return string_tuple
+    
+
+def convert_dms_string_to_decimal(geo_tuple):    
+    '''
+    Takes a tuple of form ('deg', 'min', 'sec') and
+    returns the lat or lon as a decimal number.
+    '''
+    deg, g_min, sec = (geo_tuple)
+    deg_num = Decimal(deg)
+    min_num = Decimal(g_min)
+    sec_num = Decimal(sec)
+    
+    dec_60 = Decimal(60)
+    sec_conv = sec_num/dec_60
+    min_conv = (min_num + sec_conv)/dec_60
+    abs_conv = abs(deg_num) + min_conv
+    if deg_num < 0:
+        conv_complete = abs_conv*(-1)
+    else:
+        conv_complete = abs_conv
+    display_number = round(conv_complete, 2)
+    
+    return display_number
+    
+
+def create_rdb_header(message, contact, header_end, query_info, param_qs):
+    '''
+    Generates the header for data downloads.
+    '''
+    nwis_message = message
     nwis_contact = contact
     convert_time = timezone_conversion('US/Eastern')
     download_time = 'Retrieved: %s' % convert_time
     query_info_list = query_info.items()
-    parameter_string = ''
-    returned_data = 'Parameter Requested: %s' % data_type
+    site_string = ''
+
+    site_parameter_str = 'Sites and USGS parameters:\n'
+    
+    for qs_object in param_qs:
+        site_name = qs_object.station_name_web
+        p_code = qs_object.param
+        site_name_display = site_name.encode('utf-8').replace('_', ' ')
+        p_code_display = p_code.encode('utf-8')
+        site_p_string = 'Station Name: %s, USGS Parameter Code: %s\n' % (site_name_display, p_code_display)
+        site_parameter_str += site_p_string
+        
+    usgs_p_codes = '\nUSGS parameter codes can be searched at: http://nwis.waterdata.usgs.gov/usa/nwis/pmcodes.'
+    
+    site_parameter_str += usgs_p_codes
+        
     for element in query_info_list:
         key, value = element
         display_key = key.replace('_', ' ')
-        if type(value) is types.ListType:
-            tmp_list = []
-            for item in value:
-                parameter_value = item.encode('utf-8')
-                tmp_list.append(parameter_value.replace('_', ' '))
-            string_of_list = ', '.join(tmp_list)
-            parameter = '%s: %s\n' % (display_key, string_of_list)
-        else:
+
+        if type(value) is not types.ListType:
             parameter_value = value
             parameter = '%s: %s\n' % (display_key, parameter_value)
+        else:
+            continue
             
-        parameter_string += parameter
-    parameter_string += returned_data
-    header_string = "%s\n%s\n%s\n%s\n%s\n" % (nwis_warning, nwis_contact, download_time, parameter_string, header_end)
+        site_string += parameter
+    header_string = "%s\n%s\n%s\n%s\n%s\n%s\n" % (nwis_message, nwis_contact, download_time, site_string, site_parameter_str, header_end)
     header_as_list = [header_string]
     
     return header_as_list
