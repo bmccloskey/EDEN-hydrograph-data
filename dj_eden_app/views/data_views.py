@@ -44,7 +44,70 @@ def timeseries_csv_download(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
+def hourly_download(request):
+    form = TimeSeriesFilterForm(request.GET)
 
+    if (form.is_valid()):
+        gages = form.cleaned_data['site_list']
+        _logger.info("hourly csv download, gages is %s" % (gages))
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        station_dict = data_queries.station_dict(gages)
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        q, dt = data_queries.hourly_query(*station_dict.values())
+        if beginDate:
+            q = q.where(dt >= beginDate)
+        if endDate:
+            q = q.where(dt <= endDate)
+        data = q.execute()
+
+        # data_type = 'Hourly Water Level, NAVD88(ft)'  # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
+        query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_dict.values())
+
+        response = HttpResponse(content_type='text/csv')
+
+        stage_data.write_rdb(data, response, metadata=query_metadata_list)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def daily_download(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if (form.is_valid()):
+        gages = form.cleaned_data['site_list']
+        _logger.info("hourly csv download, gages is %s" % (gages))
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        station_dict = data_queries.station_dict(gages)
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        q, dt = data_queries.daily_query(*station_dict.values())
+        if beginDate:
+            q = q.where(dt >= beginDate)
+        if endDate:
+            q = q.where(dt <= endDate)
+        data = q.execute()
+
+        # data_type = 'Hourly Water Level, NAVD88(ft)'  # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
+        query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_dict.values())
+
+        response = HttpResponse(content_type='text/csv')
+
+        stage_data.write_rdb(data, response, metadata=query_metadata_list)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+    pass
+
+# deprecated
 def plot_data(request):
     # TODO Pull gage list up to list of model objects
     form = TimeSeriesFilterForm(request.GET)
