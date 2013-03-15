@@ -1,5 +1,6 @@
 # Create your views here.
 from django.http import HttpResponse, HttpResponseBadRequest
+from collections import OrderedDict
 
 from dj_eden_app.models import Station
 from dj_eden_app.forms import TimeSeriesFilterForm
@@ -23,10 +24,12 @@ def timeseries_csv_download(request):
         _logger.info("csv download, gages is %s" % (gages))
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
-        
+
+        # data_type = 'Hourly Water Level, NAVD88(ft)'  # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
+
         station_qs = Station.objects.filter(station_name_web__in=gages)
-        
-        query_metadata = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_qs)
+
+        query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_qs)
 
         response = HttpResponse(content_type='text/csv')
 
@@ -35,7 +38,7 @@ def timeseries_csv_download(request):
                         beginDate=beginDate,
                         endDate=endDate
                     )
-        stage_data.write_csv(results=results, outfile=response, metadata=query_metadata)
+        stage_data.write_rdb(results, response, metadata=query_metadata_list)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -44,7 +47,8 @@ def _station_dict(gages):
     # pull station name list up to Station objects
     stations = Station.objects.filter(station_name_web__in=gages)
     # and make a dictionary mapping names back to stations
-    station_dict = dict((s.station_name_web, s) for s in stations)
+    # ordering will be the natural ordering for the Station model, not the input order
+    station_dict = OrderedDict((s.station_name_web, s) for s in stations)
 
     return station_dict
 

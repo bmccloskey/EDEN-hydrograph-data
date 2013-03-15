@@ -1,4 +1,4 @@
-import dj_eden_app.station_data as station_data
+import dj_eden_app.data_queries as station_data
 import dj_eden_app.views.data_views as data_views
 
 from decimal import Decimal
@@ -34,6 +34,32 @@ class TestStationData(unittest.TestCase):
         q = station_data.daily_query(*stations)
         q = q.where(dt >= '2003-06-28')
         self.check(q, ['G-3567 avg', '2A300 avg'], ['G-3567 flag', '2A300 flag'])
+
+    def test_hourly_split(self):
+
+        q = station_data.hourly_query_split(*stations)
+        q = q.where(dt >= '2003-07-20')
+        rs = q.execute()
+        rsk = rs.keys()
+        for s in stations:
+            web_name = s.station_name_web
+            for suffix in ["", " est", " dry"]:
+                self.assertIn(web_name + suffix, rsk, "expected rs to have key " + web_name + suffix)
+        for r in rs:
+            self.assertTrue(r, "valid result row")
+
+    def test_daily_split(self):
+
+        q = station_data.daily_query_split(*stations)
+        q = q.where(dt >= '2008-09-20')
+        rs = q.execute()
+        rsk = rs.keys()
+        for s in stations:
+            web_name = s.station_name_web
+            for suffix in [" avg", " est", " dry"]:
+                self.assertIn(web_name + suffix, rsk, "expected rs to have key " + web_name + suffix)
+        for r in rs:
+            self.assertTrue(r, "valid result row")
 
     def test_hourly_navd_88(self):
         s = stations[0]
