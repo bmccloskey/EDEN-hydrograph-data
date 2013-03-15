@@ -12,6 +12,7 @@ import dj_eden_app.data_queries as data_queries
 import textwrap
 
 _label_width = 12
+_marker_size = 2.5
 
 def _clean_label(s):
     label = s.replace("stage_", "", 1)
@@ -46,7 +47,13 @@ def plot_multi(data, beginDate, endDate):
     for i in range(1, len(labels)):
         marker = _line_styles[(i - 1) % 3]
         color = _line_colors[((i - 1) / 3) % len(_line_colors)]
-        plot_date(columns[0], columns[i], fmt=marker, color=color)
+        label = "_nolegend_"
+        if (i % 3) == 1:
+            label = labels[i]
+        markerprops = {'markerfacecolor':color, 'markersize':_marker_size, 'markeredgecolor':color}
+        plot_date(columns[0], columns[i], fmt=marker, color=color, label=label, **markerprops)
+
+    legend(loc='upper left', bbox_to_anchor=(1, 1))
 
     return len(columns[0])
 
@@ -75,9 +82,13 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
         axhline(y=dry_elevation, linewidth=4, color="gray", zorder= -100)
     if ground_elevation is not None:
         axhline(y=ground_elevation, linewidth=4, color="brown", zorder= -100)
-    plot_date(columns[0], columns[1], _line_styles[0], color=_line_colors[0])
-    plot_date(columns[0], columns[2], _line_styles[1], color=_line_colors[0])
-    plot_date(columns[0], columns[3], _line_styles[2], color=_line_colors[0])
+    c = _line_colors[0]
+    markerprops = {'markerfacecolor':c, 'markersize':_marker_size, 'markeredgecolor':c}
+    plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
+    plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
+    plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
+
+    legend()
 
     return len(columns[0])
 
@@ -123,7 +134,7 @@ _line_style_dict = {
                 'E': ":+",  # dotted with crosses
                 'M': " ",  # blank
                 }
-_line_styles = ["-d", ":+", ":+"]
+_line_styles = ["-d", ":+", ":^"]
 _line_colors = [
 "#000000",
 "#670075",
