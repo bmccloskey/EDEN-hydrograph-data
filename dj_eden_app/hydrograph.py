@@ -58,6 +58,8 @@ def plot_multi(data, beginDate, endDate):
 
     return len(columns[0])
 
+brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
+gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
 def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None):
     figure()
@@ -81,9 +83,9 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     # TODO: change reference lines to solid with alpha < 1
     if dry_elevation is not None:
-        axhline(y=dry_elevation, linewidth=4, color="gray", zorder= -100)
+        axhline(y=dry_elevation, linewidth=4, color=gray_ish, zorder= -100)
     if ground_elevation is not None:
-        axhline(y=ground_elevation, linewidth=4, color="brown", zorder= -100, linestyle='--')
+        axhline(y=ground_elevation, linewidth=4, color=brown_ish, zorder= -100)
     c = _line_colors[0]
     markerprops = {'markerfacecolor':c, 'markersize':_marker_size, 'markeredgecolor':c}
     plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
@@ -106,7 +108,8 @@ def plot_grd_level(site_list):
     grd_elevation = gage_elevation_qs.duration_elevation
 
     if grd_elevation:
-        grd_level = axhline(y=grd_elevation, linestyle='--', color='#964B00')
+        # color was #964B00
+        grd_level = axhline(y=grd_elevation, linestyle='--', color=brown_ish)
     else:
         grd_level = None
 
@@ -230,18 +233,18 @@ if __name__ == "__main__":
     print "hg6.png", ct
 
     data = stage_data.data_for_plot(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2010-01-01", maxCount=600)
-    ct = png(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"))
+    ct = png(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"), ['2A300', 'G-3567'])
     print "hg1.png", ct
 
     data = stage_data.data_for_plot(['2A300', 'G-3567'], maxCount=600)
-    ct = png(data, "/tmp/hg2.png", None, None)
+    ct = png(data, "/tmp/hg2.png", None, None, ['2A300', 'G-3567'])
     print "hg2.png", ct
 
     data = stage_data.data_for_plot(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2004-03-01", maxCount=600)
-    ct = png(data, "/tmp/hg3.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2004-03-01"))
+    ct = png(data, "/tmp/hg3.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2004-03-01"), ['2A300', 'G-3567'])
     print "hg3.png", ct
 
     data = stage_data.data_for_plot(['L31NN', 'Chatham_River_near_the_Watson_Place'], beginDate="2011-09-01", endDate="2011-12-31",
              maxCount=600)
-    ct = png(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"))
+    ct = png(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"), ['L31NN', 'Chatham_River_near_the_Watson_Place'])
     print "hg4.png", ct
