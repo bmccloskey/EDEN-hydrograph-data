@@ -186,6 +186,60 @@ def plot_data_daily(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
+def plot_image_daily_multi(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        gages = form.cleaned_data['site_list']
+        _logger.info("plot_data, gages is %s" % (gages))
+
+        station_dict = data_queries.station_dict(gages)
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        q, dt = data_queries.daily_query_split(*station_dict.values())
+        if beginDate:
+            q = q.where(dt >= beginDate)
+        if endDate:
+            q = q.where(dt <= endDate)
+        data = q.execute()
+
+        response = HttpResponse(content_type='image/png')
+
+        hydrograph.png_multi(data, response, beginDate, endDate)
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def plot_image_daily_single(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        gages = form.cleaned_data['site_list']
+        _logger.info("plot_data, gages is %s" % (gages))
+
+        if len(gages) != 1:
+            return HttpResponseBadRequest("Exactly one gage must be specified")
+
+        station_dict = data_queries.station_dict(gages)
+        station = station_dict.values()[0]
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        q, dt = data_queries.daily_query_split(station)
+        if beginDate:
+            q = q.where(dt >= beginDate)
+        if endDate:
+            q = q.where(dt <= endDate)
+        data = q.execute()
+
+        response = HttpResponse(content_type='image/png')
+
+        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
 def plot_image(request):
     # TODO Pull gage list up to list of model objects
 
