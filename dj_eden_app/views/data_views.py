@@ -26,8 +26,6 @@ def timeseries_csv_download(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        # data_type = 'Hourly Water Level, NAVD88(ft)'  # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
-
         station_qs = Station.objects.filter(station_name_web__in=gages)
 
         query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_qs)
