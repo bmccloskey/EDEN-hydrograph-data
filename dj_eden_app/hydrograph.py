@@ -79,10 +79,11 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
         for i, v in enumerate(r):
             columns[i].append(v)
 
+    # TODO: change reference lines to solid with alpha < 1
     if dry_elevation is not None:
         axhline(y=dry_elevation, linewidth=4, color="gray", zorder= -100)
     if ground_elevation is not None:
-        axhline(y=ground_elevation, linewidth=4, color="brown", zorder= -100, linestyle = '--')
+        axhline(y=ground_elevation, linewidth=4, color="brown", zorder= -100, linestyle='--')
     c = _line_colors[0]
     markerprops = {'markerfacecolor':c, 'markersize':_marker_size, 'markeredgecolor':c}
     plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
@@ -103,13 +104,13 @@ def plot_grd_level(site_list):
     """
     gage_elevation_qs = Station.objects.get(station_name_web__in=site_list)
     grd_elevation = gage_elevation_qs.duration_elevation
-    
+
     if grd_elevation:
-        grd_level = axhline(y = grd_elevation, linestyle = '--', color = '#964B00')    
+        grd_level = axhline(y=grd_elevation, linestyle='--', color='#964B00')
     else:
         grd_level = None
-        
-    return grd_level 
+
+    return grd_level
 
 def plot_many(data, destination, begin_date, end_date, gage_list):
     """
