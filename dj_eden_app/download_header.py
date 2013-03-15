@@ -56,12 +56,19 @@ def create_metadata_header(message, contact, header_end, query_info, param_qs):
     Generates the header for data downloads. This not
     in NWIS RDB format, but will provide the same information.
     '''
-    nwis_message = message
-    nwis_contact = contact
+
+    header_list = []
+
+    nwis_message = message.splitlines()
+    header_list.extend(nwis_message)
+
+    nwis_contact = contact.splitlines()
+    header_list.extend(nwis_contact)
+
     convert_time = timezone_conversion('US/Eastern')
     download_time = 'Retrieved: %s' % convert_time
 
-    header_list = [nwis_message, nwis_contact, download_time]
+    header_list.append(download_time)
 
     header_list.append('Sites and USGS parameters:')
 
@@ -75,6 +82,7 @@ def create_metadata_header(message, contact, header_end, query_info, param_qs):
 
     usgs_p_codes = 'USGS parameter codes can be searched at: http://nwis.waterdata.usgs.gov/usa/nwis/pmcodes.'
     header_list.append(usgs_p_codes)
+    header_list.append("Note: all depth measurements have been converted to feet below NAVD88")
 
     query_info_list = query_info.items()
     for element in query_info_list:
