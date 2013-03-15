@@ -217,7 +217,33 @@ def _hourly_plot_data(form):
     data = q.execute()
     return data, beginDate, endDate, station1
 
-# TODO Condense these four methods to one, that shifts gears according to input
+# Condense these four methods to one, that shifts gears according to input
+def plot_image_auto(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        gages = form.cleaned_data['site_list']
+
+        fine_time = False
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+        if beginDate is not None and endDate is not None:
+            timediff = endDate - beginDate
+            if timediff.days < 30:
+                fine_time = True
+
+        if fine_time:
+            if len(gages) == 1:
+                return plot_image_hourly_single(request)
+            else:
+                return plot_image_hourly_multi(request)
+        else:
+            if len(gages) == 1:
+                return plot_image_daily_single(request)
+            else:
+                return plot_image_daily_multi(request)
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
 
 def plot_image_hourly_multi(request):
     form = TimeSeriesFilterForm(request.GET)
@@ -228,6 +254,7 @@ def plot_image_hourly_multi(request):
         response = HttpResponse(content_type='image/png')
 
         hydrograph.png_multi(data, response, beginDate, endDate)
+        return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
@@ -240,6 +267,7 @@ def plot_image_hourly_single(request):
         response = HttpResponse(content_type='image/png')
 
         hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+        return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
@@ -252,6 +280,7 @@ def plot_image_daily_multi(request):
         response = HttpResponse(content_type='image/png')
 
         hydrograph.png_multi(data, response, beginDate, endDate)
+        return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
@@ -264,6 +293,7 @@ def plot_image_daily_single(request):
         response = HttpResponse(content_type='image/png')
 
         hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+        return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
