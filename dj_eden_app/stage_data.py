@@ -54,6 +54,7 @@ def _columns(gage, station):
     return (data_col, flag_col, data_corrected)
 
 def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, station_dict={}):
+    # TODO Use queries from data_queries, separating daily and hourly
     sel = select([stage.c.datetime]).order_by(stage.c.datetime)
 
     # make the world safe for simple calls like _query_for_plot("2A300")
