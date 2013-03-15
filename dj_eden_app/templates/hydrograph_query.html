@@ -56,7 +56,7 @@
 
 	<div id="graph">
 	<noscript>
-	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image %}?{{ plot_params }}&max_count=600" />
+	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
 	</noscript>
 	</div>
 	
@@ -86,7 +86,7 @@
 
 <h2>Server-generated Image</h2>
 
-        <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image %}?{{ plot_params }}&max_count=600" />
+        <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
         
 <h2>Data Download</h2>
 
