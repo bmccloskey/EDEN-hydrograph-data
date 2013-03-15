@@ -8,6 +8,7 @@ matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel
 import dj_eden_app.data_queries as data_queries
+from dj_eden_app.models import Station
 
 import textwrap
 
