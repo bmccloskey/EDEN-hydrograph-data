@@ -76,6 +76,7 @@ def create_metadata_header(message, contact, header_end, query_info, param_qs):
     usgs_p_codes = 'USGS parameter codes can be searched at: http://nwis.waterdata.usgs.gov/usa/nwis/pmcodes.'
     header_list.append(usgs_p_codes)
 
+    query_info_list = query_info.items()
     for element in query_info_list:
         key, value = element
         display_key = key.replace('_', ' ')
