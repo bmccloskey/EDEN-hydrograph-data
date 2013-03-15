@@ -5,7 +5,7 @@ from decimal import Decimal
 
 def timezone_conversion(tz):
     '''
-    Returns the time in the specified timezone ('tz')
+    Returns the current time for the specified timezone ('tz')
     in YYYY-MM-DD HH:MM:SS TZ format
     '''
     dt_format = '%Y-%m-%d %H:%M:%S %Z'
@@ -20,7 +20,7 @@ def timezone_conversion(tz):
 
 def convert_string_tuple(data_string, delimiter):
     '''
-    Converts a limited string a tuple for further processing.
+    Converts a delimited string to a tuple for further processing.
     '''
     string_list = data_string.split(delimiter)
     string_tuple = tuple(string_list)

@@ -15,9 +15,9 @@ Certain files will need to be created before the application can be run. These f
 	a. Edit the 'local_settings_template.py' file with database connection information.  
 	b. Specify the location of static files in the server in the 'STATICFILES_DIRS' field.  
 	c. Request 'secret_key.py' from CIDA staff.  
-	d. The file should be renamed 'local_settings.py'. It and 'secret_key.py' should be saved in the same directory as 'settings.py' (eden_project).  
+	d. The file should be renamed 'local_settings.py'. The newly renamed file and 'secret_key.py' should be saved in the same directory as 'settings.py' (eden_project).  
 
 2. secure.py  
 
 	a. Edit the 'secure_template.py' file with database connection information.  
-	b. The file should be renamed 'secure.py' and saved in the same directory as 'hydrograph.py' (dj_eden_app).  
+	b. The file should be renamed 'secure.py' and saved in the same directory as 'stage_data.py' (dj_eden_app).  
