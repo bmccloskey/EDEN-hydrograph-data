@@ -17,6 +17,8 @@ _O = literal_column("'O'", String)
 _E = literal_column("'E'", String)
 
 def hourly_data_expr(flag_expr, value_expr, dry_elev):
+    if dry_elev is None:
+        dry_elev = -1000
     flag_expr = expression.case([
                             (flag_expr == _M, _M),
                             (value_expr == None, _M),
@@ -44,6 +46,8 @@ I.e., if _all_ 24 hourly values are missing, flag "M"; if the daily mean is belo
 # note that max('M','O') -> 'O'
 
 def daily_data_expr(flag_expr, value_expr, dry_elev):
+    if dry_elev is None:
+        dry_elev = -1000
     flag_expr = expression.case([
                                 (flag_expr == _M, _M),
                                 (flag_expr == None, _O),
@@ -80,7 +84,7 @@ def hourly_base_query():
     dt = date_col()
     # base query, raw values
     query_by_hour = select([dt])
-    return query_by_hour
+    return query_by_hour, dt
 
 def hourly_query_1(gage, dry_value):
     "Query for hourly data for single gage.  Result will have three columns: datetime, data (or none), flag."
@@ -98,6 +102,7 @@ def daily_columns(gage, dry_value, navd88correction=None):
     raw = value_col(gage)
     if navd88correction:
         raw = raw + navd88correction
+
     flag, summary = daily_data_expr(f, raw, dry_value)
     return flag, summary, raw
 
@@ -108,7 +113,7 @@ def daily_base_query():
     dm = func.min(date).label("date")
 # base query, daily means
     query_by_day = select([dm]).group_by(date)
-    return query_by_day
+    return query_by_day, dt
 
 def daily_query_1(gage, dry_value):
     "Query for daily average data for single gage.  Result will have these columns: date, averaged data (or None), flag, min, max, count"
