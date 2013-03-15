@@ -7,6 +7,8 @@ import matplotlib
 matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel
+from dj_eden_app.text_export import _generate_error_file
+from dj_eden_app.models import Station
 
 import textwrap
 
@@ -19,7 +21,23 @@ def _clean_label(s):
         label = textwrap.fill(label, width=_label_width)
     return label
 
-def plot_many(data, destination, begin_date, end_date):
+def plot_grd_level(site_list):
+    """
+    Plots the ground level as a brown dashed-line if 
+    the 'duration_elevation' column is not null for
+    a station in STATION table.
+    """
+    gage_elevation_qs = Station.objects.get(station_name_web__in=site_list)
+    grd_elevation = gage_elevation_qs.duration_elevation
+    
+    if grd_elevation:
+        grd_level = axhline(y = grd_elevation, linestyle = '--', color = '#964B00')    
+    else:
+        grd_level = None
+        
+    return grd_level 
+
+def plot_many(data, destination, begin_date, end_date, gage_list):
     """
     Produce a PNG plot of the data series.
     destination can be any file-like object, or a string (file name)
@@ -28,6 +46,8 @@ def plot_many(data, destination, begin_date, end_date):
     keys = data.keys()
     beginDate = begin_date
     endDate = end_date
+    
+    #_generate_error_file('keys.txt', keys)
 
     # Prefer to build xList and yList by iteration rather than comprehension, to ease memory burden
     xList = []
@@ -41,12 +61,15 @@ def plot_many(data, destination, begin_date, end_date):
 
     figure()
     axes([0.1, 0.3, 0.5, 0.5])
-    plot_date(xList, yList, 'o', markersize=2.5)
+    plot_date(xList, yList, 'o', markersize = 2.5)
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
     if beginDate != None and endDate != None:
         xlim(xmin=beginDate, xmax=endDate)
-    # axhline(y = 0.5) could be used for depicting ground elevation
+
+    if len(gage_list) == 1:
+        plot_grd_level(gage_list)
+
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
@@ -63,9 +86,9 @@ _line_style_ = {
 def line_style(flag):
     return _line_style_.get(flag) or "-"
 
-def png(data, destination, beginDate, endDate):
+def png(data, destination, beginDate, endDate, gage_list):
 
-    ct = plot_many(data, destination, beginDate, endDate)
+    ct = plot_many(data, destination, beginDate, endDate, gage_list)
     savefig(destination, format="png")
 
     return ct
