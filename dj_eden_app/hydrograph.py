@@ -8,6 +8,7 @@ matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel
 import dj_eden_app.data_queries as data_queries
+from dj_eden_app.models import Station
 
 import textwrap
 
@@ -74,7 +75,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     if dry_elevation is not None:
         axhline(y=dry_elevation, linewidth=4, color="gray", zorder= -100)
     if ground_elevation is not None:
-        axhline(y=ground_elevation, linewidth=4, color="brown", zorder= -100)
+        axhline(y=ground_elevation, linewidth=4, color="brown", zorder= -100, linestyle = '--')
     plot_date(columns[0], columns[1], _line_styles[0], color=_line_colors[0])
     plot_date(columns[0], columns[2], _line_styles[1], color=_line_colors[0])
     plot_date(columns[0], columns[3], _line_styles[2], color=_line_colors[0])
@@ -83,7 +84,23 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     pass
 
-def plot_many(data, destination, begin_date, end_date):
+def plot_grd_level(site_list):
+    """
+    Plots the ground level as a brown dashed-line if 
+    the 'duration_elevation' column is not null for
+    a station in STATION table.
+    """
+    gage_elevation_qs = Station.objects.get(station_name_web__in=site_list)
+    grd_elevation = gage_elevation_qs.duration_elevation
+    
+    if grd_elevation:
+        grd_level = axhline(y = grd_elevation, linestyle = '--', color = '#964B00')    
+    else:
+        grd_level = None
+        
+    return grd_level 
+
+def plot_many(data, destination, begin_date, end_date, gage_list):
     """
     Produce a PNG plot of the data series.
     destination can be any file-like object, or a string (file name)
@@ -110,7 +127,8 @@ def plot_many(data, destination, begin_date, end_date):
     ylabel('Water Level (NAVD88 ft)')
     if beginDate != None and endDate != None:
         xlim(xmin=beginDate, xmax=endDate)
-    # axhline(y = 0.5) could be used for depicting ground elevation
+    if len(gage_list) == 1:
+        plot_grd_level(gage_list)
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
@@ -154,9 +172,9 @@ _line_colors = [
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
 
-def png(data, destination, beginDate, endDate):
+def png(data, destination, beginDate, endDate, gage_list):
 
-    ct = plot_many(data, destination, beginDate, endDate)
+    ct = plot_many(data, destination, beginDate, endDate, gage_list)
     savefig(destination, format="png")
 
     return ct
@@ -215,5 +233,3 @@ if __name__ == "__main__":
              maxCount=600)
     ct = png(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"))
     print "hg4.png", ct
-
-

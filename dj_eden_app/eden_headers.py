@@ -5,7 +5,7 @@ application. The values entered for the query are reproduced below. The reported
 values are depths in feet, relative to the NAVD-88 datum.
 
 Note:
-All times are reported in Eastern Standard Time unless otherwise specified.
+All times are reported in Eastern Time (EST: UTC-5:00, EDT: UTC-4:00) unless otherwise specified.
 
 Flag Dictionary:
 
