@@ -184,28 +184,101 @@ def plot_data_daily(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
-def plot_image_daily_multi(request):
+def _daily_plot_data(form):
+    gages = form.cleaned_data['site_list']
+    _logger.info("plot_data, gages is %s" % (gages))
+    station_dict = data_queries.station_dict(gages)
+    station1 = station_dict.values()[0]
+    beginDate = form.cleaned_data["timeseries_start"]
+    endDate = form.cleaned_data["timeseries_end"]
+    q, dt = data_queries.daily_query_split(*station_dict.values())
+    if beginDate:
+        q = q.where(dt >= beginDate)
+    if endDate:
+        q = q.where(dt <= endDate)
+    data = q.execute()
+    return data, beginDate, endDate, station1
+
+def _hourly_plot_data(form):
+    gages = form.cleaned_data['site_list']
+    _logger.info("plot_data, gages is %s" % (gages))
+    station_dict = data_queries.station_dict(gages)
+    station1 = station_dict.values()[0]
+
+    beginDate = form.cleaned_data["timeseries_start"]
+    endDate = form.cleaned_data["timeseries_end"]
+    q, dt = data_queries.hourly_query_split(*station_dict.values())
+    if beginDate:
+        q = q.where(dt >= beginDate)
+    if endDate:
+        q = q.where(dt <= endDate)
+    data = q.execute()
+    return data, beginDate, endDate, station1
+
+# Condense these four methods to one, that shifts gears according to input
+def plot_image_auto(request):
     form = TimeSeriesFilterForm(request.GET)
 
     if form.is_valid():
         gages = form.cleaned_data['site_list']
-        _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = data_queries.station_dict(gages)
-
+        fine_time = False
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
+        if beginDate is not None and endDate is not None:
+            timediff = endDate - beginDate
+            if timediff.days < 30:
+                fine_time = True
 
-        q, dt = data_queries.daily_query_split(*station_dict.values())
-        if beginDate:
-            q = q.where(dt >= beginDate)
-        if endDate:
-            q = q.where(dt <= endDate)
-        data = q.execute()
+        if fine_time:
+            if len(gages) == 1:
+                return plot_image_hourly_single(request)
+            else:
+                return plot_image_hourly_multi(request)
+        else:
+            if len(gages) == 1:
+                return plot_image_daily_single(request)
+            else:
+                return plot_image_daily_multi(request)
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def plot_image_hourly_multi(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        data, beginDate, endDate, _ = _hourly_plot_data(form)
 
         response = HttpResponse(content_type='image/png')
 
         hydrograph.png_multi(data, response, beginDate, endDate)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def plot_image_hourly_single(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        data, beginDate, endDate, station = _hourly_plot_data(form)
+
+        response = HttpResponse(content_type='image/png')
+
+        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def plot_image_daily_multi(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        data, beginDate, endDate, _ = _daily_plot_data(form)
+
+        response = HttpResponse(content_type='image/png')
+
+        hydrograph.png_multi(data, response, beginDate, endDate)
+        return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
@@ -213,28 +286,12 @@ def plot_image_daily_single(request):
     form = TimeSeriesFilterForm(request.GET)
 
     if form.is_valid():
-        gages = form.cleaned_data['site_list']
-        _logger.info("plot_data, gages is %s" % (gages))
-
-        if len(gages) != 1:
-            return HttpResponseBadRequest("Exactly one gage must be specified")
-
-        station_dict = data_queries.station_dict(gages)
-        station = station_dict.values()[0]
-
-        beginDate = form.cleaned_data["timeseries_start"]
-        endDate = form.cleaned_data["timeseries_end"]
-
-        q, dt = data_queries.daily_query_split(station)
-        if beginDate:
-            q = q.where(dt >= beginDate)
-        if endDate:
-            q = q.where(dt <= endDate)
-        data = q.execute()
+        data, beginDate, endDate, station = _daily_plot_data(form)
 
         response = HttpResponse(content_type='image/png')
 
         hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+        return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
