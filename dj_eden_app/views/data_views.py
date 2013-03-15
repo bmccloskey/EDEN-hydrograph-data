@@ -1,9 +1,10 @@
 # Create your views here.
 from django.http import HttpResponse, HttpResponseBadRequest
-from collections import OrderedDict
 
 from dj_eden_app.models import Station
 from dj_eden_app.forms import TimeSeriesFilterForm
+import dj_eden_app.data_queries as data_queries
+
 import logging
 
 # Get an instance of a logger
@@ -43,21 +44,6 @@ def timeseries_csv_download(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
-def _station_dict(gages):
-    # pull station name list up to Station objects
-    stations = Station.objects.filter(station_name_web__in=gages)
-    # and make a dictionary mapping names back to stations
-    # ordering will be the natural ordering for the Station model, not the input order
-    station_dict = OrderedDict((s.station_name_web, s) for s in stations)
-
-    return station_dict
-
-def station_list(gages):
-    value = []
-    for g in gages:
-        s = Station.objects.get(station_name_web=g)
-        value.append(s)
-    return value
 
 def plot_data(request):
     # TODO Pull gage list up to list of model objects
@@ -67,7 +53,7 @@ def plot_data(request):
         gages = form.cleaned_data['site_list']
         _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = _station_dict(gages)
+        station_dict = data_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
@@ -87,6 +73,56 @@ def plot_data(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
+def plot_data_hourly(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        gages = form.cleaned_data['site_list']
+        _logger.info("plot_data, gages is %s" % (gages))
+
+        station_dict = data_queries.station_dict(gages)
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        q, dt = data_queries.hourly_query_split(*station_dict.values())
+        if beginDate:
+            q = q.where(dt >= beginDate)
+        if endDate:
+            q = q.where(dt <= endDate)
+        data = q.execute()
+
+        response = HttpResponse(content_type='text/csv')
+        stage_data.write_csv(results=data, outfile=response)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def plot_data_daily(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        gages = form.cleaned_data['site_list']
+        _logger.info("plot_data, gages is %s" % (gages))
+
+        station_dict = data_queries.station_dict(gages)
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        q, dt = data_queries.daily_query_split(*station_dict.values())
+        if beginDate:
+            q = q.where(dt >= beginDate)
+        if endDate:
+            q = q.where(dt <= endDate)
+        data = q.execute()
+
+        response = HttpResponse(content_type='text/csv')
+        stage_data.write_csv(results=data, outfile=response)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
 def plot_image(request):
     # TODO Pull gage list up to list of model objects
 
@@ -95,7 +131,7 @@ def plot_image(request):
     if form.is_valid():
         gages = form.cleaned_data['site_list']
 
-        station_dict = _station_dict(gages)
+        station_dict = data_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]

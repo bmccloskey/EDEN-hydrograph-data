@@ -80,7 +80,7 @@ def hourly_base_query():
     dt = date_col()
     # base query, raw values
     query_by_hour = select([dt])
-    return query_by_hour
+    return query_by_hour, dt
 
 def hourly_query_1(gage, dry_value):
     "Query for hourly data for single gage.  Result will have three columns: datetime, data (or none), flag."
@@ -108,7 +108,7 @@ def daily_base_query():
     dm = func.min(date).label("date")
 # base query, daily means
     query_by_day = select([dm]).group_by(date)
-    return query_by_day
+    return query_by_day, dt
 
 def daily_query_1(gage, dry_value):
     "Query for daily average data for single gage.  Result will have these columns: date, averaged data (or None), flag, min, max, count"
