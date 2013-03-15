@@ -1,5 +1,6 @@
 # Create your views here.
 from django.http import HttpResponse, HttpResponseBadRequest
+from collections import OrderedDict
 
 from dj_eden_app.models import Station
 from dj_eden_app.forms import TimeSeriesFilterForm
@@ -46,8 +47,8 @@ def _station_dict(gages):
     # pull station name list up to Station objects
     stations = Station.objects.filter(station_name_web__in=gages)
     # and make a dictionary mapping names back to stations
-    # TODO Use ordered dict so we can iterate and preserve order
-    station_dict = dict((s.station_name_web, s) for s in stations)
+    # ordering will be the natural ordering for the Station model, not the input order
+    station_dict = OrderedDict((s.station_name_web, s) for s in stations)
 
     return station_dict
 

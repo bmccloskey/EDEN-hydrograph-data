@@ -56,6 +56,7 @@ class Station(models.Model):
     class Meta:
         db_table = u'station'
         managed = False
+        ordering = ['station_name_web', 'station_id']
 
 class StationDatum(models.Model):
     # legacy fields are commented out
