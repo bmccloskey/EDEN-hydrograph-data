@@ -100,7 +100,7 @@ def plot_grd_level(site_list):
         
     return grd_level 
 
-def plot_many(data, destination, begin_date, end_date):
+def plot_many(data, destination, begin_date, end_date, gage_list):
     """
     Produce a PNG plot of the data series.
     destination can be any file-like object, or a string (file name)
@@ -127,7 +127,8 @@ def plot_many(data, destination, begin_date, end_date):
     ylabel('Water Level (NAVD88 ft)')
     if beginDate != None and endDate != None:
         xlim(xmin=beginDate, xmax=endDate)
-    # axhline(y = 0.5) could be used for depicting ground elevation
+    if len(gage_list) == 1:
+        plot_grd_level(gage_list)
     labels = [ _clean_label(s) for s in keys[1:] ]
     legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
@@ -171,9 +172,9 @@ _line_colors = [
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
 
-def png(data, destination, beginDate, endDate):
+def png(data, destination, beginDate, endDate, gage_list):
 
-    ct = plot_many(data, destination, beginDate, endDate)
+    ct = plot_many(data, destination, beginDate, endDate, gage_list)
     savefig(destination, format="png")
 
     return ct
