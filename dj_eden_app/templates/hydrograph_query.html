@@ -37,6 +37,9 @@
 				<td>
 {% if plot_params %}
 				    <a href="{% url dj_eden_app.views.data_views.timeseries_csv_download %}?{{ plot_params }}">Download Data</a>
+                    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Download Daily Data</a>
+                    <!-- TODO Diabled the next if selection period is longer than a year -->
+                    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Download Hourly Data</a>
 {% else %}
                     <button type="button" disabled="true">Download Data</button>
 {% endif %}

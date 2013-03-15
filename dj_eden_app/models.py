@@ -71,3 +71,5 @@ class StationDatum(models.Model):
     class Meta:
         db_table = u'station_datum'
         managed = False
+
+
