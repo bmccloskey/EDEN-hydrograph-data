@@ -3,6 +3,7 @@
 
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
+import dj_eden_app.data_queries as data_queries
 
 # from .. models import Station
 from .. forms import TimeSeriesFilterForm
@@ -23,7 +24,7 @@ def dygraph_series_options(gages):
         name = gage
         opt += "'" + name + " est'" + ":{ strokePattern: Dygraph.DOTTED_LINE },\n"
         opt += "'" + name + " dry'" + ":{ strokePattern: Dygraph.DASHED_LINE },\n"
-    opt += "'datetime': {}\n"
+    opt += "'datetime': {}\n"  # IE-safe last element
     opt += '}\n'
     return opt
 
@@ -73,11 +74,21 @@ def eden_page(request):
             else:
                 str_tend = None
             gages = query_form.cleaned_data['site_list']
-            return render(request, template_name, {'query_form': query_form,
+            render_params = {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),
                                                    'series_options': mark_safe(dygraph_series_options(gages)),
                                                    'str_tstart': str_tstart,
-                                                   'str_tend': str_tend, })
+                                                   'str_tend': str_tend, }
+            if len(gages) == 1:
+                station = data_queries.station_list(gages)[0]
+
+                render_params['dry_elevation'] = station.dry_elevation or "null"
+                render_params['ground_elevation'] = station.duration_elevation or "null"
+            else:
+                render_params['dry_elevation'] = "null"
+                render_params['ground_elevation'] = "null"
+
+            return render(request, template_name, render_params)
     else:
         pass
 

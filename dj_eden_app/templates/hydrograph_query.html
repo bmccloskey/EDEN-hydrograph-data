@@ -33,10 +33,10 @@
 		
 				<td>
 {% if plot_params %}
-				    <a href="{% url dj_eden_app.views.data_views.timeseries_csv_download %}?{{ plot_params }}">Download Data</a>
-                    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Download Daily Data</a>
-                    <!-- TODO Diabled the next if selection period is longer than a year -->
-                    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Download Hourly Data</a>
+    Download data:
+                    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a>
+                    <!-- TODO Disable the next if selection period is longer than a year -->
+                    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a>
 {% else %}
                     <button type="button" disabled="true">Download Data</button>
 {% endif %}
@@ -126,6 +126,8 @@
     	var seriesOptions = {{ series_options }};
     	
     	// TODO dry_elevation and ground_elevation line for single gage
+    	var dryElevation = {{ dry_elevation }};
+    	var groundElevation = {{ ground_elevation }};
     	
     	// TODO auto gear shift for daily/hourly?
     	
@@ -156,8 +158,9 @@
         <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
         
 <h2>Data Download</h2>
-
-	<a href="{% url dj_eden_app.views.data_views.timeseries_csv_download %}?{{ plot_params }}">Download Data</a>
+    Download data:
+    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a>
+    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a>
 	
 {% else %}
 	   <p>Graph will be here.</p>
