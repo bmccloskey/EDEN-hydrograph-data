@@ -9,8 +9,11 @@ matplotlib.use('Cairo')
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
+from dj_eden_app.colors import ColorRange
 
 import textwrap
+import logging
+_logger = logging.getLogger(__name__)
 
 _label_width = 12
 _marker_size = 2.5
@@ -45,9 +48,13 @@ def plot_multi(data, beginDate, endDate):
         for i, v in enumerate(r):
             columns[i].append(v)
 
+    line_colors = ColorRange(count=(len(labels) - 1) / 3)
+
+    _logger.debug("In plot_multi generation, colors = %s", list(line_colors))
+
     for i in range(1, len(labels)):
         marker = _line_styles[(i - 1) % 3]
-        color = _line_colors[((i - 1) / 3) % len(_line_colors)]
+        color = line_colors[(i - 1) / 3]
         label = "_nolegend_"
         if (i % 3) == 1:
             label = labels[i]
@@ -86,7 +93,11 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
         axhline(y=dry_elevation, linewidth=4, color=gray_ish, zorder= -100)
     if ground_elevation is not None:
         axhline(y=ground_elevation, linewidth=4, color=brown_ish, zorder= -100)
-    c = _line_colors[0]
+
+    line_colors = ColorRange(count=1)
+    c = line_colors[0]
+    _logger.debug("In plot_single, color = %s", c)
+
     markerprops = {'markerfacecolor':c, 'markersize':_marker_size, 'markeredgecolor':c}
     plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
     plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
@@ -135,6 +146,7 @@ def plot_many(data, destination, begin_date, end_date, gage_list):
 
     # could collapse some of the data ranges, perhaps
 
+    _logger.debug("using default colors in plot_many")
     figure()
     axes([0.1, 0.3, 0.5, 0.5])
     plot_date(xList, yList, '-d', markersize=2.5)
@@ -157,32 +169,6 @@ _line_style_dict = {
                 'M': " ",  # blank
                 }
 _line_styles = ["-d", ":+", ":^"]
-_line_colors = [
-"#000000",
-"#670075",
-"#830094",
-"#3800a3",
-"#0000c1",
-"#0025dd",
-"#007ddd",
-"#009adb",
-"#00aaab",
-"#00aa8d",
-"#009e28",
-"#00ac00",
-"#00ca00",
-"#00e700",
-"#1dff00",
-"#bcff00",
-"#ecef00",
-"#fcd200",
-"#ffa900",
-"#ff4500",
-"#f10000",
-"#d80000",
-"#cc1c1c",
-"#cccccc",
-]
 
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
@@ -195,7 +181,7 @@ def png(data, destination, beginDate, endDate, gage_list):
     return ct
 
 def png_multi(data, outfile, beginDate, endDate):
-    "Plot multiline onto outfile. Data has columns WHEN then O E D for each well."
+    "Plot multiline onto outfile. Data has columns TIMESTAMP then O E D for each well."
     ct = plot_multi(data, beginDate, endDate)
     savefig(outfile, format="png")
 

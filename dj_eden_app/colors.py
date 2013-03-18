@@ -2,7 +2,6 @@ import matplotlib.cm  as cm
 from matplotlib.colors import rgb2hex as rgb2hex
 
 class ColorRange:
-    _color_map_name = None
     cmap = None
     color_list = []
 
@@ -21,3 +20,10 @@ class ColorRange:
 
     def name(self):
         return self.cmap.name
+
+    @staticmethod
+    def color_map_names():
+        "Names of known color maps"
+        return cm.cmap_d.keys()
+
+
