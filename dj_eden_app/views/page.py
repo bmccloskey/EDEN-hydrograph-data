@@ -20,6 +20,7 @@ def dygraph_series_options(gages):
     '''
     opt = "{"
     # there are two funky series for each gage: name + est, name + dry
+
     for gage in gages:
         name = gage
         opt += "'" + name + " est'" + ":{ strokePattern: Dygraph.DOTTED_LINE },\n"
@@ -27,6 +28,9 @@ def dygraph_series_options(gages):
     opt += "'datetime': {}\n"  # IE-safe last element
     opt += '}\n'
     return opt
+
+def to_js_array(seq):
+    return "[" + ",".join(seq) + "]"
 
 def eden_page(request):
     """
@@ -78,6 +82,7 @@ def eden_page(request):
                                                    'plot_params': mark_safe(plot_query_str),
                                                    'series_options': mark_safe(dygraph_series_options(gages)),
                                                    'str_tstart': str_tstart,
+                                                   'gages':gages,
                                                    'str_tend': str_tend, }
             if len(gages) == 1:
                 station = data_queries.station_list(gages)[0]

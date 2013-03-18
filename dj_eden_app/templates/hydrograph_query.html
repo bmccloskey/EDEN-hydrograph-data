@@ -49,8 +49,21 @@
 
 {% if plot_params %}
 <h2>Dynamic Graph</h2>
-	<div id="hydrograph_label"></div>
-
+    
+	<div id="hydrograph_legend">
+	   <div id="hydrograph_series_key">
+	   {% for g in gages %}
+	       <span style="color: black;width: 20em;">&mdash;</span> {{ g }}</span><br />
+	   {% endfor %}
+	   </div>
+        <hr style="width: 20em;"/>
+        <div id="hydrograph_line_key">
+            <span style="width: 20em;">solid line</span> Observed data<br />
+            <span style="width: 20em;">dotted line</span> Estimated data<br />
+            <span style="width: 20em;">dashed line</span> Data in "dry" range<br />
+        </div>
+    </div>
+    
 	<div id="graph">
 	<noscript>
 	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
@@ -125,19 +138,15 @@
     	
     	var seriesOptions = {{ series_options }};
     	
-    	// TODO dry_elevation and ground_elevation line for single gage
+    	// dry_elevation and ground_elevation line for single gage
     	var dryElevation = {{ dry_elevation }};
     	var groundElevation = {{ ground_elevation }};
     	
-    	// TODO auto gear shift for daily/hourly?
+    	// note auto gear shift for daily/hourly
     	
          var g2 = new Dygraph(
            document.getElementById("graph"),
-<<<<<<< HEAD
-           "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100", 
-=======
-           "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}",
->>>>>>> usgs_upstream/master
+           "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
@@ -171,6 +180,9 @@
                 canvas.fillRect(area.x, top, area.w, 4);
               }
             },
+            // labelsDiv: document.getElementById('hydrograph_legend'),
+            labelsSeparateLines: true,
+            // legend: 'always',
             
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
@@ -179,7 +191,7 @@
 
 <h2>Server-generated Image</h2>
 
-        <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
+        <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}" />
         
 <h2>Data Download</h2>
     Download data:
