@@ -73,6 +73,7 @@ def eden_page(request):
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
             else:
                 str_tend = None
+                
             gages = query_form.cleaned_data['site_list']
             render_params = {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),

@@ -6,7 +6,7 @@ Created on Mar 4, 2013
 import matplotlib
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
 
@@ -37,7 +37,6 @@ def plot_multi(data, beginDate, endDate):
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
-
     labels = data.keys()
     # columns is a list of lists, one for each column.
     columns = [ list() for _l in labels]
@@ -53,7 +52,7 @@ def plot_multi(data, beginDate, endDate):
             label = labels[i]
         markerprops = {'markerfacecolor':color, 'markersize':_marker_size, 'markeredgecolor':color}
         plot_date(columns[0], columns[i], fmt=marker, color=color, label=label, **markerprops)
-
+        
     legend(loc='upper left', bbox_to_anchor=(1, 1))
 
     return len(columns[0])
@@ -91,7 +90,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
     plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
     plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
-
+    tight_layout()
     legend()
 
     return len(columns[0])
