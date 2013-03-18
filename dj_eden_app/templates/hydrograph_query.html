@@ -148,12 +148,6 @@
     	var dateEnd = document.getElementById("end_date").value;
     	var date_diff_str = document.getElementById("date_delta").value;
     	var date_diff_num = parseFloat(date_diff_str);
-    	if (date_diff_str <= 30){
-    		var csv_url = "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100";
-    	}
-    	else {
-    		var csv_url = "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}";
-    	}
     	
     	var seriesOptions = {{ series_options }};
     	
