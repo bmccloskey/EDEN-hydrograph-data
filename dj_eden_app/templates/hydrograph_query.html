@@ -9,6 +9,16 @@
 	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
 {% endblock script %}
 
+{% block style %}
+<style type="text/css">
+.color_1 : { color: #000000; }
+.color_2 : { color: #670075; }
+.color_3 : { color: #830094; }
+.color_4 : { color: #3800a3; }
+
+</style>
+{% endblock style %}
+
 {% block content %}
   
 <div class="form_input_field">
@@ -53,7 +63,7 @@
 	<div id="hydrograph_legend" style="border:solid; width: 300px;">
 	   <table>
 	   {% for g in gages %}
-	       <tr style="color: black; class: color_{{ forloop.counter }}"><td>&mdash;</td><td>{{ g }}</td></tr>
+	       <tr class="color_{{ forloop.counter }}"><td>&mdash;</td><td>{{ g }}</td></tr>
 	   {% endfor %}
         <!-- <tr><td colspan="2">&mdash;</td></tr> -->
         <tr><td>solid line</td><td>Observed data</td></tr>
