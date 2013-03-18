@@ -13,6 +13,20 @@ _logger = logging.getLogger(__name__)
 
 import urllib
 
+def dygraph_series_options(gages):
+    '''
+    return a JavaScript map for per-series options
+    '''
+    opt = "{"
+    # there are two funky series for each gage: name + est, name + dry
+    for gage in gages:
+        name = gage
+        opt += "'" + name + " est'" + ":{ strokePattern: Dygraph.DOTTED_LINE },\n"
+        opt += "'" + name + " dry'" + ":{ strokePattern: Dygraph.DASHED_LINE },\n"
+    opt += "'datetime': {}\n"
+    opt += '}\n'
+    return opt
+
 def eden_page(request):
     """
     Allows a user to select a site,
@@ -48,21 +62,22 @@ def eden_page(request):
                     plot_params[k] = v
 
             plot_query_str = urllib.urlencode(plot_params, doseq=True);
-            
+
             if query_form.cleaned_data['timeseries_start']:
                 str_tstart = '%s' % query_form.cleaned_data['timeseries_start']
             else:
                 str_tstart = None
-                
+
             if query_form.cleaned_data['timeseries_end']:
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
             else:
                 str_tend = None
-
+            gages = query_form.cleaned_data['site_list']
             return render(request, template_name, {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),
+                                                   'series_options': mark_safe(dygraph_series_options(gages)),
                                                    'str_tstart': str_tstart,
-                                                   'str_tend': str_tend,})
+                                                   'str_tend': str_tend, })
     else:
         pass
 
