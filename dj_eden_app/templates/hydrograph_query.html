@@ -65,21 +65,68 @@
 	
 	<!-- used django html tag to deal with cases where user does not specify a date range -->
     <script type="text/javascript">
+        var spectral_24 = [
+"#000000",
+"#670075",
+"#830094",
+"#3800a3",
+"#0000c1",
+"#0025dd",
+"#007ddd",
+"#009adb",
+"#00aaab",
+"#00aa8d",
+"#009e28",
+"#00ac00",
+"#00ca00",
+"#00e700",
+"#1dff00",
+"#bcff00",
+"#ecef00",
+"#fcd200",
+"#ffa900",
+"#ff4500",
+"#f10000",
+"#d80000",
+"#cc1c1c",
+"#cccccc"
+];
+        var colors3 = [];
+        var i;
+        for (i = 0; i < spectral_24.length; i++) {
+            // copy in triplicate to account for 3 lines per gage
+            colors3.push(spectral_24[i]);
+            // TODO Alter color or marker for next two entries to distinguish from observed data
+            colors3.push(spectral_24[i]);  
+            colors3.push(spectral_24[i]);
+        }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
+    	
+    	var seriesOptions = {{ series_options }};
+    	
+    	// TODO dry_elevation and ground_elevation line for single gage
+    	
+    	// TODO auto gear shift for daily/hourly?
+    	
          var g2 = new Dygraph(
            document.getElementById("graph"),
-           "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100",
+           "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}",
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
-            drawPoints: true,
-            strokeWidth: 0.0,
+            strokeWidth: 1.0,
+            colors: colors3,
+            series: seriesOptions,
+            
+            // TODO construct & display legend
+            
             {% if str_tstart != None and str_tend != None %}
             dateWindow: [ Date.parse( dateStart ),
                           Date.parse( dateEnd )
-                         ]
+                         ],
             {% endif %}
+            drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
     </script>
