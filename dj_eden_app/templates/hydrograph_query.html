@@ -2,7 +2,7 @@
 
 {% block title %}EDEN Timeseries Data{% endblock title %}
 
-{% block content_header %} <h2>Exploring and Visualizing EDEN (EVE)</h2> {% endblock content_header %}
+{% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
 
 {% block script %}
 	<script type="text/javascript"
@@ -123,6 +123,14 @@
         }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
+    	var date_diff_str = document.getElementById("date_delta").value;
+    	var date_diff_num = parseFloat(date_diff_str);
+    	if (date_diff_str <= 30){
+    		var csv_url = "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100";
+    	}
+    	else {
+    		var csv_url = "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}";
+    	}
     	
     	var seriesOptions = {{ series_options }};
     	
@@ -134,11 +142,7 @@
     	
          var g2 = new Dygraph(
            document.getElementById("graph"),
-
-           "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100", 
-
-           "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}",
-
+			csv_url,
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
@@ -160,7 +164,7 @@
                 var top = top_right[1];
 
                 canvas.fillStyle = "rgba(128, 128, 128, 0.5)";
-                canvas.fillRect(area.x, top, area.w, area.h - top);
+                canvas.fillRect(area.x, top, area.w, 4);
               }
               
               if (groundElevation != null) {
