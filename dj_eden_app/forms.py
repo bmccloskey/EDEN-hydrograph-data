@@ -1,4 +1,4 @@
-from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, IntegerField, DateTimeField
+from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, IntegerField
 from models import Station
 import datetime
 
@@ -30,8 +30,8 @@ class TimeSeriesFilterForm(Form):
 
     queryset = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
     today = datetime.date.today()
-    timeseries_start = DateTimeField(required=False, initial=today.replace(year=today.year - 1))
-    timeseries_end = DateTimeField(required=False, initial=today)
+    timeseries_start = DateField(required=False, initial=today.replace(year=today.year - 1))
+    timeseries_end = DateField(required=False, initial=today)
     site_list = MultipleChoiceField(choices=convert_qs_to_list(queryset),
                                     required=True,
                                     widget=SelectMultiple(attrs={'size':'25'}))

@@ -61,7 +61,7 @@ class Station(models.Model):
 class StationDatum(models.Model):
     # legacy fields are commented out
     station = models.OneToOneField(Station, primary_key=True)
-    # vertical_conversion = models.FloatField(null=True, blank=True)
+    vertical_conversion = models.FloatField(null=True, blank=True)
     datum_survey_history = models.CharField(max_length=120, blank=True)
     convert_to_navd88_feet = models.FloatField()
     # convert_to_navd88_feet_pre2003 = models.FloatField(null=True, blank=True)

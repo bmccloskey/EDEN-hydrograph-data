@@ -2,7 +2,7 @@
 
 {% block title %}EDEN Timeseries Data{% endblock title %}
 
-{% block content_header %} <h2>Exploring and Visualizing EDEN (EVE)</h2> {% endblock content_header %}
+{% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
 
 {% block script %}
 	<script type="text/javascript"
@@ -80,6 +80,7 @@
 	
 	<input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
 	<input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
+	<input type="hidden" id="date_delta" name="date_diff" value="{{ time_delta|safe }}" readonly>
 	
 	<!-- used django html tag to deal with cases where user does not specify a date range -->
     <script type="text/javascript">
@@ -145,6 +146,8 @@
         }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
+    	var date_diff_str = document.getElementById("date_delta").value;
+    	var date_diff_num = parseFloat(date_diff_str);
     	
     	var seriesOptions = {{ series_options }};
     	
@@ -178,7 +181,7 @@
                 var top = top_right[1];
 
                 canvas.fillStyle = "rgba(128, 128, 128, 0.5)";
-                canvas.fillRect(area.x, top, area.w, area.h - top);
+                canvas.fillRect(area.x, top, area.w, 4);
               }
               
               if (groundElevation != null) {
@@ -201,7 +204,7 @@
 
 <h2>Server-generated Image</h2>
 
-        <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}" />
+        <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
         
 <h2>Data Download</h2>
     Download data:
