@@ -33,10 +33,10 @@
 		
 				<td>
 {% if plot_params %}
-				    <a href="{% url dj_eden_app.views.data_views.timeseries_csv_download %}?{{ plot_params }}">Download Data</a>
-                    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Download Daily Data</a>
-                    <!-- TODO Diabled the next if selection period is longer than a year -->
-                    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Download Hourly Data</a>
+    Download data:
+                    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a>
+                    <!-- TODO Disable the next if selection period is longer than a year -->
+                    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a>
 {% else %}
                     <button type="button" disabled="true">Download Data</button>
 {% endif %}
@@ -88,14 +88,37 @@
 "#cc1c1c",
 "#cccccc"
 ];
+
+    function hex2rgb(hx) {
+        var re = /^#(\w{2})(\w{2})(\w{2})$/;
+        var bits = re.exec(hx);
+        if (bits) {
+            
+            var r = parseInt(bits[1], 16);
+            var g = parseInt(bits[2], 16);
+            var b = parseInt(bits[3], 16);
+            
+            return {"r":r, "g":g, "b":b};
+        } else {
+            return null;
+        }
+    }
+    
+    function soften(hx, alpha) {
+        var rgb = hex2rgb(hx);
+        
+        return "rgba("+rgb.r+","+ rgb.g+","+ rgb.b+","+ alpha+")";
+    }
+    
+    
         var colors3 = [];
         var i;
         for (i = 0; i < spectral_24.length; i++) {
             // copy in triplicate to account for 3 lines per gage
             colors3.push(spectral_24[i]);
-            // TODO Alter color or marker for next two entries to distinguish from observed data
-            colors3.push(spectral_24[i]);  
-            colors3.push(spectral_24[i]);
+            // Soften color for next two entries to distinguish from observed data
+            colors3.push(soften(spectral_24[i], 0.5));  
+            colors3.push(soften(spectral_24[i], 0.5));
         }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
@@ -103,15 +126,18 @@
     	var seriesOptions = {{ series_options }};
     	
     	// TODO dry_elevation and ground_elevation line for single gage
+    	var dryElevation = {{ dry_elevation }};
+    	var groundElevation = {{ ground_elevation }};
     	
     	// TODO auto gear shift for daily/hourly?
     	
          var g2 = new Dygraph(
            document.getElementById("graph"),
-
+<<<<<<< HEAD
            "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100", 
-
+=======
            "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}",
+>>>>>>> usgs_upstream/master
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
@@ -126,6 +152,26 @@
                           Date.parse( dateEnd )
                          ],
             {% endif %}
+            underlayCallback: function(canvas, area, g) {
+              if (dryElevation != null) {
+                var top_right = g.toDomCoords(0, dryElevation);
+
+                var top = top_right[1];
+
+                canvas.fillStyle = "rgba(128, 128, 128, 0.5)";
+                canvas.fillRect(area.x, top, area.w, area.h - top);
+              }
+              
+              if (groundElevation != null) {
+                var top_right = g.toDomCoords(0, groundElevation);
+
+                var top = top_right[1];
+
+                canvas.fillStyle = "brown";
+                canvas.fillRect(area.x, top, area.w, 4);
+              }
+            },
+            
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
@@ -136,8 +182,9 @@
         <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
         
 <h2>Data Download</h2>
-
-	<a href="{% url dj_eden_app.views.data_views.timeseries_csv_download %}?{{ plot_params }}">Download Data</a>
+    Download data:
+    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a>
+    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a>
 	
 {% else %}
 	   <p>Graph will be here.</p>
