@@ -134,6 +134,21 @@ def plot_data(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
+def plot_data_auto(request):
+    form = TimeSeriesFilterForm(request.GET)
+
+    if form.is_valid():
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        if days_diff(beginDate, endDate) < 60:
+            return plot_data_hourly(request)
+        else:
+            return plot_data_daily(request)
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+
 def plot_data_hourly(request):
     form = TimeSeriesFilterForm(request.GET)
 
@@ -215,22 +230,24 @@ def _hourly_plot_data(form):
     data = q.execute()
     return data, beginDate, endDate, station1
 
-# Condense these four methods to one, that shifts gears according to input
+# Auto select the data to deliver according to size of request input
+
+def days_diff(beginDate, endDate):
+    if beginDate is not None and endDate is not None:
+        timediff = endDate - beginDate
+        return timediff.days
+    return None
+
 def plot_image_auto(request):
     form = TimeSeriesFilterForm(request.GET)
 
     if form.is_valid():
         gages = form.cleaned_data['site_list']
 
-        fine_time = False
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
-        if beginDate is not None and endDate is not None:
-            timediff = endDate - beginDate
-            if timediff.days < 30:
-                fine_time = True
 
-        if fine_time:
+        if days_diff(beginDate, endDate) < 30:
             if len(gages) == 1:
                 return plot_image_hourly_single(request)
             else:
