@@ -1,22 +1,58 @@
-<html>
-
-	<head>
-		<script type="text/javascript"
-	  src="/static/js/dygraph-combined.js"></script>
-	</head>
+{% block script %}
+	<script type="text/javascript"
+	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+{% endblock script %}
 	
-	<body>
-		<p>Hi!</p>
-		<div id="graph">
-		</div>
-		<script type="text/javascript">
-  var g2 = new Dygraph(
-    document.getElementById("graph"),
-    "/static/data.csv", // path to CSV file
-    {}          // options
-  );
-		</script>
-	</body>
+	<div id="graph_2">
+	</div>
+	
+	<p>Test</p>
 
+<script type="text/javascript">
+var data = [];
+for (var i = 0; i < 10; i++) {
+  var x = i
+  var y = 8;
+  var row = [x];
+  if (y.length > 0) {
+    for (var j = 0; j < y.length; j++) {
+      row.push(y[j]);
+    }
+  } else {
+    row.push(y);
+  }
+  data.push(row);
+}
 
-</html>
+var data_2 = [];
+for (var i = 0; i < 10; i++) {
+  var x = i
+  var y = 10;
+  var row = [x];
+  if (y.length > 0) {
+    for (var j = 0; j < y.length; j++) {
+      row.push(y[j]);
+    }
+  } else {
+    row.push(y);
+  }
+  data_2.push(row);
+}
+
+/*
+var labels = ['X'];
+if (data[0].length == 2) {
+  labels.push('Y');
+} else {
+  for (var i = 1; i < data[0].length; i++) {
+    labels.push('Y' + (1 + i));
+  }
+}
+*/
+    var g2 = new Dygraph(
+      document.getElementById("graph_2"),
+      data, 
+      {
+      }          // options
+    );
+</script>
