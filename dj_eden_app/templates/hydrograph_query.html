@@ -50,18 +50,16 @@
 {% if plot_params %}
 <h2>Dynamic Graph</h2>
     
-	<div id="hydrograph_legend">
-	   <div id="hydrograph_series_key">
+	<div id="hydrograph_legend" style="border:solid; width: 300px;">
+	   <table>
 	   {% for g in gages %}
-	       <span style="color: black;width: 20em;">&mdash;</span> {{ g }}</span><br />
+	       <tr style="color: black; class: color_{{ forloop.counter }}"><td>&mdash;</td><td>{{ g }}</td></tr>
 	   {% endfor %}
-	   </div>
-        <hr style="width: 20em;"/>
-        <div id="hydrograph_line_key">
-            <span style="width: 20em;">solid line</span> Observed data<br />
-            <span style="width: 20em;">dotted line</span> Estimated data<br />
-            <span style="width: 20em;">dashed line</span> Data in "dry" range<br />
-        </div>
+        <!-- <tr><td colspan="2">&mdash;</td></tr> -->
+        <tr><td>solid line</td><td>Observed data</td></tr>
+        <tr><td>dotted line</td><td>Estimated data</td></tr>
+        <tr><td>dashed line</td><td>Data in "dry" range</td></tr>
+        </table>
     </div>
     
 	<div id="graph">
@@ -132,6 +130,8 @@
             // Soften color for next two entries to distinguish from observed data
             colors3.push(soften(spectral_24[i], 0.5));  
             colors3.push(soften(spectral_24[i], 0.5));
+            
+            // TODO Set legend color
         }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
