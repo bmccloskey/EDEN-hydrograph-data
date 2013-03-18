@@ -88,14 +88,37 @@
 "#cc1c1c",
 "#cccccc"
 ];
+
+    function hex2rgb(hx) {
+        var re = /^#(\w{2})(\w{2})(\w{2})$/;
+        var bits = re.exec(hx);
+        if (bits) {
+            
+            var r = parseInt(bits[1], 16);
+            var g = parseInt(bits[2], 16);
+            var b = parseInt(bits[3], 16);
+            
+            return {"r":r, "g":g, "b":b};
+        } else {
+            return null;
+        }
+    }
+    
+    function soften(hx, alpha) {
+        var rgb = hex2rgb(hx);
+        
+        return "rgba("+rgb.r+","+ rgb.g+","+ rgb.b+","+ alpha+")";
+    }
+    
+    
         var colors3 = [];
         var i;
         for (i = 0; i < spectral_24.length; i++) {
             // copy in triplicate to account for 3 lines per gage
             colors3.push(spectral_24[i]);
-            // TODO Alter color or marker for next two entries to distinguish from observed data
-            colors3.push(spectral_24[i]);  
-            colors3.push(spectral_24[i]);
+            // Soften color for next two entries to distinguish from observed data
+            colors3.push(soften(spectral_24[i], 0.5));  
+            colors3.push(soften(spectral_24[i], 0.5));
         }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
@@ -108,11 +131,7 @@
     	
          var g2 = new Dygraph(
            document.getElementById("graph"),
-<<<<<<< HEAD
-           "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100", 
-=======
            "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}",
->>>>>>> usgs_upstream/master
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
