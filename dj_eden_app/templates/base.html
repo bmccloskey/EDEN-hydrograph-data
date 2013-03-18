@@ -1,15 +1,17 @@
 <html>
+<head>
+<title>{% block title %}EDEN Example Django Application{% endblock title %}</title>
+
 {% block style %}
 {% endblock style %}
-
-<head>
-{% block content_header %}EDEN Example Django Application{% endblock content_header %}
 
 {% block script %}
 {% endblock script %}
 </head>
 
 <body>
+{% block content_header %}{% endblock content_header %}
+
 {% block content %}
 {% endblock content %}
 </body>

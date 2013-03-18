@@ -9,6 +9,7 @@ import dj_eden_app.views.page as page_views
 
 urlpatterns = patterns('',
                        url(r'^plot_data$', data_views.plot_data),
+                       url(r'^plot_data_auto', data_views.plot_data_auto),
                        url(r'^daily_plot_data', data_views.plot_data_daily),
                        url(r'^hourly_plot_data', data_views.plot_data_hourly),
                        url(r'^plot_image$', data_views.plot_image_auto),
