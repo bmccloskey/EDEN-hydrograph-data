@@ -9,6 +9,16 @@
 	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
 {% endblock script %}
 
+{% block style %}
+<style type="text/css">
+.color_1 : { color: #000000; }
+.color_2 : { color: #670075; }
+.color_3 : { color: #830094; }
+.color_4 : { color: #3800a3; }
+
+</style>
+{% endblock style %}
+
 {% block content %}
   
 <div class="form_input_field">
@@ -49,8 +59,19 @@
 
 {% if plot_params %}
 <h2>Dynamic Graph</h2>
-	<div id="hydrograph_label"></div>
-
+    
+	<div id="hydrograph_legend" style="border:solid; width: 300px;">
+	   <table>
+	   {% for g in gages %}
+	       <tr class="color_{{ forloop.counter }}"><td>&mdash;</td><td>{{ g }}</td></tr>
+	   {% endfor %}
+        <!-- <tr><td colspan="2">&mdash;</td></tr> -->
+        <tr><td>solid line</td><td>Observed data</td></tr>
+        <tr><td>dotted line</td><td>Estimated data</td></tr>
+        <tr><td>dashed line</td><td>Data in "dry" range</td></tr>
+        </table>
+    </div>
+    
 	<div id="graph">
 	<noscript>
 	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
@@ -120,6 +141,8 @@
             // Soften color for next two entries to distinguish from observed data
             colors3.push(soften(spectral_24[i], 0.5));  
             colors3.push(soften(spectral_24[i], 0.5));
+            
+            // TODO Set legend color
         }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
@@ -134,15 +157,15 @@
     	
     	var seriesOptions = {{ series_options }};
     	
-    	// TODO dry_elevation and ground_elevation line for single gage
+    	// dry_elevation and ground_elevation line for single gage
     	var dryElevation = {{ dry_elevation }};
     	var groundElevation = {{ ground_elevation }};
     	
-    	// TODO auto gear shift for daily/hourly?
+    	// note auto gear shift for daily/hourly
     	
          var g2 = new Dygraph(
            document.getElementById("graph"),
-			csv_url,
+           "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
@@ -176,6 +199,9 @@
                 canvas.fillRect(area.x, top, area.w, 4);
               }
             },
+            // labelsDiv: document.getElementById('hydrograph_legend'),
+            labelsSeparateLines: true,
+            // legend: 'always',
             
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
