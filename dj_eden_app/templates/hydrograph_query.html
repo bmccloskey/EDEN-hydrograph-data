@@ -108,11 +108,10 @@
     	
          var g2 = new Dygraph(
            document.getElementById("graph"),
-<<<<<<< HEAD
+
            "{% url dj_eden_app.views.data_views.plot_data %}?{{ plot_params }}&max_count=100", 
-=======
+
            "{% url dj_eden_app.views.data_views.plot_data_daily %}?{{ plot_params }}",
->>>>>>> usgs_upstream/master
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
