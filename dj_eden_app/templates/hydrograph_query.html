@@ -148,6 +148,26 @@
                           Date.parse( dateEnd )
                          ],
             {% endif %}
+            underlayCallback: function(canvas, area, g) {
+              if (dryElevation != null) {
+                var top_right = g.toDomCoords(0, dryElevation);
+
+                var top = top_right[1];
+
+                canvas.fillStyle = "rgba(128, 128, 128, 0.5)";
+                canvas.fillRect(area.x, top, area.w, area.h - top);
+              }
+              
+              if (groundElevation != null) {
+                var top_right = g.toDomCoords(0, groundElevation);
+
+                var top = top_right[1];
+
+                canvas.fillStyle = "brown";
+                canvas.fillRect(area.x, top, area.w, 4);
+              }
+            },
+            
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
