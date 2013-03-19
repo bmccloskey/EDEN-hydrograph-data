@@ -71,7 +71,7 @@ def value_col(g):
     return stage.c['stage_' + g]
 
 
-def hourly_columns(gage, dry_value, navd88correction=None):
+def hourly_columns(gage, dry_value, navd88correction=None, ngvd29correction=None):
     f = flag_col(gage)
     s = value_col(gage)
     if navd88correction:

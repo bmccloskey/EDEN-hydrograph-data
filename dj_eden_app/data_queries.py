@@ -1,7 +1,6 @@
 from flagged_data import daily_base_query, daily_columns, hourly_base_query, hourly_columns, date_col
 # uses models.Station
-# import views.data_views as data_views
-from sqlalchemy.sql import expression
+from sqlalchemy.sql import expression, func
 from collections import OrderedDict
 from dj_eden_app.models import Station
 try:
@@ -74,7 +73,7 @@ def hourly_query(*stations):
 
         q = q.column(val.label(gage_name))
         q = q.column(flag.label(gage_name + " flag"))
-
+    
     return q, dt
 
 def hourly_query_split(*stations):
@@ -83,6 +82,7 @@ def hourly_query_split(*stations):
     for s in stations:
         gage_name = s.station_name_web
         navd88correction = s.convert_to_navd88_feet
+        ngvd29correction = s.vertical_conversion
         dry_value = s.dry_elevation
 
         flag, val = hourly_columns(gage_name, dry_value, navd88correction=navd88correction)
@@ -97,6 +97,9 @@ def hourly_query_split(*stations):
         q = q.column(expression.case(value=flag,
                                      whens={'D': val},
                                      else_=None).label(gage_name + " dry"))
+        if len(stations) == 1:
+            q = q.column(func.convert_to_ngvd29(val, ngvd29correction).label(gage_name + "_NGVD29"))
+        
     return q, dt
 
 def data_for_plot_daily(stations, beginDate=None, endDate=None):

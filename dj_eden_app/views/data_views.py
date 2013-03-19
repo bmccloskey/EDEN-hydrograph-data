@@ -160,17 +160,21 @@ def plot_data_hourly(request):
         _logger.info("plot_data, gages is %s" % (gages))
 
         station_dict = data_queries.station_dict(gages)
-
+        
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
         q, dt = data_queries.hourly_query_split(*station_dict.values())
+
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
+        #q = q.add_columns(case[*station_dict.values() - 2]).label('expt')
+        _generate_error_file('q.txt', [q])
+        
         data = q.execute()
-
+        _generate_error_file('data.txt', data.keys())
         response = HttpResponse(content_type='text/csv')
         stage_data.write_csv(results=data, outfile=response)
         return response
