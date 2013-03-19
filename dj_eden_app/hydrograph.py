@@ -75,8 +75,8 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     # axes([0.1, 0.3, 0.5, 0.5])
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
-    # if beginDate != None and endDate != None:
-        # xlim(xmin=beginDate, xmax=endDate)
+    if beginDate != None and endDate != None:
+        xlim(xmin=beginDate, xmax=endDate)
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
@@ -106,7 +106,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     legend()
 
-    if False and ngvd29_correction is not None:
+    if False and (ngvd29_correction is not None):
         axL = f.add_subplot(111)
         if beginDate != None and endDate != None:
             xlim(xmin=beginDate, xmax=endDate)
