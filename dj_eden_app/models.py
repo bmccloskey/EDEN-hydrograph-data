@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 class VerticalDatum(models.Model):
     vertical_datum_id = models.IntegerField(primary_key=True)
@@ -49,6 +50,20 @@ class Station(models.Model):
     edenmaster_start = models.CharField(max_length=18, blank=True)
     edenmaster_end = models.CharField(max_length=18, blank=True)
     coastal = models.CharField(max_length=24, blank=True)
+
+    def _get_vertical_conversion(self):
+        try:
+            return self.stationdatum.vertical_conversion
+        except ObjectDoesNotExist:
+            return None
+    vertical_conversion = property(_get_vertical_conversion)
+
+    def _get_convert_to_navd88_feet(self):
+        try:
+            return self.stationdatum.convert_to_navd88_feet
+        except ObjectDoesNotExist:
+            return None
+    convert_to_navd88_feet = property(_get_convert_to_navd88_feet)
 
     def __unicode__(self):
         return self.station_name_web

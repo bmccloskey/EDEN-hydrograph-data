@@ -316,7 +316,7 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        ngvd29_correction = station.stationdatum.vertical_conversion
+        ngvd29_correction = station.convert_to_navd88_feet
 
         hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate,
                               dry_elevation=station.dry_elevation,
