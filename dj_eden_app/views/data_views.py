@@ -277,13 +277,23 @@ def plot_image_hourly_multi(request):
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
+    
+def get_ngvd29_conversion(station_object):
+    
+    conversion = station_object.vertical_conversion
+    if conversion is None or conversion == '':
+        ngvd29_conv = 0
+    else:
+        ngvd29_conv = conversion
+        
+    return ngvd29_conv
 
 def plot_image_hourly_single(request):
     form = TimeSeriesFilterForm(request.GET)
 
     if form.is_valid():
         data, beginDate, endDate, station = _hourly_plot_data(form)
-        ngvd29_correction = station.stationdatum.vertical_conversion
+        ngvd29_correction = get_ngvd29_conversion(station)
 
         response = HttpResponse(content_type='image/png')
 
@@ -316,7 +326,7 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        ngvd29_correction = station.convert_to_navd88_feet
+        ngvd29_correction = get_ngvd29_conversion(station)
 
         hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate,
                               dry_elevation=station.dry_elevation,

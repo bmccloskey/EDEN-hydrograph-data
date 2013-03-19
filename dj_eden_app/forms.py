@@ -28,7 +28,8 @@ def convert_qs_to_list_of_tuples(qs):
 
 class TimeSeriesFilterForm(Form):
 
-    queryset = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
+    #queryset = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
+    queryset = Station.objects.all().order_by('station_name_web') 
     today = datetime.date.today()
     timeseries_start = DateField(required=False, initial=today.replace(year=today.year - 1))
     timeseries_end = DateField(required=False, initial=today)
