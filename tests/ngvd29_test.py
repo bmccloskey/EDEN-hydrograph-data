@@ -1,7 +1,6 @@
 from dj_eden_app.views.data_views import _hourly_plot_data, _daily_plot_data, get_ngvd29_conversion
 from dj_eden_app.forms import TimeSeriesFilterForm
 
-from types import FloatType
 import unittest
 
 single_gage = ['2A300']
@@ -20,6 +19,8 @@ class TestNgvd29Conversion(unittest.TestCase):
         self.assertIsNotNone(endDate)
         if type(ngvd29_correction) is float:
             ngvd29_returned = True
+        elif type(ngvd29_correction) is int:
+            ngvd29_returned = True
         else:
             ngvd29_returned = False
         self.assertTrue(ngvd29_returned)
@@ -35,6 +36,8 @@ class TestNgvd29Conversion(unittest.TestCase):
         self.assertIsNotNone(beginDate)
         self.assertIsNotNone(endDate)
         if type(ngvd29_correction) is float:
+            ngvd29_returned = True
+        elif type(ngvd29_correction) is int:
             ngvd29_returned = True
         else:
             ngvd29_returned = False
