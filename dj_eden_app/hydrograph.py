@@ -6,10 +6,12 @@ Created on Mar 4, 2013
 import matplotlib
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
 from dj_eden_app.colors import ColorRange
+from text_export import _generate_error_file
+from dj_eden_app.models import Station, StationDatum
 
 import textwrap
 import logging
@@ -69,18 +71,24 @@ brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
 def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None):
-    figure()
-    # axes([0.1, 0.3, 0.5, 0.5])
+    f = figure()
+    #axes([0.1, 0.3, 0.5, 0.5])
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
-    if beginDate != None and endDate != None:
-        xlim(xmin=beginDate, xmax=endDate)
+    #if beginDate != None and endDate != None:
+        #xlim(xmin=beginDate, xmax=endDate)
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
 
     labels = data.keys()
     ylabel(labels[1] + "\nWater Level (NAVD88 ft)")
+    #_generate_error_file('labels.txt', labels)
+    station_web_name = labels[1]
+    
+    station_qs = Station.objects.get(station_name_web=station_web_name)
+    station_datum = StationDatum.objects.get(station=station_qs.station_id)
+    ngvd29_correction = station_datum.vertical_conversion
 
     # data has exactly 4 columns: date, O, E, D
     columns = [[], [], [], []]
@@ -104,7 +112,20 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
 
     legend()
-
+    
+    axL = f.add_subplot(111)
+    if beginDate != None and endDate != None:
+        xlim(xmin=beginDate, xmax=endDate)
+    axL_maj_ticks = axL.yaxis.get_majorticklocs()
+    ylim(ymin=min(axL_maj_ticks), ymax=max(axL_maj_ticks))
+    axR = f.add_subplot(111, sharex=axL, frameon=False)
+    axR.axes.get_xaxis().set_visible(False)
+    axR.yaxis.tick_right()
+    axL_maj_ticks = axL.yaxis.get_majorticklocs()
+    ylim(ymin=min(axL_maj_ticks)-ngvd29_correction, ymax=max(axL_maj_ticks)-ngvd29_correction)
+    ylabel(labels[1] + "\nWater Level (NGVD29 ft)")
+    axR.yaxis.set_label_position("right")
+    tight_layout()
     return len(columns[0])
 
     pass

@@ -79,6 +79,11 @@ def eden_page(request):
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
             else:
                 str_tend = None
+                
+            if query_form.cleaned_data['timeseries_start'] and query_form.cleaned_data['timeseries_end']:
+                time_delta = query_form.cleaned_data['timeseries_end'] - query_form.cleaned_data['timeseries_start']
+                time_delta_days = time_delta.days
+                
             gages = query_form.cleaned_data['site_list']
             colors = ColorRange(count=len(gages))
 
@@ -89,9 +94,9 @@ def eden_page(request):
                                                    'series_options': mark_safe(dygraph_series_options(gages)),
                                                    'str_tstart': str_tstart,
                                                    'gages':gages,
-                                                   'colors': mark_safe(json.dumps(list(colors))),
-                                                   'color_list': list(colors),
-                                                   'str_tend': str_tend }
+                                                   'str_tend': str_tend,
+                                                   'time_delta': time_delta_days
+			}
             if len(gages) == 1:
                 station = data_queries.station_list(gages)[0]
 
