@@ -45,7 +45,7 @@ def _columns(gage, station):
     flag_col = stage.c["flag_" + gage]
 
     if station:
-        offset = station.stationdatum.convert_to_navd88_feet
+        offset = station.convert_to_navd88_feet
         # use corrected data unless data is null
         data_corrected = func.if_(data_col == None, None, data_col + offset).label("stage_" + gage)
     else:

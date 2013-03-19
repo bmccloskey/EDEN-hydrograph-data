@@ -25,7 +25,7 @@ def daily_query(*stations):
 
     for s in stations:
         gage_name = s.station_name_web
-        navd88correction = s.stationdatum.convert_to_navd88_feet
+        navd88correction = s.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
         flag, val, raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
@@ -40,7 +40,7 @@ def daily_query_split(*stations):
 
     for s in stations:
         gage_name = s.station_name_web
-        navd88correction = s.stationdatum.convert_to_navd88_feet
+        navd88correction = s.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
         flag, val, raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
@@ -62,7 +62,7 @@ def hourly_query(*stations):
 
     for s in stations:
         gage_name = s.station_name_web
-        navd88correction = s.stationdatum.convert_to_navd88_feet
+        navd88correction = s.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
         # use navd88 correction
@@ -78,7 +78,7 @@ def hourly_query_split(*stations):
 
     for s in stations:
         gage_name = s.station_name_web
-        navd88correction = s.stationdatum.convert_to_navd88_feet
+        navd88correction = s.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
         flag, val = hourly_columns(gage_name, dry_value, navd88correction=navd88correction)
