@@ -247,6 +247,8 @@ def plot_image_auto(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
+        _logger.debug("Image for gages %s", gages)
+
         if days_diff(beginDate, endDate) < 30:
             if len(gages) == 1:
                 return plot_image_hourly_single(request)
@@ -307,7 +309,12 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+        ngvd29_correction = station.stationdatum.convert_to_navd88_feet
+
+        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate,
+                              dry_elevation=station.dry_elevation,
+                              ground_elevation=station.duration_elevation,
+                              ngvd29_correction=ngvd29_correction)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
