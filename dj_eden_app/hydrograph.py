@@ -35,7 +35,7 @@ def plot_multi(data, beginDate, endDate):
     fig = figure()
     # axx = axes([0.1, 0.3, 0.5, 0.5])
     # left, bottom, width, height
-    axx = axes()
+    ax1 = subplot(2, 1, 1)
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
     if beginDate != None and endDate != None:
@@ -67,10 +67,11 @@ def plot_multi(data, beginDate, endDate):
         l = plot_date(columns[0], columns[i], fmt=marker, color=color, label=label, **markerprops)
         lines.append(l[0])
 
-    # posiiton legend relative to top level, not to this subplot
-    h, l = axx.get_legend_handles_labels()
+    h, l = ax1.get_legend_handles_labels()
 
-    fig.legend(h, l, loc='lower right')
+    # position legend in lower sub-plot, not to graphed subplot
+    # ax2 = subplot(2, 1, 2)
+    fig.legend(h, l, loc='lower right', ncol=1 + (len(l) / 6))
 
     # make another legend for the dot'n'dashes, from the first 3 lines
     _legend_for_line_styles(fig, lines[0:3])
