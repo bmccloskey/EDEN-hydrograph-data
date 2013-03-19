@@ -4,6 +4,10 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from dj_eden_app.models import Station
 from dj_eden_app.forms import TimeSeriesFilterForm
 import dj_eden_app.data_queries as data_queries
+try:
+    from dj_eden_app.text_export import _generate_error_file, write_file
+except ImportError:
+    pass
 
 import logging
 
@@ -63,7 +67,6 @@ def hourly_download(request):
             q = q.where(dt <= endDate)
         data = q.execute()
 
-        # data_type = 'Hourly Water Level, NAVD88(ft)'  # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
         query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_dict.values())
 
         response = HttpResponse(content_type='text/csv')
@@ -280,10 +283,14 @@ def plot_image_hourly_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _hourly_plot_data(form)
+        ngvd29_correction = station.stationdatum.vertical_conversion
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, 
+                              dry_elevation=station.dry_elevation, 
+                              ground_elevation=station.duration_elevation,
+                              ngvd29_correction=ngvd29_correction)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -309,7 +316,7 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        ngvd29_correction = station.stationdatum.convert_to_navd88_feet
+        ngvd29_correction = station.stationdatum.vertical_conversion
 
         hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate,
                               dry_elevation=station.dry_elevation,

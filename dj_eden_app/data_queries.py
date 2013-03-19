@@ -4,6 +4,10 @@ from flagged_data import daily_base_query, daily_columns, hourly_base_query, hou
 from sqlalchemy.sql import expression
 from collections import OrderedDict
 from dj_eden_app.models import Station
+try:
+    from dj_eden_app.text_export import _generate_error_file, write_file
+except ImportError:
+    pass
 
 def station_dict(gages):
     # pull station name list up to Station objects

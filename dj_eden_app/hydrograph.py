@@ -6,12 +6,15 @@ Created on Mar 4, 2013
 import matplotlib
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, ylim
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
 from dj_eden_app.colors import ColorRange
-# from text_export import _generate_error_file
-from dj_eden_app.models import Station, StationDatum
+
+try:
+    from dj_eden_app.text_export import _generate_error_file
+except ImportError:
+    pass
 
 import textwrap
 import logging
@@ -106,8 +109,9 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     legend()
 
-    if False and (ngvd29_correction is not None):
+    if ngvd29_correction is not None:
         axL = f.add_subplot(111)
+        axL.yaxis.set_ticks_position("left")
         if beginDate != None and endDate != None:
             xlim(xmin=beginDate, xmax=endDate)
         axL_maj_ticks = axL.yaxis.get_majorticklocs()
