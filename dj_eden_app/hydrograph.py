@@ -9,10 +9,13 @@ matplotlib.use('Cairo')
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
-from text_export import _generate_error_file
+from dj_eden_app.colors import ColorRange
+# from text_export import _generate_error_file
 from dj_eden_app.models import Station, StationDatum
 
 import textwrap
+import logging
+_logger = logging.getLogger(__name__)
 
 _label_width = 12
 _marker_size = 2.5
@@ -39,6 +42,7 @@ def plot_multi(data, beginDate, endDate):
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
+
     labels = data.keys()
     # columns is a list of lists, one for each column.
     columns = [ list() for _l in labels]
@@ -46,15 +50,19 @@ def plot_multi(data, beginDate, endDate):
         for i, v in enumerate(r):
             columns[i].append(v)
 
+    line_colors = ColorRange(count=(len(labels) - 1) / 3)
+
+    _logger.debug("In plot_multi generation, colors = %s", list(line_colors))
+
     for i in range(1, len(labels)):
         marker = _line_styles[(i - 1) % 3]
-        color = _line_colors[((i - 1) / 3) % len(_line_colors)]
+        color = line_colors[(i - 1) / 3]
         label = "_nolegend_"
         if (i % 3) == 1:
             label = labels[i]
         markerprops = {'markerfacecolor':color, 'markersize':_marker_size, 'markeredgecolor':color}
         plot_date(columns[0], columns[i], fmt=marker, color=color, label=label, **markerprops)
-        
+
     legend(loc='upper left', bbox_to_anchor=(1, 1))
 
     return len(columns[0])
@@ -62,25 +70,19 @@ def plot_multi(data, beginDate, endDate):
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
-def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None):
+def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None):
     f = figure()
-    #axes([0.1, 0.3, 0.5, 0.5])
+    # axes([0.1, 0.3, 0.5, 0.5])
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
-    #if beginDate != None and endDate != None:
-        #xlim(xmin=beginDate, xmax=endDate)
+    if beginDate != None and endDate != None:
+        xlim(xmin=beginDate, xmax=endDate)
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=60)
 
     labels = data.keys()
     ylabel(labels[1] + "\nWater Level (NAVD88 ft)")
-    #_generate_error_file('labels.txt', labels)
-    station_web_name = labels[1]
-    
-    station_qs = Station.objects.get(station_name_web=station_web_name)
-    station_datum = StationDatum.objects.get(station=station_qs.station_id)
-    ngvd29_correction = station_datum.vertical_conversion
 
     # data has exactly 4 columns: date, O, E, D
     columns = [[], [], [], []]
@@ -88,31 +90,37 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
         for i, v in enumerate(r):
             columns[i].append(v)
 
-    # TODO: change reference lines to solid with alpha < 1
     if dry_elevation is not None:
         axhline(y=dry_elevation, linewidth=4, color=gray_ish, zorder= -100)
     if ground_elevation is not None:
         axhline(y=ground_elevation, linewidth=4, color=brown_ish, zorder= -100)
-    c = _line_colors[0]
+
+    line_colors = ColorRange(count=1)
+    c = line_colors[0]
+    _logger.debug("In plot_single, color = %s", c)
+
     markerprops = {'markerfacecolor':c, 'markersize':_marker_size, 'markeredgecolor':c}
     plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
     plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
     plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
+
     legend()
-    
-    axL = f.add_subplot(111)
-    if beginDate != None and endDate != None:
-        xlim(xmin=beginDate, xmax=endDate)
-    axL_maj_ticks = axL.yaxis.get_majorticklocs()
-    ylim(ymin=min(axL_maj_ticks), ymax=max(axL_maj_ticks))
-    axR = f.add_subplot(111, sharex=axL, frameon=False)
-    axR.axes.get_xaxis().set_visible(False)
-    axR.yaxis.tick_right()
-    axL_maj_ticks = axL.yaxis.get_majorticklocs()
-    ylim(ymin=min(axL_maj_ticks)-ngvd29_correction, ymax=max(axL_maj_ticks)-ngvd29_correction)
-    ylabel(labels[1] + "\nWater Level (NGVD29 ft)")
-    axR.yaxis.set_label_position("right")
-    tight_layout()
+
+    if False and (ngvd29_correction is not None):
+        axL = f.add_subplot(111)
+        if beginDate != None and endDate != None:
+            xlim(xmin=beginDate, xmax=endDate)
+        axL_maj_ticks = axL.yaxis.get_majorticklocs()
+        ylim(ymin=min(axL_maj_ticks), ymax=max(axL_maj_ticks))
+        axR = f.add_subplot(111, sharex=axL, frameon=False)
+        axR.axes.get_xaxis().set_visible(False)
+        axR.yaxis.tick_right()
+        axL_maj_ticks = axL.yaxis.get_majorticklocs()
+        ylim(ymin=min(axL_maj_ticks) - ngvd29_correction, ymax=max(axL_maj_ticks) - ngvd29_correction)
+        ylabel(labels[1] + "\nWater Level (NGVD29 ft)")
+        axR.yaxis.set_label_position("right")
+        tight_layout()
+
     return len(columns[0])
 
     pass
@@ -154,6 +162,7 @@ def plot_many(data, destination, begin_date, end_date, gage_list):
 
     # could collapse some of the data ranges, perhaps
 
+    _logger.debug("using default colors in plot_many")
     figure()
     axes([0.1, 0.3, 0.5, 0.5])
     plot_date(xList, yList, '-d', markersize=2.5)
@@ -176,32 +185,6 @@ _line_style_dict = {
                 'M': " ",  # blank
                 }
 _line_styles = ["-d", ":+", ":^"]
-_line_colors = [
-"#000000",
-"#670075",
-"#830094",
-"#3800a3",
-"#0000c1",
-"#0025dd",
-"#007ddd",
-"#009adb",
-"#00aaab",
-"#00aa8d",
-"#009e28",
-"#00ac00",
-"#00ca00",
-"#00e700",
-"#1dff00",
-"#bcff00",
-"#ecef00",
-"#fcd200",
-"#ffa900",
-"#ff4500",
-"#f10000",
-"#d80000",
-"#cc1c1c",
-"#cccccc",
-]
 
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
@@ -214,16 +197,19 @@ def png(data, destination, beginDate, endDate, gage_list):
     return ct
 
 def png_multi(data, outfile, beginDate, endDate):
-    "Plot multiline onto outfile. Data has columns WHEN then O E D for each well."
+    "Plot multiline onto outfile. Data has columns TIMESTAMP then O E D for each well."
     ct = plot_multi(data, beginDate, endDate)
     savefig(outfile, format="png")
 
     return ct
 
-def png_single(data, outfile, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None):
+def png_single(data, outfile, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None):
     "Plot single-well data series. Data has columns WHEN, O, E, D."
 
-    ct = plot_single(data, beginDate=beginDate, endDate=endDate, dry_elevation=dry_elevation, ground_elevation=ground_elevation)
+    ct = plot_single(data, beginDate=beginDate, endDate=endDate,
+                     dry_elevation=dry_elevation,
+                     ground_elevation=ground_elevation,
+                     ngvd29_correction=ngvd29_correction)
     savefig(outfile, format="png")
 
     return ct

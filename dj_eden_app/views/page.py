@@ -4,6 +4,8 @@
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 import dj_eden_app.data_queries as data_queries
+from dj_eden_app.colors import ColorRange
+import json
 
 # from .. models import Station
 from .. forms import TimeSeriesFilterForm
@@ -77,19 +79,26 @@ def eden_page(request):
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
             else:
                 str_tend = None
-                
+
             if query_form.cleaned_data['timeseries_start'] and query_form.cleaned_data['timeseries_end']:
                 time_delta = query_form.cleaned_data['timeseries_end'] - query_form.cleaned_data['timeseries_start']
                 time_delta_days = time_delta.days
-                
+
             gages = query_form.cleaned_data['site_list']
+            colors = ColorRange(count=len(gages))
+
+            _logger.debug("In page generation, colors = %s", list(colors))
+
             render_params = {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),
                                                    'series_options': mark_safe(dygraph_series_options(gages)),
                                                    'str_tstart': str_tstart,
                                                    'gages':gages,
-                                                   'str_tend': str_tend, 
-                                                   'time_delta': time_delta_days,}
+                                                   'str_tend': str_tend,
+                                                   'colors': mark_safe(json.dumps(list(colors))),
+                                                   'color_list': list(colors),
+                                                   'time_delta': time_delta_days
+			}
             if len(gages) == 1:
                 station = data_queries.station_list(gages)[0]
 
