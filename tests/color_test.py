@@ -35,3 +35,16 @@ class TestColorRange(unittest.TestCase):
         for c in victim:
             self.check_color(c)
         self.check_unique(victim)
+
+    def test_names(self):
+        names = ColorRange.color_map_names()
+        self.assertIn('rainbow', names)
+        self.assertIn('spectral', names)
+        self.assertIn('ocean', names)
+
+    def test_1(self):
+        victim = ColorRange(count=1)
+        self.assertEquals(1, len(victim))
+        self.check_color(victim[0])
+
+
