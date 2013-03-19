@@ -6,15 +6,10 @@ Created on Mar 4, 2013
 import matplotlib
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, ylim
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
 from dj_eden_app.colors import ColorRange
-
-try:
-    from dj_eden_app.text_export import _generate_error_file
-except ImportError:
-    pass
 
 import textwrap
 import logging
@@ -35,8 +30,10 @@ def plot_multi(data, beginDate, endDate):
     # each tuple has a timestamp as first column,
     # then 3 columns for each well: Observed, Estimated, Dry
 
-    figure()
-    axes([0.1, 0.3, 0.5, 0.5])
+    fig = figure()
+    # axx = axes([0.1, 0.3, 0.5, 0.5])
+    # left, bottom, width, height
+    ax1 = subplot(2, 1, 1)
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
     if beginDate != None and endDate != None:
@@ -57,6 +54,7 @@ def plot_multi(data, beginDate, endDate):
 
     _logger.debug("In plot_multi generation, colors = %s", list(line_colors))
 
+    lines = []
     for i in range(1, len(labels)):
         marker = _line_styles[(i - 1) % 3]
         color = line_colors[(i - 1) / 3]
@@ -64,11 +62,26 @@ def plot_multi(data, beginDate, endDate):
         if (i % 3) == 1:
             label = labels[i]
         markerprops = {'markerfacecolor':color, 'markersize':_marker_size, 'markeredgecolor':color}
-        plot_date(columns[0], columns[i], fmt=marker, color=color, label=label, **markerprops)
+        l = plot_date(columns[0], columns[i], fmt=marker, color=color, label=label, **markerprops)
+        lines.append(l[0])
 
-    legend(loc='upper left', bbox_to_anchor=(1, 1))
+    h, l = ax1.get_legend_handles_labels()
+
+    # position legend in lower sub-plot, not to graphed subplot
+    # ax2 = subplot(2, 1, 2)
+    fig.legend(h, l, loc='lower right', ncol=1 + (len(l) / 6))
+
+    # make another legend for the dot'n'dashes, from the first 3 lines
+    _legend_for_line_styles(fig, lines[0:3])
 
     return len(columns[0])
+
+def _legend_for_line_styles(fig, lines):
+    # make another legend for the dot'n'dashes, from the first 3 lines
+    # TODO change the color to black by creating new, unattached instances of Line2D
+    fig.legend(lines[0:3],
+        ('Observed', 'Estimated', 'Dry'),
+        'lower left')
 
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
@@ -103,11 +116,13 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     _logger.debug("In plot_single, color = %s", c)
 
     markerprops = {'markerfacecolor':c, 'markersize':_marker_size, 'markeredgecolor':c}
-    plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
-    plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
-    plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
+    (l1,) = plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
+    (l2,) = plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
+    (l3,) = plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
 
     legend()
+
+    # _legend_for_line_styles(f, [l1, l2, l3])
 
     if ngvd29_correction is not None:
         axL = f.add_subplot(111)
