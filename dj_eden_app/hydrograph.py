@@ -218,38 +218,32 @@ if __name__ == "__main__":
     import stage_data
     import dateutil.parser
 
-    station_dict = data_queries.station_dict(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"])
-    q, dt = data_queries.daily_query_split(*station_dict.values())
-    q = q.where(dt >= "2006-10-15")
-    q = q.where(dt <= "2006-11-12")
-    data = q.execute()
+    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"],
+                                          beginDate="2006-10-15",
+                                          endDate="2006-11-12")
     ct = png_multi(data, "/tmp/hg5.png", None, None)
     print "hg5.png", ct
 
-    station_dict = data_queries.station_dict(['CV5NR'])
-    station = station_dict.values()[0]
-    q, dt = data_queries.daily_query_split(*station_dict.values())
-    q = q.where(dt >= "2006-10-15")
-    q = q.where(dt <= "2006-11-12")
-    data = q.execute()
-    ct = png_single(data, "/tmp/hg6.png", beginDate=dateutil.parser.parse("2006-10-15"),
+    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
+    station = ss[0]
+    ct = png_single(data, "/tmp/hg6.png",
+                    beginDate=dateutil.parser.parse("2006-10-15"),
                     endDate=dateutil.parser.parse("2006-11-12"),
                     dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
     print "hg6.png", ct
 
-    data = stage_data.data_for_plot(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2010-01-01", maxCount=600)
-    ct = png(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"), ['2A300', 'G-3567'])
+    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2010-01-01")
+    ct = png_multi(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"))
     print "hg1.png", ct
 
-    data = stage_data.data_for_plot(['2A300', 'G-3567'], maxCount=600)
-    ct = png(data, "/tmp/hg2.png", None, None, ['2A300', 'G-3567'])
+    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567'])
+    ct = png_multi(data, "/tmp/hg2.png", None, None)
     print "hg2.png", ct
 
-    data = stage_data.data_for_plot(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2004-03-01", maxCount=600)
-    ct = png(data, "/tmp/hg3.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2004-03-01"), ['2A300', 'G-3567'])
+    data, ss = data_queries.data_for_plot_hourly(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2004-03-01")
+    ct = png_multi(data, "/tmp/hg3.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2004-03-01"))
     print "hg3.png", ct
 
-    data = stage_data.data_for_plot(['L31NN', 'Chatham_River_near_the_Watson_Place'], beginDate="2011-09-01", endDate="2011-12-31",
-             maxCount=600)
-    ct = png(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"), ['L31NN', 'Chatham_River_near_the_Watson_Place'])
+    data, ss = data_queries.data_for_plot_daily(['L31NN', 'Chatham_River_near_the_Watson_Place'], beginDate="2011-09-01", endDate="2011-12-31")
+    ct = png_multi(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"))
     print "hg4.png", ct

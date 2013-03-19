@@ -28,7 +28,7 @@ def daily_query(*stations):
         navd88correction = s.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
-        flag, val, raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
+        flag, val, _raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
 
         q = q.column(val.label(gage_name + " avg"))
         q = q.column(flag.label(gage_name + " flag"))
@@ -43,7 +43,7 @@ def daily_query_split(*stations):
         navd88correction = s.convert_to_navd88_feet
         dry_value = s.dry_elevation
 
-        flag, val, raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
+        flag, val, _raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
 
         # split to 3 columns: Observed, Estimated, Dry. Missing is just missing.
         q = q.column(expression.case(value=flag,
@@ -94,6 +94,27 @@ def hourly_query_split(*stations):
                                      whens={'D': val},
                                      else_=None).label(gage_name + " dry"))
     return q, dt
+
+def data_for_plot_daily(stations, beginDate=None, endDate=None):
+    sl = station_list(stations)
+    q, dt = daily_query_split(*sl)
+    if beginDate is not None:
+        q = q.where(dt >= beginDate)
+    if endDate is not None:
+        q = q.where(dt <= endDate)
+    data = q.execute()
+    return data, sl
+
+def data_for_plot_hourly(stations, beginDate=None, endDate=None):
+    sl = station_list(stations)
+    q, dt = hourly_query_split(*sl)
+    if beginDate is not None:
+        q = q.where(dt >= beginDate)
+    if endDate is not None:
+        q = q.where(dt <= endDate)
+    data = q.execute()
+    return data, sl
+
 
 if __name__ == '__main__':
     def _show(q):
