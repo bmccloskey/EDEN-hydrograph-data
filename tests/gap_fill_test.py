@@ -1,4 +1,4 @@
-from dj_eden_app.gap_fill import gap_fill
+from dj_eden_app.gap_fill import gap_fill, gap_fill_gen
 
 import unittest
 
@@ -14,6 +14,30 @@ class TestGapFill(unittest.TestCase):
               [None, None, None, 103, 104],
               [None, None, None, None, None]]
         )
+
+    def test_base_case_gen_minimal(self):
+        ssz = zip([100, None],
+                  [None, 101])
+        gfg = gap_fill_gen(ssz)
+        l = list(gfg)
+        self.assertEquals(l,
+                          [(100, None),
+                           (101, 101)]
+                          )
+
+    def test_base_case_gen(self):
+        ssz = zip([100, 101, 102, None, None],
+                  [None, None, None, 103, 104],
+                  [None, None, None, None, None])
+        gfg = gap_fill_gen(ssz)
+        l = list(gfg)
+        self.assertEquals(l,
+                          [(100, None, None),
+                           (101, None, None),
+                           (102, None, None),
+                           (103, 103, None),
+                           (None, 104, None)]
+                          )
 
     def test_empty_run(self):
         ss = [[100, 101, None, None, None],
@@ -58,6 +82,15 @@ class TestGapFill(unittest.TestCase):
               [None, None, None, None, None],
               [None, None, None, None, None]]
         )
+
+    def test_all_empty_gen(self):
+        ssz = zip([None, None, None, None, None],
+              [None, None, None, None, None],
+              [None, None, None, None, None])
+        gfg = gap_fill_gen(ssz)
+        l = list(gfg)
+        self.assertEquals(l,
+                          5 * [(None, None, None)])
 
     def test_leading_empty(self):
         ss = [[None, None, 1.2, None, None],

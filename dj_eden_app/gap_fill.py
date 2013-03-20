@@ -18,7 +18,22 @@ def gap_fill(*ss):
 
 def gap_fill_gen(gt):
     " fill in the gaps -- gt is a generator of tuples"
+    prev_tuple = None
+    prev_bits = [False]
 
     for t in gt:
-        # TODO Fill the gaps
-        yield t
+        if prev_tuple is not None:
+            yield prev_tuple
+        this_bits = bits(t)
+        if prev_bits != this_bits and any(prev_bits) and any(this_bits):
+            prev_idx = next(j for j, x in enumerate(prev_bits) if x)
+            this_idx = next(j for j, x in enumerate(this_bits) if x)
+            this_val = t[this_idx]
+            t_as_list = list(t)
+            t_as_list[prev_idx] = this_val
+            t = tuple(t_as_list)
+        prev_bits = this_bits
+        prev_tuple = t
+    if prev_tuple is not None:
+        yield prev_tuple
+
