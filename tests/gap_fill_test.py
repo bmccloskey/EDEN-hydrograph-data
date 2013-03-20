@@ -39,6 +39,28 @@ class TestGapFill(unittest.TestCase):
                            (None, 104, None)]
                           )
 
+    def test_base_case_gen_3(self):
+        ssz = [('date', 100, None, None, None, None, None),
+              ('date', 101, None, None, 0, None, None),
+              ('date', None, 102, None, 0, None, None),
+              ('date', 103, None, None, None, None, None),
+              ('date', None, None, 104, None, None, 1),
+              ('date', None, None, 105, None, None, 2),
+              ('date', None, None, 106, None, None, None),
+              ]
+        gfg = gap_fill_gen(ssz)
+        l = list(gfg)
+        expected = [
+              ('date', 100, None, None, None, None, None),
+              ('date', 101, None, None, 0, None, None),
+              ('date', 102, 102, None, 0, None, None),
+              ('date', 103, 103, None, None, None, None),
+              ('date', 104, None, 104, None, None, 1),
+              ('date', None, None, 105, None, None, 2),
+              ('date', None, None, 106, None, None, None),
+              ]
+        self.assertEquals(l, expected)
+
     def test_empty_run(self):
         ss = [[100, 101, None, None, None],
               [None, None, None, 103, 104],

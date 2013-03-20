@@ -129,7 +129,7 @@ def plot_data(request):
                                         station_dict=station_dict
                                         )
 
-        stage_data.write_csv(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -169,7 +169,7 @@ def plot_data_hourly(request):
         data = q.execute()
 
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -194,7 +194,7 @@ def plot_data_daily(request):
         data = q.execute()
 
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -319,31 +319,3 @@ def plot_image_daily_single(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
-def plot_image(request):
-    # TODO Pull gage list up to list of model objects
-
-    form = TimeSeriesFilterForm(request.GET)
-
-    if form.is_valid():
-        gages = form.cleaned_data['site_list']
-
-        station_dict = data_queries.station_dict(gages)
-
-        beginDate = form.cleaned_data["timeseries_start"]
-        endDate = form.cleaned_data["timeseries_end"]
-        maxCount = form.cleaned_data["max_count"]
-
-        response = HttpResponse(content_type='image/png')
-
-        data = stage_data.data_for_plot(gages,
-                                        beginDate=beginDate,
-                                        endDate=endDate,
-                                        maxCount=maxCount,
-                                        station_dict=station_dict
-                                        )
-
-        hydrograph.png(data, response, beginDate, endDate, gages)
-
-        return response
-    else:
-        return HttpResponseBadRequest(",".join(form.errors))
