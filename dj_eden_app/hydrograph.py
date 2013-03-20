@@ -8,10 +8,10 @@ matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim
 import dj_eden_app.data_queries as data_queries
-from dj_eden_app.models import Station
 from dj_eden_app.colors import ColorRange
+from dj_eden_app.gap_fill import gap_fill
+
 # from text_export import _generate_error_file
-from dj_eden_app.models import Station, StationDatum
 
 import textwrap
 import logging
@@ -51,6 +51,9 @@ def plot_multi(data, beginDate, endDate):
     for r in data:
         for i, v in enumerate(r):
             columns[i].append(v)
+
+    for i in range(1, len(columns), 3):
+        gap_fill(columns[i], columns[i + 1], columns[i + 2])
 
     line_colors = ColorRange(count=(len(labels) - 1) / 3)
 
@@ -108,6 +111,8 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
         for i, v in enumerate(r):
             columns[i].append(v)
 
+    gap_fill(*columns[1:3])
+
     if dry_elevation is not None:
         axhline(y=dry_elevation, linewidth=4, color=gray_ish, zorder= -100)
     if ground_elevation is not None:
@@ -145,14 +150,13 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     pass
 
-def plot_grd_level(site_list):
+def plot_grd_level(station):
     """
     Plots the ground level as a brown dashed-line if 
     the 'duration_elevation' column is not null for
     a station in STATION table.
     """
-    gage_elevation_qs = Station.objects.get(station_name_web__in=site_list)
-    grd_elevation = gage_elevation_qs.duration_elevation
+    grd_elevation = station.duration_elevation
 
     if grd_elevation:
         # color was #964B00
@@ -161,42 +165,6 @@ def plot_grd_level(site_list):
         grd_level = None
 
     return grd_level
-
-def plot_many(data, destination, begin_date, end_date, gage_list):
-    """
-    Produce a PNG plot of the data series.
-    destination can be any file-like object, or a string (file name)
-    stations and kwargs are passed to stage_data.data
-    """
-    keys = data.keys()
-    beginDate = begin_date
-    endDate = end_date
-
-    # Prefer to build xList and yList by iteration rather than comprehension, to ease memory burden
-    xList = []
-    yList = []
-
-    for row in data:
-        xList.append(row[0])
-        yList.append(row[1:])
-
-    # could collapse some of the data ranges, perhaps
-
-    _logger.debug("using default colors in plot_many")
-    figure()
-    axes([0.1, 0.3, 0.5, 0.5])
-    plot_date(xList, yList, '-d', markersize=2.5)
-    xlabel('Date')
-    ylabel('Water Level (NAVD88 ft)')
-    if beginDate != None and endDate != None:
-        xlim(xmin=beginDate, xmax=endDate)
-    if len(gage_list) == 1:
-        plot_grd_level(gage_list)
-    labels = [ _clean_label(s) for s in keys[1:] ]
-    legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
-    xticks(rotation=60)
-
-    return len(xList)
 
 _line_style_dict = {
                 'D': ":^",  # dotted with triangles
@@ -208,13 +176,6 @@ _line_styles = ["-d", ":+", ":^"]
 
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
-
-def png(data, destination, beginDate, endDate, gage_list):
-
-    ct = plot_many(data, destination, beginDate, endDate, gage_list)
-    savefig(destination, format="png")
-
-    return ct
 
 def png_multi(data, outfile, beginDate, endDate):
     "Plot multiline onto outfile. Data has columns TIMESTAMP then O E D for each well."
@@ -235,7 +196,6 @@ def png_single(data, outfile, beginDate=None, endDate=None, dry_elevation=None, 
     return ct
 
 if __name__ == "__main__":
-    import stage_data
     import dateutil.parser
 
     data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"],
