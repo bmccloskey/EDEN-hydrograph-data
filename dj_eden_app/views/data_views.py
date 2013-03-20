@@ -4,10 +4,6 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from dj_eden_app.models import Station
 from dj_eden_app.forms import TimeSeriesFilterForm
 import dj_eden_app.data_queries as data_queries
-try:
-    from dj_eden_app.text_export import _generate_error_file, write_file
-except ImportError:
-    pass
 
 import logging
 
@@ -170,13 +166,11 @@ def plot_data_hourly(request):
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
-        #q = q.add_columns(case[*station_dict.values() - 2]).label('expt')
-        _generate_error_file('q.txt', [q])
         
         data = q.execute()
-        _generate_error_file('data.txt', data.keys())
         response = HttpResponse(content_type='text/csv')
         stage_data.write_csv(results=data, outfile=response)
+        #_generate_error_file('response.csv', data)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -217,8 +211,9 @@ def _daily_plot_data(form):
     if beginDate:
         q = q.where(dt >= beginDate)
     if endDate:
-        q = q.where(dt <= endDate)
+        q = q.where(dt <= endDate)   
     data = q.execute()
+
     return data, beginDate, endDate, station1
 
 def _hourly_plot_data(form):
@@ -281,23 +276,13 @@ def plot_image_hourly_multi(request):
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
-    
-def get_ngvd29_conversion(station_object):
-    
-    conversion = station_object.vertical_conversion
-    if conversion is None or conversion == '':
-        ngvd29_conv = 0
-    else:
-        ngvd29_conv = conversion
-        
-    return ngvd29_conv
 
 def plot_image_hourly_single(request):
     form = TimeSeriesFilterForm(request.GET)
 
     if form.is_valid():
         data, beginDate, endDate, station = _hourly_plot_data(form)
-        ngvd29_correction = get_ngvd29_conversion(station)
+        ngvd29_correction = data_queries.get_ngvd29_conversion(station)
 
         response = HttpResponse(content_type='image/png')
 
@@ -327,10 +312,9 @@ def plot_image_daily_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _daily_plot_data(form)
-
+        ngvd29_correction = data_queries.get_ngvd29_conversion(station)
         response = HttpResponse(content_type='image/png')
 
-        ngvd29_correction = get_ngvd29_conversion(station)
 
         hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate,
                               dry_elevation=station.dry_elevation,

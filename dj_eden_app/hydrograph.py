@@ -100,8 +100,12 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     labels = data.keys()
     ylabel(labels[1] + "\nWater Level (NAVD88 ft)")
 
+    # data has exactly 4 columns: date, O, E, D
+    if len(labels) == 4:
+        columns = [[], [], [], []]
+    if len(labels) == 5:
     # data has exactly 5 columns: date, O, E, D, NGVD29 correction
-    columns = [[], [], [], [], []]
+        columns = [[], [], [], [], []]
     for r in data:
         for i, v in enumerate(r):
             columns[i].append(v)

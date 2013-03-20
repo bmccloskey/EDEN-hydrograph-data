@@ -27,10 +27,9 @@ def dygraph_series_options(gages):
         name = gage
         opt += "'" + name + " est'" + ":{ strokePattern: Dygraph.DOTTED_LINE },\n"
         opt += "'" + name + " dry'" + ":{ strokePattern: Dygraph.DASHED_LINE },\n"
-    """
     if len(gages) == 1:
-        opt += "'" + name + " _NGVD29'" + ":{ strokePattern: Dygraph.DASHED_LINE },\n"
-    """
+        ngvd29_name = '%s%s' % (name, '_NGVD29')
+        opt += "'%s': { axis:'y2', strokeWidth: 0.0, drawPoints:false }, \n" % ngvd29_name
     opt += "'datetime': {}\n"  # IE-safe last element
     opt += '}\n'
     return opt
@@ -105,10 +104,9 @@ def eden_page(request):
 			}
             if len(gages) == 1:
                 station = data_queries.station_list(gages)[0]
-                
+                render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
                 render_params['dry_elevation'] = station.dry_elevation or "null"
                 render_params['ground_elevation'] = station.duration_elevation or "null"
-                #render_params['ngvd29_series'] = "'" + str(station.station_name_web) + " _NGVD29'" + ":{ strokePattern: Dygraph.DASHED_LINE },\n"
             else:
                 render_params['dry_elevation'] = "null"
                 render_params['ground_elevation'] = "null"

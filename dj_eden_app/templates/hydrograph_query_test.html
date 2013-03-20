@@ -49,10 +49,37 @@ if (data[0].length == 2) {
   }
 }
 */
-    var g2 = new Dygraph(
-      document.getElementById("graph_2"),
-      data, 
-      {
-      }          // options
-    );
+/*
+    var g2 = g = new Dygraph(document.getElementById("graph_2"),
+            "X,R,S,blah\n" +
+            "1,0,3,18\n" +
+            "2,2,6,16\n" +
+            "3,4,8,14\n" +
+            "4,6,9,12\n" +
+            "5,8,9,13\n" +
+            "6,10,8,14\n" +
+            "7,12,6,15\n" +
+            "8,14,3,16\n",
+            {
+                legend: 'always',
+                animatedZooms: true,
+                title: 'Dygraphs multi-axis demo',
+                "blah" : {
+                  axis : { }
+                },
+            });
+*/
+var g2 = g = new Dygraph(document.getElementById("graph_2"),
+		"{{ STATIC_URL }}js/data_test.html",
+        {	labels: ['datetime','2A300','2A300 est','2A300 dry','2A300_NGVD29'],
+            legend: 'always',
+            animatedZooms: true,
+            title: 'Dygraphs multi-axis demo',
+            "2A300_NGVD29" : {
+              axis : { }
+            },
+            ylabel: "Primary",
+            y2label: "Secondary"
+        });
+            
 </script>

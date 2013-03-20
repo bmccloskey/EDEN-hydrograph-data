@@ -1,12 +1,10 @@
 from flagged_data import daily_base_query, daily_columns, hourly_base_query, hourly_columns, date_col
 # uses models.Station
-from sqlalchemy.sql import expression, func
+from sqlalchemy.sql import expression
 from collections import OrderedDict
+
 from dj_eden_app.models import Station
-try:
-    from dj_eden_app.text_export import _generate_error_file, write_file
-except ImportError:
-    pass
+
 
 def station_dict(gages):
     # pull station name list up to Station objects
@@ -23,6 +21,16 @@ def station_list(gages):
     sd = station_dict(gages)
     return sd.values()
 
+def get_ngvd29_conversion(station_object):
+    
+    conversion = station_object.vertical_conversion
+    if conversion is None or conversion == '':
+        ngvd29_conv = 0
+    else:
+        ngvd29_conv = conversion
+        
+    return ngvd29_conv
+
 def daily_query(*stations):
     q, dt = daily_base_query()
 
@@ -30,7 +38,7 @@ def daily_query(*stations):
         gage_name = s.station_name_web
         navd88correction = s.convert_to_navd88_feet
         dry_value = s.dry_elevation
-
+        
         flag, val, _raw = daily_columns(gage_name, dry_value, navd88correction=navd88correction)
 
         q = q.column(val.label(gage_name + " avg"))
@@ -58,6 +66,11 @@ def daily_query_split(*stations):
         q = q.column(expression.case(value=flag,
                                      whens={'D': val},
                                      else_=None).label(gage_name + " dry"))
+        if len(stations) == 1:
+            # create a series with NGVD29 data for dygraphs
+            ngvd29correction = get_ngvd29_conversion(s)
+            q = q.column((val - ngvd29correction).label(gage_name + "_NGVD29"))
+
     return q, dt
 
 def hourly_query(*stations):
@@ -82,7 +95,6 @@ def hourly_query_split(*stations):
     for s in stations:
         gage_name = s.station_name_web
         navd88correction = s.convert_to_navd88_feet
-        ngvd29correction = s.vertical_conversion
         dry_value = s.dry_elevation
 
         flag, val = hourly_columns(gage_name, dry_value, navd88correction=navd88correction)
@@ -98,8 +110,9 @@ def hourly_query_split(*stations):
                                      whens={'D': val},
                                      else_=None).label(gage_name + " dry"))
         if len(stations) == 1:
-            q = q.column(func.convert_to_ngvd29(val, ngvd29correction).label(gage_name + "_NGVD29"))
-        
+            # create a series with NGVD29 data for dygraphs
+            ngvd29correction = get_ngvd29_conversion(s)
+            q = q.column((val - ngvd29correction).label(gage_name + "_NGVD29"))
     return q, dt
 
 def data_for_plot_daily(stations, beginDate=None, endDate=None):
