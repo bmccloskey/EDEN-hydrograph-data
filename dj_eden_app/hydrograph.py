@@ -9,7 +9,7 @@ import os.path
 
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim, grid, twinx
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid, twinx
 from matplotlib.lines import Line2D
 import Image
 
@@ -51,7 +51,7 @@ def plot_multi(data, beginDate, endDate):
     # axhline(y = 0.5) could be used for depicting ground elevation
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
-    # xticks(rotation=60)
+    xticks(rotation=90)
 
     labels = data.keys()
     # columns is a list of lists, one for each column.
@@ -129,7 +129,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
         xlim(xmin=beginDate, xmax=endDate)
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
-    # xticks(rotation=60)
+    xticks(rotation=90)
 
     labels = data.keys()
     ylabel(labels[1] + "\nWater Level (NAVD88 ft)")
@@ -167,18 +167,20 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     # _legend_for_line_styles(f, [l1, l2, l3])
 
     if ngvd29_correction is not None:
-        # x axis is vertical.
         ax1 = f.axes[0]
-        ax2 = twinx()
+        ax2 = ax1.twinx()  # new axis overlay, ticks on right, shared x axis
 
         lim = ax1.get_ylim()
         ax2.set_ylim([d - ngvd29_correction for d in lim])
         ax2.set_ylabel("NAVD29")
 
-        # TODO This looks good for vertical, but has screwed up the horizontal axis
-        ax2.xaxis.set_visible(False)
+        # twinx does not preserve this, so restore it now
+        ax2.xaxis_date()
 
         # tight_layout()
+        draw()
+
+    # tight_layout() # does not look good
 
     return len(columns[0]), f
 
