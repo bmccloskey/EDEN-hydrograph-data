@@ -8,9 +8,9 @@ All times are reported in Eastern Time (EST: UTC-5:00, EDT: UTC-4:00) unless oth
 
 Please note: 
 Water-level data is periodically updated by the originating agencies. 
-Real-time data is updated and replaced by provisional data approximately 45 days after the end of a quarter; 
-provisional is updated and replaced by final data approximately 9 months 
-after the end of a water year (Sept. 30)."
+Real-time data is updated and replaced by provisional data approximately 45 days 
+after the end of a quarter; provisional is updated and replaced by 
+final data approximately 9 months after the end of a water year (Sept. 30).
 
 Flag Dictionary:
 

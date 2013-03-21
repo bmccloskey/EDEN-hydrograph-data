@@ -9,6 +9,7 @@ import json
 
 # from .. models import Station
 from .. forms import TimeSeriesFilterForm
+from dj_eden_app.data_queries import get_ngvd29_conversion
 import logging
 
 # Get an instance of a logger
@@ -29,7 +30,7 @@ def dygraph_series_options(gages):
         opt += "'" + name + " dry'" + ":{ strokePattern: Dygraph.DASHED_LINE },\n"
     if len(gages) == 1:
         ngvd29_name = '%s%s' % (name, '_NGVD29')
-        opt += "'%s': { axis:'y2', strokeWidth: 0.0, drawPoints:false }, \n" % ngvd29_name
+        opt += "'%s': { axis:'y2' }, \n" % ngvd29_name
     opt += "'datetime': {}\n"  # IE-safe last element
     opt += '}\n'
     return opt
@@ -107,6 +108,7 @@ def eden_page(request):
                 render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
                 render_params['dry_elevation'] = station.dry_elevation or "null"
                 render_params['ground_elevation'] = station.duration_elevation or "null"
+                render_params['ngvd29_correction'] = get_ngvd29_conversion(station)
             else:
                 render_params['dry_elevation'] = "null"
                 render_params['ground_elevation'] = "null"

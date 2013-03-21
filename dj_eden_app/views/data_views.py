@@ -127,7 +127,6 @@ def plot_data(request):
                                         maxCount=maxCount,
                                         station_dict=station_dict
                                         )
-
         stage_data.write_csv(results=data, outfile=response)
         return response
     else:
@@ -166,11 +165,15 @@ def plot_data_hourly(request):
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
-        
+
         data = q.execute()
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv(results=data, outfile=response)
-        #_generate_error_file('response.csv', data)
+        if len(gages) == 1:
+            site_name = gages[0]
+        else:
+            site_name = None
+        stage_data.write_csv(results=data, outfile=response, station_name=site_name)
+
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -192,10 +195,15 @@ def plot_data_daily(request):
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
+
         data = q.execute()
 
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv(results=data, outfile=response)
+        if len(gages) == 1:
+            site_name = gages[0]
+        else:
+            site_name = None
+        stage_data.write_csv(results=data, outfile=response, station_name=site_name)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))

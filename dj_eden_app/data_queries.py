@@ -66,10 +66,10 @@ def daily_query_split(*stations):
         q = q.column(expression.case(value=flag,
                                      whens={'D': val},
                                      else_=None).label(gage_name + " dry"))
-        if len(stations) == 1:
+        #if len(stations) == 1:
             # create a series with NGVD29 data for dygraphs
-            ngvd29correction = get_ngvd29_conversion(s)
-            q = q.column((val - ngvd29correction).label(gage_name + "_NGVD29"))
+            #ngvd29correction = get_ngvd29_conversion(s)
+            #q = q.column((val - ngvd29correction).label(gage_name + "_NGVD29"))
 
     return q, dt
 
@@ -83,6 +83,7 @@ def hourly_query(*stations):
 
         # use navd88 correction
         flag, val = hourly_columns(gage_name, dry_value, navd88correction=navd88correction)
+        
 
         q = q.column(val.label(gage_name))
         q = q.column(flag.label(gage_name + " flag"))
@@ -109,10 +110,10 @@ def hourly_query_split(*stations):
         q = q.column(expression.case(value=flag,
                                      whens={'D': val},
                                      else_=None).label(gage_name + " dry"))
-        if len(stations) == 1:
+        #if len(stations) == 1:
             # create a series with NGVD29 data for dygraphs
-            ngvd29correction = get_ngvd29_conversion(s)
-            q = q.column((val - ngvd29correction).label(gage_name + "_NGVD29"))
+            #ngvd29correction = get_ngvd29_conversion(s)
+            #q = q.column((val - ngvd29correction).label(gage_name + "_NGVD29"))
     return q, dt
 
 def data_for_plot_daily(stations, beginDate=None, endDate=None):

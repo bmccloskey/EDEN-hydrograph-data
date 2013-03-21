@@ -69,17 +69,62 @@ if (data[0].length == 2) {
                 },
             });
 */
-var g2 = g = new Dygraph(document.getElementById("graph_2"),
+/*
+var g2 = new Dygraph(document.getElementById("graph_2"),
 		"{{ STATIC_URL }}js/data_test.html",
-        {	labels: ['datetime','2A300','2A300 est','2A300 dry','2A300_NGVD29'],
+        {	labels: ['date', '2A300', '2A300 est', '2A300 dry', '2A300_NGVD29'],
             legend: 'always',
             animatedZooms: true,
             title: 'Dygraphs multi-axis demo',
-            "2A300_NGVD29" : {
-              axis : { }
-            },
             ylabel: "Primary",
-            y2label: "Secondary"
+            visibility: [true, true, true, false],
+
+            series: {
+            	'2A300': { 
+            		axis: 'y',
+				},
+			},
+			'axes': {
+				y: {
+					valueRange: [0, 20],
+				},
+				y2: {
+					valueRange: [10, 20],
+				}
+			}
         });
-            
+*/
+var g2 = new Dygraph(document.getElementById("graph_2"),
+		"{{ STATIC_URL }}js/test_csv.csv",
+        {	labels: ['x_l', 'y1_l', 'y2_l'],
+            legend: 'always',
+            animatedZooms: true,
+            title: 'Dygraphs multi-axis demo',
+            ylabel: "Primary",
+            //y2_l: { axis: { } },
+            series: {
+            	y2_l: {
+            		axis: 'y2'
+            	}
+            },
+			drawCallback: function(dygraph, isInitial) {
+				if (isInitial) {
+				 labels = dygraph.getLabels();
+				 labelToMove = labels[3];
+				console.log("series: " + labelToMove);
+				yrange = dygraph.yAxisRange();
+				yrange[0] += 1;
+				yrange[1] += 1;
+				newOptions = { 
+				   axes: {y2: { valueRange: yrange} } 
+				};
+				newOptions[labelToMove] = {axis: 1};
+	
+				console.log("new options " + newOptions);
+				dygraph.updateOptions(newOptions);
+				props = dygraph.getPropertiesForSeries(labelToMove);
+				console.log(labelToMove + " on axis " + props['axis']);
+				}
+	},
+        });
 </script>
