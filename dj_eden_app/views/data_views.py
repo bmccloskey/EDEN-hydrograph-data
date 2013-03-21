@@ -283,7 +283,7 @@ def plot_image_hourly_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -309,12 +309,8 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        ngvd29_correction = station.convert_to_navd88_feet
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
 
-        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate,
-                              dry_elevation=station.dry_elevation,
-                              ground_elevation=station.duration_elevation,
-                              ngvd29_correction=ngvd29_correction)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))

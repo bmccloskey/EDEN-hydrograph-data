@@ -230,6 +230,14 @@ def png_single(data, outfile, beginDate=None, endDate=None, dry_elevation=None, 
 
     return ct
 
+def png_single_station(data, outfile, station=None, beginDate=None, endDate=None):
+    return png_single(data, outfile,
+                      beginDate=beginDate, endDate=endDate,
+                      dry_elevation=station.dry_elevation,
+                      ground_elevation=station.duration_elevation,
+                      ngvd29_correction=station.vertical_conversion
+                      )
+
 if __name__ == "__main__":
     import dateutil.parser
 
@@ -274,4 +282,11 @@ if __name__ == "__main__":
                     ground_elevation=station.duration_elevation,
                     ngvd29_correction=None)
     print "hg6a.png", ct
+
+    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
+    station = ss[0]
+    ct = png_single_station(data, "/tmp/hg6b.png", station,
+                    beginDate=dateutil.parser.parse("2006-10-15"),
+                    endDate=dateutil.parser.parse("2006-11-12"))
+    print "hg6b.png", ct
 
