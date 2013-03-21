@@ -4,9 +4,17 @@ Created on Mar 4, 2013
 @author: rhayes
 '''
 import matplotlib
+import django
+import django.conf
+import os.path
+
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim, grid
+from matplotlib.lines import Line2D
+import Image
+import numpy
+
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
@@ -33,6 +41,8 @@ def plot_multi(data, beginDate, endDate):
     # then 3 columns for each well: Observed, Estimated, Dry
 
     fig = figure()
+    logo(fig)
+
     # axx = axes([0.1, 0.3, 0.5, 0.5])
     # left, bottom, width, height
     ax1 = subplot(2, 1, 1)
@@ -43,7 +53,7 @@ def plot_multi(data, beginDate, endDate):
     # axhline(y = 0.5) could be used for depicting ground elevation
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
-    xticks(rotation=60)
+    # xticks(rotation=60)
 
     labels = data.keys()
     # columns is a list of lists, one for each column.
@@ -70,6 +80,10 @@ def plot_multi(data, beginDate, endDate):
         l = plot_date(columns[0], columns[i], fmt=marker, color=color, label=label, **markerprops)
         lines.append(l[0])
 
+    grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
+
+    fig.suptitle("Water level elevation above NAVD88 datum, in feet")
+
     h, l = ax1.get_legend_handles_labels()
 
     # position legend in lower sub-plot, not to graphed subplot
@@ -77,30 +91,47 @@ def plot_multi(data, beginDate, endDate):
     fig.legend(h, l, loc='lower right', ncol=1 + (len(l) / 6))
 
     # make another legend for the dot'n'dashes, from the first 3 lines
-    _legend_for_line_styles(fig, lines[0:3])
+    _legend_for_line_styles(fig)
 
-    return len(columns[0])
+    return len(columns[0]), fig
 
-def _legend_for_line_styles(fig, lines):
-    # make another legend for the dot'n'dashes, from the first 3 lines
-    # TODO change the color to black by creating new, unattached instances of Line2D
-    fig.legend(lines[0:3],
-        ('Observed', 'Estimated', 'Dry'),
-        'lower left')
+def logo(fig):
+    filename = "usgs-logo.png"
+    if not os.path.exists(filename):
+        if django.conf.settings.SITE_HOME:
+            filename = os.path.join(django.conf.settings.SITE_HOME, "dj_eden_app", filename)
+    img = Image.open(filename)
+    height = img.size[1]
 
+    bbox = fig.bbox
+    bbox = bbox.anchored("NW")
+
+    fig.figimage(img, 0, int(bbox.ymax) - height, zorder=None)
+
+
+def _legend_for_line_styles(fig):
+    fig.legend([Line2D([0, 1], [0, 1], color="black", linestyle=_line_styles[0][:-1], marker=_line_styles[0][-1:]),
+                Line2D([0, 1], [0, 1], color="black", linestyle=_line_styles[1][:-1], marker=_line_styles[1][-1:]),
+                Line2D([0, 1], [0, 1], color="black", linestyle=_line_styles[2][:-1], marker=_line_styles[2][-1:])],  # lines
+        ('Observed', 'Estimated', 'Dry'),  # labels
+        'lower left'  # anchor for positioning
+        )
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
 def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None):
     f = figure()
     # axes([0.1, 0.3, 0.5, 0.5])
+
+    logo(f)
+
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
     if beginDate != None and endDate != None:
         xlim(xmin=beginDate, xmax=endDate)
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
-    xticks(rotation=60)
+    # xticks(rotation=60)
 
     labels = data.keys()
     ylabel(labels[1] + "\nWater Level (NAVD88 ft)")
@@ -122,12 +153,18 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     c = line_colors[0]
     _logger.debug("In plot_single, color = %s", c)
 
+    grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
+
     markerprops = {'markerfacecolor':c, 'markersize':_marker_size, 'markeredgecolor':c}
     (l1,) = plot_date(columns[0], columns[1], _line_styles[0], color=c, label="Obs", **markerprops)
     (l2,) = plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
     (l3,) = plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
 
     legend()
+
+    logo(f)
+
+    f.suptitle("Water level elevation above NAVD88 datum, in feet\nGage " + labels[1])
 
     # _legend_for_line_styles(f, [l1, l2, l3])
 
@@ -146,9 +183,8 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
         axR.yaxis.set_label_position("right")
         tight_layout()
 
-    return len(columns[0])
+    return len(columns[0]), f
 
-    pass
 
 def plot_grd_level(station):
     """
@@ -179,38 +215,24 @@ def line_style(flag):
 
 def png_multi(data, outfile, beginDate, endDate):
     "Plot multiline onto outfile. Data has columns TIMESTAMP then O E D for each well."
-    ct = plot_multi(data, beginDate, endDate)
-    savefig(outfile, format="png")
+    ct, fig = plot_multi(data, beginDate, endDate)
+    savefig(outfile, format="png", dpi=fig.dpi)
 
     return ct
 
 def png_single(data, outfile, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None):
     "Plot single-well data series. Data has columns WHEN, O, E, D."
 
-    ct = plot_single(data, beginDate=beginDate, endDate=endDate,
+    ct, fig = plot_single(data, beginDate=beginDate, endDate=endDate,
                      dry_elevation=dry_elevation,
                      ground_elevation=ground_elevation,
                      ngvd29_correction=ngvd29_correction)
-    savefig(outfile, format="png")
+    savefig(outfile, format="png", dpi=fig.dpi)
 
     return ct
 
 if __name__ == "__main__":
     import dateutil.parser
-
-    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"],
-                                          beginDate="2006-10-15",
-                                          endDate="2006-11-12")
-    ct = png_multi(data, "/tmp/hg5.png", None, None)
-    print "hg5.png", ct
-
-    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
-    station = ss[0]
-    ct = png_single(data, "/tmp/hg6.png",
-                    beginDate=dateutil.parser.parse("2006-10-15"),
-                    endDate=dateutil.parser.parse("2006-11-12"),
-                    dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
-    print "hg6.png", ct
 
     data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2010-01-01")
     ct = png_multi(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"))
@@ -227,3 +249,18 @@ if __name__ == "__main__":
     data, ss = data_queries.data_for_plot_daily(['L31NN', 'Chatham_River_near_the_Watson_Place'], beginDate="2011-09-01", endDate="2011-12-31")
     ct = png_multi(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"))
     print "hg4.png", ct
+
+    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"],
+                                          beginDate="2006-10-15",
+                                          endDate="2006-11-12")
+    ct = png_multi(data, "/tmp/hg5.png", None, None)
+    print "hg5.png", ct
+
+    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
+    station = ss[0]
+    ct = png_single(data, "/tmp/hg6.png",
+                    beginDate=dateutil.parser.parse("2006-10-15"),
+                    endDate=dateutil.parser.parse("2006-11-12"),
+                    dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+    print "hg6.png", ct
+
