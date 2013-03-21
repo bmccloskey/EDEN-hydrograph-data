@@ -3,7 +3,7 @@ from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 from sqlalchemy.sql import *
 from sqlalchemy.sql.functions import GenericFunction, min, max
 from seq import prepend
-from dj_eden_app.gap_fill import gap_fill_gen
+from dj_eden_app.gap_fill import gap_fill_by_3
 
 import csv
 
@@ -173,7 +173,7 @@ def write_csv_for_plot(results, outfile, metadata=None):
         csv_writer.writerow(metadata)
     csv_writer.writerow(results.keys())
     # Iterate, because csv.writerows pulls up all rows to a list
-    for r in gap_fill_gen(results):
+    for r in gap_fill_by_3(results):
         csv_writer.writerow(r)
 
 def write_csv(results, outfile, metadata=None):

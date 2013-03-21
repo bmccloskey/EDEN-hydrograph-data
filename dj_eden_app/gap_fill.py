@@ -37,8 +37,17 @@ def gap_fill_gen(gt):
     if prev_tuple is not None:
         yield prev_tuple
 
-def gap_fill_gen_3(gt):
-    " fill in the gaps -- gt is a generator of tuples"
+def revised_group(t, prev_bits, this_bits):
+    "copy the first element marked in prev_bits to the first element marked in this_bits"
+    if any(prev_bits) and any(this_bits):
+        prev_idx = next(j for j, x in enumerate(prev_bits) if x)
+        this_idx = next(j for j, x in enumerate(this_bits) if x)
+        this_val = t[this_idx]
+        t[prev_idx] = this_val
+    return t
+
+def gap_fill_by_3(gt):
+    " fill in the gaps -- gt is a sequence of tuples, group by 3's leaving out first element."
     prev_tuple = None
     prev_bits = [False]
 
@@ -48,12 +57,10 @@ def gap_fill_gen_3(gt):
         this_bits = bits(t)
         if prev_bits != this_bits and any(prev_bits) and any(this_bits):
             # pick it apart by 3's
-            prev_idx = next(j for j, x in enumerate(prev_bits) if x)
-            this_idx = next(j for j, x in enumerate(this_bits) if x)
-            this_val = t[this_idx]
-            t_as_list = list(t)
-            t_as_list[prev_idx] = this_val
-            t = tuple(t_as_list)
+            target = list(t)
+            for i in range(1, len(t), 3):
+                target[i:i + 3] = revised_group(target[i:i + 3], prev_bits[i:i + 3], this_bits[i:i + 3])
+            t = tuple(target)
         prev_bits = this_bits
         prev_tuple = t
     if prev_tuple is not None:

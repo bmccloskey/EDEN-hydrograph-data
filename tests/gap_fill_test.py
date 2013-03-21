@@ -1,4 +1,4 @@
-from dj_eden_app.gap_fill import gap_fill, gap_fill_gen
+from dj_eden_app.gap_fill import gap_fill, gap_fill_gen, gap_fill_by_3
 
 import unittest
 
@@ -39,7 +39,7 @@ class TestGapFill(unittest.TestCase):
                            (None, 104, None)]
                           )
 
-    def test_base_case_gen_3(self):
+    def test_base_case_by_3(self):
         ssz = [('date', 100, None, None, None, None, None),
               ('date', 101, None, None, 0, None, None),
               ('date', None, 102, None, 0, None, None),
@@ -48,7 +48,7 @@ class TestGapFill(unittest.TestCase):
               ('date', None, None, 105, None, None, 2),
               ('date', None, None, 106, None, None, None),
               ]
-        gfg = gap_fill_gen(ssz)
+        gfg = gap_fill_by_3(ssz)
         l = list(gfg)
         expected = [
               ('date', 100, None, None, None, None, None),
