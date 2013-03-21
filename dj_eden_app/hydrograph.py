@@ -4,16 +4,14 @@ Created on Mar 4, 2013
 @author: rhayes
 '''
 import matplotlib
-import django
 import django.conf
 import os.path
 
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim, grid
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, ylim, grid, twinx
 from matplotlib.lines import Line2D
 import Image
-import numpy
 
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.colors import ColorRange
@@ -168,20 +166,19 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     # _legend_for_line_styles(f, [l1, l2, l3])
 
-    if False and (ngvd29_correction is not None):
-        axL = f.add_subplot(111)
-        if beginDate != None and endDate != None:
-            xlim(xmin=beginDate, xmax=endDate)
-        axL_maj_ticks = axL.yaxis.get_majorticklocs()
-        ylim(ymin=min(axL_maj_ticks), ymax=max(axL_maj_ticks))
-        axR = f.add_subplot(111, sharex=axL, frameon=False)
-        axR.axes.get_xaxis().set_visible(False)
-        axR.yaxis.tick_right()
-        axL_maj_ticks = axL.yaxis.get_majorticklocs()
-        ylim(ymin=min(axL_maj_ticks) - ngvd29_correction, ymax=max(axL_maj_ticks) - ngvd29_correction)
-        ylabel(labels[1] + "\nWater Level (NGVD29 ft)")
-        axR.yaxis.set_label_position("right")
-        tight_layout()
+    if ngvd29_correction is not None:
+        # x axis is vertical.
+        ax1 = f.axes[0]
+        ax2 = twinx()
+
+        lim = ax1.get_ylim()
+        ax2.set_ylim([d - ngvd29_correction for d in lim])
+        ax2.set_ylabel("NAVD29")
+
+        # TODO This looks good for vertical, but has screwed up the horizontal axis
+        ax2.xaxis.set_visible(False)
+
+        # tight_layout()
 
     return len(columns[0]), f
 
@@ -261,6 +258,18 @@ if __name__ == "__main__":
     ct = png_single(data, "/tmp/hg6.png",
                     beginDate=dateutil.parser.parse("2006-10-15"),
                     endDate=dateutil.parser.parse("2006-11-12"),
-                    dry_elevation=station.dry_elevation, ground_elevation=station.duration_elevation)
+                    dry_elevation=station.dry_elevation,
+                    ground_elevation=station.duration_elevation,
+                    ngvd29_correction=1.43)
     print "hg6.png", ct
+
+    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
+    station = ss[0]
+    ct = png_single(data, "/tmp/hg6a.png",
+                    beginDate=dateutil.parser.parse("2006-10-15"),
+                    endDate=dateutil.parser.parse("2006-11-12"),
+                    dry_elevation=station.dry_elevation,
+                    ground_elevation=station.duration_elevation,
+                    ngvd29_correction=None)
+    print "hg6a.png", ct
 
