@@ -16,7 +16,7 @@ import dj_eden_app.hydrograph as hydrograph
 from dj_eden_app.download_header import create_metadata_header
 from dj_eden_app.eden_headers import HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER
 
-default_show_logo = not 'windows' in sys.platform
+_default_show_logo = not 'windows' in sys.platform
 
 def timeseries_csv_download(request):
     # TODO Pull gage list up to list of model objects
@@ -206,7 +206,7 @@ def plot_data_daily(request):
             site_name = '%s_NGVD29' % gages[0]
         else:
             site_name = None
-        #stage_data.write_csv(results=data, outfile=response, station_name=site_name)
+        # stage_data.write_csv(results=data, outfile=response, station_name=site_name)
         stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
@@ -283,7 +283,7 @@ def plot_image_hourly_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=default_show_logo)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=_default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -296,7 +296,7 @@ def plot_image_hourly_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=default_show_logo)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=_default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -309,7 +309,7 @@ def plot_image_daily_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=default_show_logo)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=_default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -322,7 +322,7 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=default_show_logo)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=_default_show_logo)
 
         return response
     else:

@@ -188,7 +188,8 @@ def write_csv_for_plot(results, outfile, metadata=None, column_name=None):
     else:
         extra = (None,)
         for r in gap_fill_by_3(results):
-            csv_writer.writerow(r + extra)
+            # have to convert to tuple because RowProxy does not support +
+            csv_writer.writerow(tuple(r) + extra)
 
 
 if __name__ == "__main__":
