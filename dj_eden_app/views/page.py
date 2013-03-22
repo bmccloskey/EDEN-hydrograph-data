@@ -77,12 +77,12 @@ def eden_page(request):
             if query_form.cleaned_data['timeseries_start']:
                 str_tstart = '%s' % query_form.cleaned_data['timeseries_start']
             else:
-                str_tstart = None
+                str_tstart = 'null'
 
             if query_form.cleaned_data['timeseries_end']:
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
             else:
-                str_tend = None
+                str_tend = 'null'
 
             if query_form.cleaned_data['timeseries_start'] and query_form.cleaned_data['timeseries_end']:
                 time_delta = query_form.cleaned_data['timeseries_end'] - query_form.cleaned_data['timeseries_start']
@@ -101,17 +101,17 @@ def eden_page(request):
                                                    'str_tend': str_tend,
                                                    'colors': mark_safe(json.dumps(list(colors))),
                                                    'color_list': list(colors),
-                                                   'time_delta': time_delta_days
 			}
             if len(gages) == 1:
                 station = data_queries.station_list(gages)[0]
-                render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
+                #render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
                 render_params['dry_elevation'] = station.dry_elevation or "null"
                 render_params['ground_elevation'] = station.duration_elevation or "null"
                 render_params['ngvd29_correction'] = get_ngvd29_conversion(station)
             else:
                 render_params['dry_elevation'] = "null"
                 render_params['ground_elevation'] = "null"
+                render_params['ngvd29_correction'] = "null"
 
             return render(request, template_name, render_params)
     else:
