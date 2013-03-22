@@ -6,6 +6,7 @@ from dj_eden_app.forms import TimeSeriesFilterForm
 import dj_eden_app.data_queries as data_queries
 
 import logging
+import sys
 
 # Get an instance of a logger
 _logger = logging.getLogger(__name__)
@@ -14,6 +15,8 @@ import dj_eden_app.stage_data as stage_data
 import dj_eden_app.hydrograph as hydrograph
 from dj_eden_app.download_header import create_metadata_header
 from dj_eden_app.eden_headers import HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER
+
+default_show_logo = not 'windows' in sys.platform
 
 def timeseries_csv_download(request):
     # TODO Pull gage list up to list of model objects
@@ -270,7 +273,7 @@ def plot_image_hourly_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -283,7 +286,7 @@ def plot_image_hourly_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -296,7 +299,7 @@ def plot_image_daily_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -309,7 +312,7 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=default_show_logo)
 
         return response
     else:
