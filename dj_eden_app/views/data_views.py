@@ -169,14 +169,12 @@ def plot_data_hourly(request):
         data = q.execute()
 
         if len(gages) == 1:
-            site_name = gages[0]
+            site_name = '%s_NGVD29' % gages[0]
         else:
             site_name = None
 
-
-
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv_for_plot(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -203,11 +201,11 @@ def plot_data_daily(request):
 
         response = HttpResponse(content_type='text/csv')
         if len(gages) == 1:
-            site_name = gages[0]
+            site_name = '%s_NGVD29' % gages[0]
         else:
             site_name = None
         #stage_data.write_csv(results=data, outfile=response, station_name=site_name)
-        stage_data.write_csv_for_plot(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -294,7 +292,7 @@ def plot_image_hourly_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _hourly_plot_data(form)
-        ngvd29_correction = data_queries.get_ngvd29_conversion(station)
+        #ngvd29_correction = data_queries.get_ngvd29_conversion(station)
 
         response = HttpResponse(content_type='image/png')
 
@@ -321,7 +319,7 @@ def plot_image_daily_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _daily_plot_data(form)
-        ngvd29_correction = data_queries.get_ngvd29_conversion(station)
+        #ngvd29_correction = data_queries.get_ngvd29_conversion(station)
         response = HttpResponse(content_type='image/png')
 
 

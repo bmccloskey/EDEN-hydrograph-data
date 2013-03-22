@@ -146,7 +146,7 @@
             yAxisLabelWidth: 60,
             strokeWidth: 1.0,
             colors: colors3,
-            {% if ngvd29_series != None and ngvd29_correction != None %}
+            {% if ngvd29_series != None and ngvd29_correction != None %} //tried this with JS if statement... using Django templating until I can figure it out...
             drawCallback: function(dygraph, isInitial) {
     			if (isInitial) {
     			 labels = dygraph.getLabels();

@@ -11,7 +11,10 @@ matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid, twinx
 from matplotlib.lines import Line2D
-import Image
+try:
+    import Image
+except ImportError:
+    from PIL import Image # to deal with Windows...
 
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
@@ -97,7 +100,19 @@ def logo(fig):
     if not os.path.exists(filename):
         if django.conf.settings.SITE_HOME:
             filename = os.path.join(django.conf.settings.SITE_HOME, "dj_eden_app", filename)
+            
     img = Image.open(filename)
+    
+    """
+    # this did not help on windows
+    try:
+        img = Image.open(filename)
+    except IOError:
+        backslash_string = '\\'
+        backslash_replace = '/'
+        filename_windows = filename.replace(backslash_string, backslash_replace).replace('C:', '')
+        img = Image.open(filename_windows)
+    """
     height = img.size[1]
 
     bbox = fig.bbox
