@@ -3,6 +3,8 @@ from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 from sqlalchemy.sql import *
 from sqlalchemy.sql.functions import GenericFunction, min, max
 from seq import prepend
+from dj_eden_app.gap_fill import gap_fill_by_3
+
 import csv
 
 engine = create_engine("mysql://", \
@@ -165,6 +167,20 @@ def add_column_to_csv(column_name, csvfile):
     row_count = len(list(csv_reader))
     
     return row_count
+
+def write_csv_for_plot(results, outfile, metadata=None):
+    '''
+    Writes a csv file to the specified outfile file-like object.
+    Tweak the data to fill in gaps
+    '''
+
+    csv_writer = csv.writer(outfile)
+    if metadata != None:
+        csv_writer.writerow(metadata)
+    csv_writer.writerow(results.keys())
+    # Iterate, because csv.writerows pulls up all rows to a list
+    for r in gap_fill_by_3(results):
+        csv_writer.writerow(r)
 
 def write_csv(results, outfile, metadata=None, station_name=None):
     '''

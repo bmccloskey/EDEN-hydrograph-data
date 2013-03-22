@@ -127,7 +127,7 @@ def plot_data(request):
                                         maxCount=maxCount,
                                         station_dict=station_dict
                                         )
-        stage_data.write_csv(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -167,13 +167,16 @@ def plot_data_hourly(request):
             q = q.where(dt <= endDate)
 
         data = q.execute()
-        response = HttpResponse(content_type='text/csv')
+
         if len(gages) == 1:
             site_name = gages[0]
         else:
             site_name = None
-        stage_data.write_csv(results=data, outfile=response, station_name=site_name)
 
+
+
+        response = HttpResponse(content_type='text/csv')
+        stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -203,7 +206,8 @@ def plot_data_daily(request):
             site_name = gages[0]
         else:
             site_name = None
-        stage_data.write_csv(results=data, outfile=response, station_name=site_name)
+        #stage_data.write_csv(results=data, outfile=response, station_name=site_name)
+        stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -294,10 +298,7 @@ def plot_image_hourly_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate, 
-                              dry_elevation=station.dry_elevation, 
-                              ground_elevation=station.duration_elevation,
-                              ngvd29_correction=ngvd29_correction)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -324,39 +325,9 @@ def plot_image_daily_single(request):
         response = HttpResponse(content_type='image/png')
 
 
-        hydrograph.png_single(data, response, beginDate=beginDate, endDate=endDate,
-                              dry_elevation=station.dry_elevation,
-                              ground_elevation=station.duration_elevation,
-                              ngvd29_correction=ngvd29_correction)
-        return response
-    else:
-        return HttpResponseBadRequest(",".join(form.errors))
-
-def plot_image(request):
-    # TODO Pull gage list up to list of model objects
-
-    form = TimeSeriesFilterForm(request.GET)
-
-    if form.is_valid():
-        gages = form.cleaned_data['site_list']
-
-        station_dict = data_queries.station_dict(gages)
-
-        beginDate = form.cleaned_data["timeseries_start"]
-        endDate = form.cleaned_data["timeseries_end"]
-        maxCount = form.cleaned_data["max_count"]
-
-        response = HttpResponse(content_type='image/png')
-
-        data = stage_data.data_for_plot(gages,
-                                        beginDate=beginDate,
-                                        endDate=endDate,
-                                        maxCount=maxCount,
-                                        station_dict=station_dict
-                                        )
-
-        hydrograph.png(data, response, beginDate, endDate, gages)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
 
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
+
