@@ -66,9 +66,9 @@
 	       <tr class="color_{{ forloop.counter0 }}"><td>&mdash;</td><td>{{ g }}</td></tr>
 	   {% endfor %}
         <!-- <tr><td colspan="2">&mdash;</td></tr> -->
-        <tr><td>solid line</td><td>Observed data</td></tr>
-        <tr><td>dotted line</td><td>Estimated data</td></tr>
-        <tr><td>dashed line</td><td>Data in "dry" range</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}line-solid.png" alt="solid line" /></td><td>Observed data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}line-dotted.png" alt="dotted line" /></td><td>Estimated data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}line-dashed.png" alt="dashed line" /></td><td>Data in "dry" range</td></tr>
         </table>
     </div>
     
