@@ -49,10 +49,82 @@ if (data[0].length == 2) {
   }
 }
 */
-    var g2 = new Dygraph(
-      document.getElementById("graph_2"),
-      data, 
-      {
-      }          // options
-    );
+/*
+    var g2 = g = new Dygraph(document.getElementById("graph_2"),
+            "X,R,S,blah\n" +
+            "1,0,3,18\n" +
+            "2,2,6,16\n" +
+            "3,4,8,14\n" +
+            "4,6,9,12\n" +
+            "5,8,9,13\n" +
+            "6,10,8,14\n" +
+            "7,12,6,15\n" +
+            "8,14,3,16\n",
+            {
+                legend: 'always',
+                animatedZooms: true,
+                title: 'Dygraphs multi-axis demo',
+                "blah" : {
+                  axis : { }
+                },
+            });
+*/
+/*
+var g2 = new Dygraph(document.getElementById("graph_2"),
+		"{{ STATIC_URL }}js/data_test.html",
+        {	labels: ['date', '2A300', '2A300 est', '2A300 dry', '2A300_NGVD29'],
+            legend: 'always',
+            animatedZooms: true,
+            title: 'Dygraphs multi-axis demo',
+            ylabel: "Primary",
+            visibility: [true, true, true, false],
+
+            series: {
+            	'2A300': { 
+            		axis: 'y',
+				},
+			},
+			'axes': {
+				y: {
+					valueRange: [0, 20],
+				},
+				y2: {
+					valueRange: [10, 20],
+				}
+			}
+        });
+*/
+var g2 = new Dygraph(document.getElementById("graph_2"),
+		"{{ STATIC_URL }}js/test_csv.csv",
+        {	labels: ['x_l', 'y1_l', 'y2_l'],
+            legend: 'always',
+            animatedZooms: true,
+            title: 'Dygraphs multi-axis demo',
+            ylabel: "Primary",
+            //y2_l: { axis: { } },
+            series: {
+            	y2_l: {
+            		axis: 'y2'
+            	}
+            },
+			drawCallback: function(dygraph, isInitial) {
+				if (isInitial) {
+				 labels = dygraph.getLabels();
+				 labelToMove = labels[3];
+				console.log("series: " + labelToMove);
+				yrange = dygraph.yAxisRange();
+				yrange[0] += 1;
+				yrange[1] += 1;
+				newOptions = { 
+				   axes: {y2: { valueRange: yrange} } 
+				};
+				newOptions[labelToMove] = {axis: 1};
+
+				console.log("new options " + newOptions);
+				dygraph.updateOptions(newOptions);
+				props = dygraph.getPropertiesForSeries(labelToMove);
+				console.log(labelToMove + " on axis " + props['axis']);
+				}
+	},
+        });
 </script>

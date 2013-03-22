@@ -11,13 +11,15 @@ matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid, twinx
 from matplotlib.lines import Line2D
-import Image
+try:
+    import Image
+except ImportError:
+    from PIL import Image # to deal with Windows...
 
 import dj_eden_app.data_queries as data_queries
+from dj_eden_app.models import Station
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
-
-# from text_export import _generate_error_file
 
 import textwrap
 import logging
@@ -98,7 +100,19 @@ def logo(fig):
     if not os.path.exists(filename):
         if django.conf.settings.SITE_HOME:
             filename = os.path.join(django.conf.settings.SITE_HOME, "dj_eden_app", filename)
+            
     img = Image.open(filename)
+    
+    """
+    # this did not help on windows
+    try:
+        img = Image.open(filename)
+    except IOError:
+        backslash_string = '\\'
+        backslash_replace = '/'
+        filename_windows = filename.replace(backslash_string, backslash_replace).replace('C:', '')
+        img = Image.open(filename_windows)
+    """
     height = img.size[1]
 
     bbox = fig.bbox
@@ -166,6 +180,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     # _legend_for_line_styles(f, [l1, l2, l3])
 
+
     if ngvd29_correction is not None:
         ax1 = f.axes[0]
         ax2 = ax1.twinx()  # new axis overlay, ticks on right, shared x axis
@@ -183,7 +198,6 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     # tight_layout() # does not look good
 
     return len(columns[0]), f
-
 
 def plot_grd_level(station):
     """

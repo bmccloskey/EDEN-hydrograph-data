@@ -63,7 +63,6 @@ def hourly_download(request):
             q = q.where(dt <= endDate)
         data = q.execute()
 
-        # data_type = 'Hourly Water Level, NAVD88(ft)'  # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
         query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_dict.values())
 
         response = HttpResponse(content_type='text/csv')
@@ -128,7 +127,6 @@ def plot_data(request):
                                         maxCount=maxCount,
                                         station_dict=station_dict
                                         )
-
         stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
@@ -157,19 +155,26 @@ def plot_data_hourly(request):
         _logger.info("plot_data, gages is %s" % (gages))
 
         station_dict = data_queries.station_dict(gages)
-
+        
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
         q, dt = data_queries.hourly_query_split(*station_dict.values())
+
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
+
         data = q.execute()
 
+        if len(gages) == 1:
+            site_name = '%s_NGVD29' % gages[0]
+        else:
+            site_name = None
+
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv_for_plot(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -191,10 +196,16 @@ def plot_data_daily(request):
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
+
         data = q.execute()
 
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv_for_plot(results=data, outfile=response)
+        if len(gages) == 1:
+            site_name = '%s_NGVD29' % gages[0]
+        else:
+            site_name = None
+        #stage_data.write_csv(results=data, outfile=response, station_name=site_name)
+        stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -210,8 +221,9 @@ def _daily_plot_data(form):
     if beginDate:
         q = q.where(dt >= beginDate)
     if endDate:
-        q = q.where(dt <= endDate)
+        q = q.where(dt <= endDate)   
     data = q.execute()
+
     return data, beginDate, endDate, station1
 
 def _hourly_plot_data(form):
@@ -280,6 +292,7 @@ def plot_image_hourly_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _hourly_plot_data(form)
+        #ngvd29_correction = data_queries.get_ngvd29_conversion(station)
 
         response = HttpResponse(content_type='image/png')
 
@@ -306,8 +319,9 @@ def plot_image_daily_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _daily_plot_data(form)
-
+        #ngvd29_correction = data_queries.get_ngvd29_conversion(station)
         response = HttpResponse(content_type='image/png')
+
 
         hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
 
