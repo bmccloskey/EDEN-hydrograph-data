@@ -165,7 +165,7 @@ def add_column_to_csv(column_name, csvfile):
     open_csv = open(csvfile)
     csv_reader = csv.reader(open_csv)
     row_count = len(list(csv_reader))
-    
+
     return row_count
 
 def write_csv_for_plot(results, outfile, metadata=None, column_name=None):
@@ -182,37 +182,14 @@ def write_csv_for_plot(results, outfile, metadata=None, column_name=None):
         result_keys.append(column_name)
     csv_writer.writerow(results.keys())
     # Iterate, because csv.writerows pulls up all rows to a list
-    for r in gap_fill_by_3(results):
-        if column_name == None:
+    if column_name == None:
+        for r in gap_fill_by_3(results):
             csv_writer.writerow(r)
-        else:
-            r_list = list(r)
-            r_list.append(None)
-            csv_writer.writerow(r_list)
+    else:
+        extra = (None,)
+        for r in gap_fill_by_3(results):
+            csv_writer.writerow(r + extra)
 
-"""
-def write_csv(results, outfile, metadata=None, station_name=None):
-    '''
-    Writes a csv file to the specified outfile file-like object.
-    '''
-
-    csv_writer = csv.writer(outfile)
-    if metadata != None:
-        csv_writer.writerow(metadata)
-    result_keys = results.keys()
-    if station_name != None:
-        ngvd29_name = '%s_NGVD29' % station_name
-        result_keys.append(ngvd29_name)
-    csv_writer.writerow(result_keys)
-    # Iterate, because csv.writerows pulls up all rows to a list
-    for r in results:
-        if station_name != None:
-            r2 = list(r) # cannot append to a result proxy
-            r2.append(None)
-            csv_writer.writerow(r2)
-        else:
-            csv_writer.writerow(r)
-"""
 
 if __name__ == "__main__":
 

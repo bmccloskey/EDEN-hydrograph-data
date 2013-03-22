@@ -82,7 +82,7 @@ def get_min_and_max(gage, start_date=None, end_date=None):
     data = q.execute()
     
     return data
-"""    
+"""
 
 def hourly_columns(gage, dry_value, navd88correction=None, ngvd29correction=None):
     f = flag_col(gage)
@@ -97,12 +97,13 @@ def hourly_base_query():
     dt = date_col()
     # base query, raw values
     query_by_hour = select([dt])
+    query_by_hour = query_by_hour.order_by(dt)
     return query_by_hour, dt
-    
+
 
 def hourly_query_1(gage, dry_value):
     "Query for hourly data for single gage.  Result will have three columns: datetime, data (or none), flag."
-    query_by_hour = hourly_base_query()
+    query_by_hour, _ = hourly_base_query()
 
     flag, val = hourly_columns(gage, dry_value)
     query_by_hour = query_by_hour.column(val.label('data'))
@@ -125,13 +126,14 @@ def daily_base_query():
     dt = date_col()
     date = func.date(dt)
     dm = func.min(date).label("date")
-# base query, daily means
+    # base query, daily means
     query_by_day = select([dm]).group_by(date)
+    query_by_day = query_by_day.order_by(dt)
     return query_by_day, dt
 
 def daily_query_1(gage, dry_value):
     "Query for daily average data for single gage.  Result will have these columns: date, averaged data (or None), flag, min, max, count"
-    query_by_day = daily_base_query()
+    query_by_day, _ = daily_base_query()
 
     flag, val, raw = daily_columns(gage, dry_value)
     query_by_day = query_by_day.column(val.label('average'))
@@ -167,7 +169,7 @@ if __name__ == '__main__':
 
     print "daily query"
     q = daily_query_1('G-3567', 4.9)
-    q = q.where(dt > '2003-06-28')
+    q = q.where(dt >= '2003-06-28')
     _show(q)
 
 
