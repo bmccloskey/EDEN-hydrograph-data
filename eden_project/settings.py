@@ -164,6 +164,9 @@ LOGGING = {
     }
 }
 
+# work directory for Matplotlib -- must be writable by web service process
+MATPLOTLIB_WORK_DIR = "/tmp/matplotlib"
+
 try:
     from local_settings import *
 except ImportError:
