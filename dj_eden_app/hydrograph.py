@@ -9,12 +9,12 @@ import os.path
 
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid, twinx
+from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid
 from matplotlib.lines import Line2D
 try:
     import Image
 except ImportError:
-    from PIL import Image # to deal with Windows...
+    from PIL import Image  # to deal with Windows...
 
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.models import Station
@@ -35,13 +35,15 @@ def _clean_label(s):
         label = textwrap.fill(label, width=_label_width)
     return label
 
-def plot_multi(data, beginDate, endDate):
+def plot_multi(data, beginDate, endDate, show_logo=True):
     # data is an iterator over tuples.
     # each tuple has a timestamp as first column,
     # then 3 columns for each well: Observed, Estimated, Dry
 
     fig = figure()
-    logo(fig)
+
+    if show_logo:
+        logo(fig)
 
     # axx = axes([0.1, 0.3, 0.5, 0.5])
     # left, bottom, width, height
@@ -100,9 +102,9 @@ def logo(fig):
     if not os.path.exists(filename):
         if django.conf.settings.SITE_HOME:
             filename = os.path.join(django.conf.settings.SITE_HOME, "dj_eden_app", filename)
-            
+
     img = Image.open(filename)
-    
+
     """
     # this did not help on windows
     try:
@@ -128,14 +130,16 @@ def _legend_for_line_styles(fig):
         ('Observed', 'Estimated', 'Dry'),  # labels
         'lower left'  # anchor for positioning
         )
+
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
-def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None):
+def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None, show_logo=True):
     f = figure()
     # axes([0.1, 0.3, 0.5, 0.5])
 
-    logo(f)
+    if show_logo:
+        logo(f)
 
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
@@ -174,7 +178,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     legend()
 
-    logo(f)
+    # logo(f)
 
     f.suptitle("Water level elevation above NAVD88 datum, in feet\nGage " + labels[1])
 
@@ -226,49 +230,45 @@ _line_styles = ["-d", ":+", ":^"]
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
 
-def png_multi(data, outfile, beginDate, endDate):
+def png_multi(data, outfile, beginDate, endDate, show_logo=True):
     "Plot multiline onto outfile. Data has columns TIMESTAMP then O E D for each well."
-    ct, fig = plot_multi(data, beginDate, endDate)
+    ct, fig = plot_multi(data, beginDate, endDate, show_logo)
     savefig(outfile, format="png", dpi=fig.dpi)
 
     return ct
 
-def png_single(data, outfile, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None):
+def png_single_station(data, outfile, station=None, beginDate=None, endDate=None, show_logo=True):
     "Plot single-well data series. Data has columns WHEN, O, E, D."
 
     ct, fig = plot_single(data, beginDate=beginDate, endDate=endDate,
-                     dry_elevation=dry_elevation,
-                     ground_elevation=ground_elevation,
-                     ngvd29_correction=ngvd29_correction)
+                     dry_elevation=station.dry_elevation,
+                     ground_elevation=station.duration_elevation,
+                     show_logo=show_logo,
+                     ngvd29_correction=station.vertical_conversion)
     savefig(outfile, format="png", dpi=fig.dpi)
 
     return ct
 
-def png_single_station(data, outfile, station=None, beginDate=None, endDate=None):
-    return png_single(data, outfile,
-                      beginDate=beginDate, endDate=endDate,
-                      dry_elevation=station.dry_elevation,
-                      ground_elevation=station.duration_elevation,
-                      ngvd29_correction=station.vertical_conversion
-                      )
-
 if __name__ == "__main__":
     import dateutil.parser
+    import sys
+
+    default_show_logo = not 'windows' in sys.platform
 
     data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2010-01-01")
-    ct = png_multi(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"))
+    ct = png_multi(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"), show_logo=default_show_logo)
     print "hg1.png", ct
 
     data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567'])
-    ct = png_multi(data, "/tmp/hg2.png", None, None)
+    ct = png_multi(data, "/tmp/hg2.png", None, None, show_logo=default_show_logo)
     print "hg2.png", ct
 
     data, ss = data_queries.data_for_plot_hourly(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2004-03-01")
-    ct = png_multi(data, "/tmp/hg3.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2004-03-01"))
+    ct = png_multi(data, "/tmp/hg3.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2004-03-01"), show_logo=default_show_logo)
     print "hg3.png", ct
 
     data, ss = data_queries.data_for_plot_daily(['L31NN', 'Chatham_River_near_the_Watson_Place'], beginDate="2011-09-01", endDate="2011-12-31")
-    ct = png_multi(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"))
+    ct = png_multi(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"), show_logo=False)
     print "hg4.png", ct
 
     data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"],
@@ -277,30 +277,43 @@ if __name__ == "__main__":
     ct = png_multi(data, "/tmp/hg5.png", None, None)
     print "hg5.png", ct
 
+    class Mock:
+        def __init__(self, **attributes):
+            self.__dict__ = attributes
+
     data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
     station = ss[0]
-    ct = png_single(data, "/tmp/hg6.png",
+    mock_station = Mock(dry_elevation=station.dry_elevation,
+                        ground_elevation=station.duration_elevation,
+                        ngvd29_correction=0.0,
+                        duration_elevation=0.3,
+                        vertical_conversion=0.0
+                        )
+    ct = png_single_station(data, "/tmp/hg6.png", mock_station,
                     beginDate=dateutil.parser.parse("2006-10-15"),
                     endDate=dateutil.parser.parse("2006-11-12"),
-                    dry_elevation=station.dry_elevation,
-                    ground_elevation=station.duration_elevation,
-                    ngvd29_correction=1.43)
+                    show_logo=default_show_logo)
     print "hg6.png", ct
 
     data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
     station = ss[0]
-    ct = png_single(data, "/tmp/hg6a.png",
+    mock_station = Mock(dry_elevation=station.dry_elevation,
+                    ground_elevation=station.duration_elevation,
+                    ngvd29_correction=None,
+                    duration_elevation=0.3,
+                    vertical_conversion=None
+                    )
+    ct = png_single_station(data, "/tmp/hg6a.png", mock_station,
                     beginDate=dateutil.parser.parse("2006-10-15"),
                     endDate=dateutil.parser.parse("2006-11-12"),
-                    dry_elevation=station.dry_elevation,
-                    ground_elevation=station.duration_elevation,
-                    ngvd29_correction=None)
+                    show_logo=default_show_logo)
     print "hg6a.png", ct
 
     data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
     station = ss[0]
     ct = png_single_station(data, "/tmp/hg6b.png", station,
                     beginDate=dateutil.parser.parse("2006-10-15"),
-                    endDate=dateutil.parser.parse("2006-11-12"))
+                    endDate=dateutil.parser.parse("2006-11-12"),
+                    show_logo=False)
     print "hg6b.png", ct
 

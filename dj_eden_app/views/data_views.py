@@ -6,6 +6,7 @@ from dj_eden_app.forms import TimeSeriesFilterForm
 import dj_eden_app.data_queries as data_queries
 
 import logging
+import sys
 
 # Get an instance of a logger
 _logger = logging.getLogger(__name__)
@@ -14,6 +15,8 @@ import dj_eden_app.stage_data as stage_data
 import dj_eden_app.hydrograph as hydrograph
 from dj_eden_app.download_header import create_metadata_header
 from dj_eden_app.eden_headers import HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER
+
+_default_show_logo = not 'windows' in sys.platform
 
 def timeseries_csv_download(request):
     # TODO Pull gage list up to list of model objects
@@ -63,6 +66,7 @@ def hourly_download(request):
             q = q.where(dt <= endDate)
         data = q.execute()
 
+        # data_type = 'Hourly Water Level, NAVD88(ft)'  # hard coded for now... maybe this could be in the form where the user's can selected between hourly and daily data
         query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_dict.values())
 
         response = HttpResponse(content_type='text/csv')
@@ -127,6 +131,7 @@ def plot_data(request):
                                         maxCount=maxCount,
                                         station_dict=station_dict
                                         )
+
         stage_data.write_csv_for_plot(results=data, outfile=response)
         return response
     else:
@@ -155,17 +160,15 @@ def plot_data_hourly(request):
         _logger.info("plot_data, gages is %s" % (gages))
 
         station_dict = data_queries.station_dict(gages)
-        
+
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
         q, dt = data_queries.hourly_query_split(*station_dict.values())
-
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
-
         data = q.execute()
 
         if len(gages) == 1:
@@ -196,7 +199,6 @@ def plot_data_daily(request):
             q = q.where(dt >= beginDate)
         if endDate:
             q = q.where(dt <= endDate)
-
         data = q.execute()
 
         response = HttpResponse(content_type='text/csv')
@@ -204,7 +206,7 @@ def plot_data_daily(request):
             site_name = '%s_NGVD29' % gages[0]
         else:
             site_name = None
-        #stage_data.write_csv(results=data, outfile=response, station_name=site_name)
+        # stage_data.write_csv(results=data, outfile=response, station_name=site_name)
         stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
@@ -221,9 +223,8 @@ def _daily_plot_data(form):
     if beginDate:
         q = q.where(dt >= beginDate)
     if endDate:
-        q = q.where(dt <= endDate)   
+        q = q.where(dt <= endDate)
     data = q.execute()
-
     return data, beginDate, endDate, station1
 
 def _hourly_plot_data(form):
@@ -282,7 +283,7 @@ def plot_image_hourly_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=_default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -292,11 +293,10 @@ def plot_image_hourly_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _hourly_plot_data(form)
-        #ngvd29_correction = data_queries.get_ngvd29_conversion(station)
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=_default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -309,7 +309,7 @@ def plot_image_daily_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=_default_show_logo)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -319,11 +319,10 @@ def plot_image_daily_single(request):
 
     if form.is_valid():
         data, beginDate, endDate, station = _daily_plot_data(form)
-        #ngvd29_correction = data_queries.get_ngvd29_conversion(station)
+
         response = HttpResponse(content_type='image/png')
 
-
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=_default_show_logo)
 
         return response
     else:

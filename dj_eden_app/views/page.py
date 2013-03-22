@@ -9,7 +9,6 @@ import json
 
 # from .. models import Station
 from .. forms import TimeSeriesFilterForm
-from dj_eden_app.data_queries import get_ngvd29_conversion
 import logging
 
 # Get an instance of a logger
@@ -108,10 +107,11 @@ def eden_page(request):
                 render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
                 render_params['dry_elevation'] = station.dry_elevation or "null"
                 render_params['ground_elevation'] = station.duration_elevation or "null"
-                render_params['ngvd29_correction'] = get_ngvd29_conversion(station)
+                render_params['ngvd29_correction'] = station.vertical_conversion or 0.0
             else:
                 render_params['dry_elevation'] = "null"
                 render_params['ground_elevation'] = "null"
+                render_params['ngvd29_correction'] = "null"
 
             return render(request, template_name, render_params)
     else:
