@@ -171,8 +171,13 @@ def plot_data_hourly(request):
             q = q.where(dt <= endDate)
         data = q.execute()
 
+        if len(gages) == 1:
+            site_name = '%s_NGVD29' % gages[0]
+        else:
+            site_name = None
+
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv_for_plot(results=data, outfile=response)
+        stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -197,7 +202,12 @@ def plot_data_daily(request):
         data = q.execute()
 
         response = HttpResponse(content_type='text/csv')
-        stage_data.write_csv_for_plot(results=data, outfile=response)
+        if len(gages) == 1:
+            site_name = '%s_NGVD29' % gages[0]
+        else:
+            site_name = None
+        #stage_data.write_csv(results=data, outfile=response, station_name=site_name)
+        stage_data.write_csv_for_plot(results=data, outfile=response, column_name=site_name)
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))

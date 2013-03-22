@@ -81,6 +81,7 @@
 	<input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
 	<input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
 	<input type="hidden" id="date_delta" name="date_diff" value="{{ time_delta|safe }}" readonly>
+	<input type="hidden" id="ngvd29_series" name="ngvd29_name" value="{{ ngvd29_series|safe }}" readonly>
 	
 	<!-- used django html tag to deal with cases where user does not specify a date range -->
     <script type="text/javascript">
@@ -120,6 +121,9 @@
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
     	var date_diff_str = document.getElementById("date_delta").value;
+    	//var ngvd29Series = document.getElementById("ngvd29_series").value;
+    	var ngvd29Conversion = {{ ngvd29_correction }};
+
     	var date_diff_num = parseFloat(date_diff_str);
     	
     	var seriesOptions = {{ series_options }};
@@ -127,19 +131,43 @@
     	// dry_elevation and ground_elevation line for single gage
     	var dryElevation = {{ dry_elevation }};
     	var groundElevation = {{ ground_elevation }};
+
     	
     	// note auto gear shift for daily/hourly
     	
+
          var g2 = new Dygraph(
            document.getElementById("graph"),
            "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
            {
             ylabel: "Water Level (NAVD88 ft)",
             xlabel: "Date",
+            y2label: "Water Level (NGVD29 ft)",
+            yAxisLabelWidth: 60,
             strokeWidth: 1.0,
             colors: colors3,
-            series: seriesOptions,
-            
+            {% if ngvd29_series != None and ngvd29_correction != None %} //tried this with JS if statement... using Django templating until I can figure it out...
+            drawCallback: function(dygraph, isInitial) {
+    			if (isInitial) {
+    			 labels = dygraph.getLabels();
+    			 labelToMove = labels[3];
+    			console.log("series: " + labelToMove);
+    			yrange = dygraph.yAxisRange();
+    			yrange[0] -= ngvd29Conversion;
+    			yrange[1] -= ngvd29Conversion;
+    			newOptions = { 
+    			   axes: {y2: { valueRange: yrange} } 
+    			};
+    			newOptions[labelToMove] = {axis: 1};
+
+    			console.log("new options " + newOptions);
+    			dygraph.updateOptions(newOptions);
+    			props = dygraph.getPropertiesForSeries(labelToMove);
+    			console.log(labelToMove + " on axis " + props['axis']);
+    			}
+    },
+    			{% endif %}
+ 				series: seriesOptions,
             // TODO construct & display legend
             
             {% if str_tstart != None and str_tend != None %}

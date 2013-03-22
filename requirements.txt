@@ -1,4 +1,5 @@
 Django==1.4.5
+PIL==1.1.7
 SQLAlchemy==0.8.0b2
 ## FIXME: could not find svn URL in dependency_links for this package:
 flup==1.0.3.dev-20110405

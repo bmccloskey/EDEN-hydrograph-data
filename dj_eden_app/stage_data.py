@@ -161,8 +161,14 @@ def write_rdb(results, outfile, metadata=[]):
     for r in results:
         csv_writer.writerow(r)
 
+def add_column_to_csv(column_name, csvfile):
+    open_csv = open(csvfile)
+    csv_reader = csv.reader(open_csv)
+    row_count = len(list(csv_reader))
+    
+    return row_count
 
-def write_csv_for_plot(results, outfile, metadata=None):
+def write_csv_for_plot(results, outfile, metadata=None, column_name=None):
     '''
     Writes a csv file to the specified outfile file-like object.
     Tweak the data to fill in gaps
@@ -171,12 +177,21 @@ def write_csv_for_plot(results, outfile, metadata=None):
     csv_writer = csv.writer(outfile)
     if metadata != None:
         csv_writer.writerow(metadata)
+    result_keys = results.keys()
+    if column_name != None:
+        result_keys.append(column_name)
     csv_writer.writerow(results.keys())
     # Iterate, because csv.writerows pulls up all rows to a list
     for r in gap_fill_by_3(results):
-        csv_writer.writerow(r)
+        if column_name == None:
+            csv_writer.writerow(r)
+        else:
+            r_list = list(r)
+            r_list.append(None)
+            csv_writer.writerow(r_list)
 
-def write_csv(results, outfile, metadata=None):
+"""
+def write_csv(results, outfile, metadata=None, station_name=None):
     '''
     Writes a csv file to the specified outfile file-like object.
     '''
@@ -184,11 +199,20 @@ def write_csv(results, outfile, metadata=None):
     csv_writer = csv.writer(outfile)
     if metadata != None:
         csv_writer.writerow(metadata)
-    csv_writer.writerow(results.keys())
+    result_keys = results.keys()
+    if station_name != None:
+        ngvd29_name = '%s_NGVD29' % station_name
+        result_keys.append(ngvd29_name)
+    csv_writer.writerow(result_keys)
     # Iterate, because csv.writerows pulls up all rows to a list
     for r in results:
-        csv_writer.writerow(r)
-
+        if station_name != None:
+            r2 = list(r) # cannot append to a result proxy
+            r2.append(None)
+            csv_writer.writerow(r2)
+        else:
+            csv_writer.writerow(r)
+"""
 
 if __name__ == "__main__":
 

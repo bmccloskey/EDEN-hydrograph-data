@@ -69,9 +69,22 @@ def flag_col(g):
 
 def value_col(g):
     return stage.c['stage_' + g]
+"""
+def get_min_and_max(gage, start_date=None, end_date=None):
+    dt = date_col()
+    data_value = value_col(gage)
+    q = select([dt, data_value])
+    if start_date != None:
+        q.where(dt >= start_date)
+    if end_date != None:
+        q.where(dt <= end_date)
+        
+    data = q.execute()
+    
+    return data
+"""    
 
-
-def hourly_columns(gage, dry_value, navd88correction=None):
+def hourly_columns(gage, dry_value, navd88correction=None, ngvd29correction=None):
     f = flag_col(gage)
     s = value_col(gage)
     if navd88correction:
@@ -85,6 +98,7 @@ def hourly_base_query():
     # base query, raw values
     query_by_hour = select([dt])
     return query_by_hour, dt
+    
 
 def hourly_query_1(gage, dry_value):
     "Query for hourly data for single gage.  Result will have three columns: datetime, data (or none), flag."

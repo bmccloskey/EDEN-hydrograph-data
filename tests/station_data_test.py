@@ -1,4 +1,9 @@
 import dj_eden_app.data_queries as station_data
+import dj_eden_app.views.data_views as data_views
+try:
+    from dj_eden_app.models import station_list
+except ImportError:
+    pass
 import dj_eden_app.data_queries as data_queries
 
 from decimal import Decimal
