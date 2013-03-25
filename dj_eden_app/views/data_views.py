@@ -275,6 +275,12 @@ def plot_image_auto(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
+def decide_logo(request):
+        show_logo = _default_show_logo
+        if 'no_logo' in request.REQUEST:
+                show_logo = False
+        return show_logo
+
 def plot_image_hourly_multi(request):
     form = TimeSeriesFilterForm(request.GET)
 
@@ -283,7 +289,7 @@ def plot_image_hourly_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=_default_show_logo)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=decide_logo(request))
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -296,7 +302,7 @@ def plot_image_hourly_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=_default_show_logo)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=decide_logo(request))
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -309,7 +315,7 @@ def plot_image_daily_multi(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=_default_show_logo)
+        hydrograph.png_multi(data, response, beginDate, endDate, show_logo=decide_logo(request))
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -322,7 +328,7 @@ def plot_image_daily_single(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=_default_show_logo)
+        hydrograph.png_single_station(data, response, station, beginDate=beginDate, endDate=endDate, show_logo=decide_logo(request))
 
         return response
     else:

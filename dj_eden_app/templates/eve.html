@@ -89,19 +89,21 @@
         <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td>Data in "dry" range</td></tr>
         </table>
     </div>
-    <div id="dynamic_legend" style="border:solid; width: 200px; vertical-align: top; display:inline-block;">
+    <div id="dynamic_legend" style="border: 2px white solid; width: 200px; vertical-align: top; display:inline-block;">
     </div>
     </div>
     
 	<div id="graph">
 	<noscript>
-	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}" />
+	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}" />
 	</noscript>
 	</div>
-	
+
+{% if not DYGRAPH_RANGE_SELECTOR %}
 	<p>Tip: Left-click and drag in the plot to zoom.</p>
 	<p>Tip: To reset zoom to full selected period, double left-click in the plot.</p>
-	
+{% endif %}
+
     <script type="text/javascript">
         var color_base = {{ colors }};
 
@@ -186,11 +188,16 @@
     },
     			{% endif %}
  				series: seriesOptions,
-            // TODO construct & display legend
+ 				
+            // options for dynamic legend
                 // hideOverlayOnMouseOut: false,
                 // legend: 'always',
                 labelsDiv: 'dynamic_legend',
-                
+            // range selector (overview graph)
+{% if DYGRAPH_RANGE_SELECTOR %}
+                showRangeSelector: true,
+{% endif %}
+
             {% if str_tstart != None and str_tend != None %}
             dateWindow: [ Date.parse( dateStart ),
                           Date.parse( dateEnd )

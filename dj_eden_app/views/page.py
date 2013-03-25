@@ -106,6 +106,7 @@ def eden_page(request):
                                                    'str_tend': str_tend,
                                                    'colors': mark_safe(json.dumps(list(colors))),
                                                    'color_list': list(colors),
+                                                   'DYGRAPH_RANGE_SELECTOR':settings.DYGRAPH_RANGE_SELECTOR,
                                                    'time_delta': time_delta_days
 			}
             if len(gages) == 1:
