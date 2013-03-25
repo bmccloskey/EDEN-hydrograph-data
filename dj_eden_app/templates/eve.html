@@ -1,5 +1,12 @@
 {% extends "eden-base.html" %}
 
+{% block ie_hack %}
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
+    <!--[if IE]>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
+    <![endif]-->
+{% endblock ie_hack %}
+
 {% block title %}EDEN Timeseries Data{% endblock title %}
 
 {% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
@@ -193,6 +200,7 @@
                 // hideOverlayOnMouseOut: false,
                 // legend: 'always',
                 labelsDiv: 'dynamic_legend',
+                
             // range selector (overview graph)
 {% if DYGRAPH_RANGE_SELECTOR %}
                 showRangeSelector: true,
@@ -229,6 +237,7 @@
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
+                  
     </script>
 
 {% else %}
