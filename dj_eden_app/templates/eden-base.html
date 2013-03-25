@@ -98,7 +98,7 @@ a:visited { color: #937c43; }
         <td bgcolor="#4d7c86" colspan="3">
 {% block footer %}
 <span class="footer">Technical support for this Web site is provided by the <a href="http://www.usgs.gov/" class="footer">U.S. Geological Survey</a><br />
-This page is: http://sofia.usgs.gov/eden/eve.php<br />
+This page is: http:{{ request.get_host}}{{ request.path }}<br />
 Comments and suggestions? Contact: <a href="{{ EDEN_URL }}comments.html" class="footer">Heather Henkel - Webmaster</a><br />
 Last updated: March 25, 2013 11:12 AM (HSH)</span>
 {% endblock footer %}
