@@ -9,7 +9,7 @@ import os.path
 
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid
+from matplotlib.pyplot import savefig, figure, plot_date, legend, figlegend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid
 from matplotlib.lines import Line2D
 try:
     import Image
@@ -17,7 +17,6 @@ except ImportError:
     from PIL import Image  # to deal with Windows...
 
 import dj_eden_app.data_queries as data_queries
-from dj_eden_app.models import Station
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
 
@@ -47,7 +46,12 @@ def plot_multi(data, beginDate, endDate, show_logo=True):
 
     # axx = axes([0.1, 0.3, 0.5, 0.5])
     # left, bottom, width, height
-    ax1 = subplot(2, 1, 1)
+    # ax1 = subplot(2, 1, 1)
+
+    # left, bottom, width, height -- 0..1
+    ax1 = axes([0.1, 0.3, 0.8, 0.55])
+    fig.suptitle("Water level elevation above NAVD88 datum, in feet", y=0.9)
+
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
     if beginDate != None and endDate != None:
@@ -84,7 +88,6 @@ def plot_multi(data, beginDate, endDate, show_logo=True):
 
     grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
 
-    fig.suptitle("Water level elevation above NAVD88 datum, in feet")
 
     h, l = ax1.get_legend_handles_labels()
 
@@ -136,10 +139,16 @@ gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
 def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None, show_logo=True):
     f = figure()
-    # axes([0.1, 0.3, 0.5, 0.5])
+
+    labels = data.keys()
 
     if show_logo:
         logo(f)
+
+    # left, bottom, width, height
+    ax1 = axes([0.1, 0.25, 0.8, 0.55])
+
+    f.suptitle("Water level elevation above NAVD88 datum, in feet\nGage " + labels[1], y=0.9)
 
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
@@ -149,7 +158,6 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=90)
 
-    labels = data.keys()
     ylabel(labels[1] + "\nWater Level (NAVD88 ft)")
 
     # data has exactly 4 columns: date, O, E, D
@@ -176,11 +184,11 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     (l2,) = plot_date(columns[0], columns[2], _line_styles[1], color=c, label="Est", **markerprops)
     (l3,) = plot_date(columns[0], columns[3], _line_styles[2], color=c, label="Dry", **markerprops)
 
-    legend()
+    # Set options to make legend horizontal, across bottom
+    h, l = ax1.get_legend_handles_labels()
+    f.legend(h, l, loc='lower center', bbox_to_anchor=(0.5, 0.0), ncol=3)
 
     # logo(f)
-
-    f.suptitle("Water level elevation above NAVD88 datum, in feet\nGage " + labels[1])
 
     # _legend_for_line_styles(f, [l1, l2, l3])
 
