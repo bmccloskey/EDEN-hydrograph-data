@@ -9,7 +9,7 @@ import os.path
 
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, legend, figlegend, xticks, axes, axhline, xlim, xlabel, ylabel, tight_layout, subplot, draw, grid
+from matplotlib.pyplot import savefig, figure, plot_date, xticks, axes, axhline, xlim, xlabel, ylabel, draw, grid
 from matplotlib.lines import Line2D
 try:
     import Image
