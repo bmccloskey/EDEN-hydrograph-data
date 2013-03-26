@@ -1,4 +1,4 @@
-from flagged_data import daily_base_query, daily_columns, hourly_base_query, hourly_columns, date_col
+from flagged_data import daily_base_query, daily_columns, hourly_base_query, hourly_columns
 # uses models.Station
 from sqlalchemy.sql import expression
 from collections import OrderedDict
