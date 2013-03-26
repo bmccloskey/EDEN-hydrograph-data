@@ -103,7 +103,14 @@ def logo(fig):
         if django.conf.settings.SITE_HOME:
             filename = os.path.join(django.conf.settings.SITE_HOME, "dj_eden_app", filename)
 
-    img = Image.open(filename)
+    try:
+        img = Image.open(filename)
+    except IOError:
+        # silly windows... 
+        logo_path = django.conf.settings.SITE_HOME.replace('\\', '/').replace('eden_project', '')
+        filename_win = os.path.join(logo_path, "dj_eden_app", "usgs-logo.png")
+        img = Image.open(filename_win)
+        
 
     """
     # this did not help on windows
