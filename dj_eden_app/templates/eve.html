@@ -27,48 +27,64 @@
 {% endblock style %}
 
 {% block content %}
-  
+<div style="white-space: nowrap;" id="content-block">
 <div class="form_input_field" style="vertical-align: top; display: inline-block; ">
 	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">{% csrf_token %}
 		{{ query_form.non_field_errors }}
 		{{ query_form.field_errors }}
-		<table width="230" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
+		<table width="150" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
 		<tbody>
-		<tr>
-		  <td colspan="2" align="left" class="gtablecell" valign="top">
-			 <p><label for="{{ query_form.timeseries_start.html_name }}"><b>Timeseries Start: </b></label>{{ query_form.timeseries_start }}</p>
-			 <p><label for="{{ query_form.timeseries_end.html_name }}"><b>Timeseries end: </b></label>{{ query_form.timeseries_end }}</p>
-		  </td>
-		</tr>
-		
-		<tr>
-			<td align="left" class="gtablecell" valign="top" width="70" >
-				<p><label for="{{ query_form.site_list.html_name }}"><b>Site List: </b></label></p>
-			</td>
-			<td align="center" class="gtablecell">
+            <tr class="grtablehead">
+                <th>Timeseries</th>
+            </tr>
+            <tr>
+                <td align="left" class="gtablecell" valign="top">
+                    <label for="{{ query_form.timeseries_start.html_name }}"><strong>Start: </strong></label>{{ query_form.timeseries_start }}<br />
+                    <label for="{{ query_form.timeseries_end.html_name }}"><strong>End: </strong></label>{{ query_form.timeseries_end }}<br />
+                </td>
+            </tr>
+                      
+            <tr class="grtablehead">
+                <th><label for="{{ query_form.site_list.html_name }}">Site List</label></th>
+            </tr>
+            <tr class="gtablecell2">
+                <td style="font-size: 75%;" align="center">Select multiple gages by<br>holding the control (PC)<br>or command (Mac) key.</td>
+            </tr>
+		    <tr>
+                <td align="center" class="gtablecell">
 				{{ query_form.site_list }}	
-			</td>
-		</tr>
+                </td>
+            </tr>
 		
 		<tr>
-            <td colspan="2" align="center" class="gtablecell2">
-                <input name="hydrograph_query" type="submit" value="Update" style="font-size: 18px; font-family: arial,helvetica,sans-serif;">
-            </td>
+            <td align="center" class="gtablecell2"><input name="hydrograph_query" type="submit" value="Update Graph" style="font-size: 18px; font-family: arial,helvetica,sans-serif;"></td>		
         </tr>
            
-{% if plot_params %}           
+{% if plot_params %}
+        <tr class="pwtablehead">
+            <th></th>
+        </tr>
+        <tr class="pwtablehead">
+            <th>Download</th>
+        </tr>
+        <tr class="pwtablehead">
+            <th></th>
+        </tr>
+        <tr class="gtablecell2">
+            <td style="font-size: 75%;" align="center">(for stations selected above)</td>
+        </tr>
+        
 		<tr>
-            <td class="gtablecell" width="70"><strong>Download:</strong></td>
             <td class="gtablecell">
                 <!-- TODO Disable the next if selection period is longer than a year -->
-                <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a><br />
-                <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a><br />
-                <a href="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}">High-quality Graph</a><br />
+                - <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a><br />
+                - <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a><br />
+                - <a href="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}">High-quality Graph</a><br />
             </td>
         </tr>
 {% else %}
         <tr>
-            <td colspan="2">
+            <td>
                 <p>After site selection and update, data download will be available here.</p>
             </td>
         </tr>
@@ -107,8 +123,8 @@
 	</div>
 
 {% if not DYGRAPH_RANGE_SELECTOR %}
-	<p>Tip: Left-click and drag in the plot to zoom.</p>
-	<p>Tip: To reset zoom to full selected period, double left-click in the plot.</p>
+	<p style="font-size: 75%;">Tip: Left-click and drag in the plot to zoom.</p>
+	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
 {% endif %}
 
     <script type="text/javascript">
@@ -244,5 +260,5 @@
 	   <p>After site selection, a graph will be displayed here.</p>
 {% endif %}
 
-
+</div>
 {% endblock content %}
