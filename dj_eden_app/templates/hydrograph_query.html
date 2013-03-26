@@ -77,11 +77,7 @@
 	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}" />
 	</noscript>
 	</div>
-	
-	<input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
-	<input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
-	<input type="hidden" id="date_delta" name="date_diff" value="{{ time_delta|safe }}" readonly>
-	<input type="hidden" id="ngvd29_series" name="ngvd29_name" value="{{ ngvd29_series|safe }}" readonly>
+
 	
 	<!-- used django html tag to deal with cases where user does not specify a date range -->
     <script type="text/javascript">
@@ -118,13 +114,11 @@
             colors3.push(soften(color_base[i], 0.5));  
             colors3.push(soften(color_base[i], 0.5));
         }
-    	var dateStart = document.getElementById("start_date").value;
-    	var dateEnd = document.getElementById("end_date").value;
-    	var date_diff_str = document.getElementById("date_delta").value;
+    	var dateStart = "{{ str_tstart|safe }}";
+    	var dateEnd = "{{ str_tend|safe }}";
     	//var ngvd29Series = document.getElementById("ngvd29_series").value;
-    	var ngvd29Conversion = {{ ngvd29_correction }};
 
-    	var date_diff_num = parseFloat(date_diff_str);
+    	var ngvd29Conversion = {{ ngvd29_correction }};
     	
     	var seriesOptions = {{ series_options }};
     	
@@ -146,9 +140,8 @@
             yAxisLabelWidth: 60,
             strokeWidth: 1.0,
             colors: colors3,
-            {% if ngvd29_series != None and ngvd29_correction != None %} //tried this with JS if statement... using Django templating until I can figure it out...
             drawCallback: function(dygraph, isInitial) {
-    			if (isInitial) {
+    			if (isInitial && ngvd29Conversion != null) {
     			 labels = dygraph.getLabels();
     			 labelToMove = labels[3];
     			console.log("series: " + labelToMove);
@@ -166,12 +159,12 @@
     			console.log(labelToMove + " on axis " + props['axis']);
     			}
     },
-    			{% endif %}
  				series: seriesOptions,
             // TODO construct & display legend
             
             {% if str_tstart != None and str_tend != None %}
-            dateWindow: [ Date.parse( dateStart ),
+            dateWindow:
+            			[ Date.parse( dateStart ),
                           Date.parse( dateEnd )
                          ],
             {% endif %}
