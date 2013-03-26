@@ -110,8 +110,8 @@ def logo(fig):
         img = Image.open(filename)
     except IOError:
         # silly windows... 
-        logo_path = django.conf.settings.SITE_HOME.replace('\\', '/').replace('eden_project', '')
-        filename_win = os.path.join(logo_path, "dj_eden_app", "usgs-logo.png")
+        logo_path = django.conf.settings.SITE_HOME.replace('\\', '/').replace('eden_project', 'dj_eden_app')
+        filename_win = os.path.join(logo_path, "usgs-logo.png").replace('\\', '/')
         img = Image.open(filename_win)
         
 
@@ -206,7 +206,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
         lim = ax1.get_ylim()
         ax2.set_ylim([d - ngvd29_correction for d in lim])
-        ax2.set_ylabel("NAVD29")
+        ax2.set_ylabel("NAVD29 ft")
 
         # twinx does not preserve this, so restore it now
         ax2.xaxis_date()
