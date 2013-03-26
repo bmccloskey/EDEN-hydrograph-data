@@ -21,8 +21,8 @@ def convert_qs_to_list(qs):
     return choice_list
 
 def convert_qs_to_list_of_tuples(qs):
-    choice_list = [ (mod_obj.station_id,
-                     mod_obj.station_name_web.replace('_', ' '))
+    choice_list = [ (mod_obj.station_name_web,
+                     mod_obj.short_name.replace('_', ' '))
                    for mod_obj in qs]
     return choice_list
 
@@ -36,7 +36,7 @@ class TimeSeriesFilterForm(Form):
     timeseries_end = DateField(required=False,
                                initial=today,
                                widget=DateInput(attrs={"size":"10"}))
-    site_list = MultipleChoiceField(choices=convert_qs_to_list(queryset),
+    site_list = MultipleChoiceField(choices=convert_qs_to_list_of_tuples(queryset),
                                     required=True,
                                     widget=SelectMultiple(attrs={'size':'20'}))
     max_count = IntegerField(required=False)
