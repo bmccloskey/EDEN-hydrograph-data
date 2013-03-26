@@ -57,9 +57,11 @@ UL, OL, LI {font-family: Arial, Helvetica, sans-serif;}
 .tablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; font-size: 14px;}
 .tablecell { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 12px;}
 .grtablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #C4D58D; font-weight: bold; font-size: 16px;}
+.pwtablehead { font-size: 16px; font-family: verdana, geneva, arial, helvetica, sans-serif; font-weight: bold; background: #b7cdff; }
 .bltablehead { font-size: 16px; font-family: verdana, geneva, arial, helvetica, sans-serif; font-weight: bold; background: #a0c1e7; }
 .grytablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #cccccc; font-weight: bold; font-size: 16px;}
 .gtablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #ebcf8c; font-weight: bold; font-size: 14px;}
+.pwtablehead { font-size: 16px; font-family: verdana, geneva, arial, helvetica, sans-serif; font-weight: bold; background: #b7cdff; }
 .gvegtablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #F1DEB0}
 .gtablecell { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 14px; background: #ffffff }
 .gtablecell2 { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 14px; background: #ffffcc }
