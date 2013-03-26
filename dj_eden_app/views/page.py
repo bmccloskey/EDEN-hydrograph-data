@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 import dj_eden_app.data_queries as data_queries
 from dj_eden_app.colors import ColorRange
+from django.conf import settings
+
 import json
 
 # from .. models import Station
@@ -37,6 +39,10 @@ def dygraph_series_options(gages):
 def to_js_array(seq):
     return "[" + ",".join(seq) + "]"
 
+def eden_base_page(request):
+    render_params = {'EDEN_URL': settings.EDEN_URL }
+    return render(request, 'eden-base.html', render_params)
+
 def eden_page(request):
     """
     Allows a user to select a site,
@@ -46,7 +52,7 @@ def eden_page(request):
 
     # TODO If URL does not end with /, redirect there for ease of form generation
 
-    template_name = 'hydrograph_query.html'
+    template_name = 'eve.html'
     query_form = TimeSeriesFilterForm()
 
     has_data = False
@@ -100,7 +106,9 @@ def eden_page(request):
                                                    'str_tend': str_tend,
                                                    'colors': mark_safe(json.dumps(list(colors))),
                                                    'color_list': list(colors),
-                                                   'time_delta': time_delta_days
+                                                   'DYGRAPH_RANGE_SELECTOR':settings.DYGRAPH_RANGE_SELECTOR,
+                                                   'EDEN_URL': settings.EDEN_URL,
+                                                   'time_delta': time_delta_days,
 			}
             if len(gages) == 1:
                 station = data_queries.station_list(gages)[0]

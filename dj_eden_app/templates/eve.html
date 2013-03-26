@@ -1,5 +1,12 @@
 {% extends "eden-base.html" %}
 
+{% block ie_hack %}
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
+    <!--[if IE]>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
+    <![endif]-->
+{% endblock ie_hack %}
+
 {% block title %}EDEN Timeseries Data{% endblock title %}
 
 {% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
@@ -21,49 +28,67 @@
 
 {% block content %}
   
-<div class="form_input_field">
-	<form name="hydrograph_query" id=hydrograph_form method="GET" action="">{% csrf_token %}
+<div class="form_input_field" style="vertical-align: top; display: inline-block; ">
+	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">{% csrf_token %}
 		{{ query_form.non_field_errors }}
 		{{ query_form.field_errors }}
-		<table>
-			<tr>
-				<p><label for="{{ query_form.timeseries_start.html_name }}"><b>Timeseries Start: </b></label>{{ query_form.timeseries_start }}</p>
-			</tr>
-			<tr>
-				<p><label for="{{ query_form.timeseries_end.html_name }}"><b>Timeseries end: </b></label>{{ query_form.timeseries_end }}</p>
-			</tr>
-			<tr>
-				<p><label for="{{ query_form.site_list.html_name }}"><b>Site List: </b></label>{{ query_form.site_list }}</p>
-			</tr>
-			
-			<tr>
-				<td>
-					<input name="hydrograph_query" type="submit" value="Update">	
-				</td>
+		<table width="230" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
+		<tbody>
+		<tr>
+		  <td colspan="2" align="left" class="gtablecell" valign="top">
+			 <p><label for="{{ query_form.timeseries_start.html_name }}"><b>Timeseries Start: </b></label>{{ query_form.timeseries_start }}</p>
+			 <p><label for="{{ query_form.timeseries_end.html_name }}"><b>Timeseries end: </b></label>{{ query_form.timeseries_end }}</p>
+		  </td>
+		</tr>
 		
-				<td>
-{% if plot_params %}
-    Download data:
-                    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a>
-                    <!-- TODO Disable the next if selection period is longer than a year -->
-                    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a>
+		<tr>
+			<td align="left" class="gtablecell" valign="top" width="70" >
+				<p><label for="{{ query_form.site_list.html_name }}"><b>Site List: </b></label></p>
+			</td>
+			<td align="center" class="gtablecell">
+				{{ query_form.site_list }}	
+			</td>
+		</tr>
+		
+		<tr>
+            <td colspan="2" align="center" class="gtablecell2">
+                <input name="hydrograph_query" type="submit" value="Update" style="font-size: 18px; font-family: arial,helvetica,sans-serif;">
+            </td>
+        </tr>
+           
+{% if plot_params %}           
+		<tr>
+            <td class="gtablecell" width="70"><strong>Download:</strong></td>
+            <td class="gtablecell">
+                <!-- TODO Disable the next if selection period is longer than a year -->
+                <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a><br />
+                <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a><br />
+                <a href="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}">High-quality Graph</a><br />
+            </td>
+        </tr>
 {% else %}
-                    <button type="button" disabled="true">Download Data</button>
+        <tr>
+            <td colspan="2">
+                <p>After site selection and update, data download will be available here.</p>
+            </td>
+        </tr>
 {% endif %}
-				</td>
-			
-			</tr>
+
 		</table>
+    <input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
+    <input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
+    <input type="hidden" id="date_delta" name="date_diff" value="{{ time_delta|safe }}" readonly>
+    <input type="hidden" id="ngvd29_series" name="ngvd29_name" value="{{ ngvd29_series|safe }}" readonly>
 	</form>
 </div>
 
+<div style="display: inline-block; margin-left: 10px; ">
 {% if plot_params %}
-<h2>Dynamic Graph</h2>
-    
-	<div id="hydrograph_legend" style="border:solid; width: 300px;">
+    <div id="legends">
+	<div id="hydrograph_legend" style="border:solid; width: 300px; display:inline-block;">
 	   <table>
 	   {% for g in gages %}
-	       <tr class="color_{{ forloop.counter0 }}"><td>&mdash;</td><td>{{ g }}</td></tr>
+	       <tr class="color_{{ forloop.counter0 }}"><td>&nbsp;&mdash;&mdash;&mdash;</td><td>{{ g }}</td></tr>
 	   {% endfor %}
         <!-- <tr><td colspan="2">&mdash;</td></tr> -->
         <tr><td><img src="{{ STATIC_URL }}images/line-solid.png" alt="solid line" /></td><td>Observed data</td></tr>
@@ -71,19 +96,21 @@
         <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td>Data in "dry" range</td></tr>
         </table>
     </div>
+    <div id="dynamic_legend" style="border: 2px white solid; width: 200px; vertical-align: top; display:inline-block;">
+    </div>
+    </div>
     
 	<div id="graph">
 	<noscript>
-	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}" />
+	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}" />
 	</noscript>
 	</div>
-	
-	<input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
-	<input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
-	<input type="hidden" id="date_delta" name="date_diff" value="{{ time_delta|safe }}" readonly>
-	<input type="hidden" id="ngvd29_series" name="ngvd29_name" value="{{ ngvd29_series|safe }}" readonly>
-	
-	<!-- used django html tag to deal with cases where user does not specify a date range -->
+
+{% if not DYGRAPH_RANGE_SELECTOR %}
+	<p>Tip: Left-click and drag in the plot to zoom.</p>
+	<p>Tip: To reset zoom to full selected period, double left-click in the plot.</p>
+{% endif %}
+
     <script type="text/javascript">
         var color_base = {{ colors }};
 
@@ -168,8 +195,17 @@
     },
     			{% endif %}
  				series: seriesOptions,
-            // TODO construct & display legend
-            
+ 				
+            // options for dynamic legend
+                // hideOverlayOnMouseOut: false,
+                // legend: 'always',
+                labelsDiv: 'dynamic_legend',
+                
+            // range selector (overview graph)
+{% if DYGRAPH_RANGE_SELECTOR %}
+                showRangeSelector: true,
+{% endif %}
+
             {% if str_tstart != None and str_tend != None %}
             dateWindow: [ Date.parse( dateStart ),
                           Date.parse( dateEnd )
@@ -201,19 +237,11 @@
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
+                  
     </script>
 
-<h2>Server-generated Image</h2>
-
-        <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}&max_count=600" />
-        
-<h2>Data Download</h2>
-    Download data:
-    <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a>
-    <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a>
-	
 {% else %}
-	   <p>Graph will be here.</p>
+	   <p>After site selection, a graph will be displayed here.</p>
 {% endif %}
 
 

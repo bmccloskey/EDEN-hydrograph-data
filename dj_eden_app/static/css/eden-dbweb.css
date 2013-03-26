@@ -1,0 +1,76 @@
+/* Link colors */
+
+a:link {color: #5c4d29}
+a:visited {color: #937c43}
+a:hover {color: #336699; text-decoration: none}
+
+/* Page header or title */
+
+.pagetopheader { font-family: arial,helvetica,sans-serif; color:#ffffff; font-weight: bold; font-size:20px}
+.pagetopheadersm { font-family: arial,helvetica,sans-serif; color:#ffffff; font-size:0.75em}
+.sectionheader    { color: #475572; font-weight: bold; font-size: 16px; font-family: arial, helvetica, sans-serif }
+
+/* Top navigation buttons */
+
+.navtopbutton { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; color:#ffffff; font-size: 12px }
+a.navtopbutton { color:#ffffff}
+a.navtopbutton:visited { color:#ffffff; }
+a.navtopbutton:hover { color:#FF9900; text-decoration: none }
+
+
+/* Right-hand navigation buttons */
+.rightnavbuttonheader { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; color:#ffffff;  font-size: 14px }
+.rightnavbuttonheadercurrent { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; background:#ffffff;  font-size: 14px }
+.rightnavbutton { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; color:#000000;  font-size: 12px }
+.rightnavbuttoncurrent { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; color:#000000;  font-size: 12px; background:#FFFFFF }
+a.rightnavbutton { color:#5C4D29;}
+a.rightnavbutton:visited { color:#937C43; }
+a.rightnavbutton:hover { text-decoration: none }
+
+
+/* Figure captions */
+
+.caption    { font-size: 12px; font-family: verdana, geneva, arial, helvetica, sans-serif }
+.minicaption    { font-size: 10px; font-family: verdana, geneva, arial, helvetica, sans-serif }
+
+
+/* Page definitions */
+
+P {font-family: Arial, Helvetica, sans-serif; color: #000000;}
+H1 {font-family: Arial, Helvetica, sans-serif;}
+H2 {font-family: Arial, Helvetica, sans-serif;}
+H3 {font-family: Arial, Helvetica, sans-serif; color: #3F507B}
+H4 {font-family: Arial, Helvetica, sans-serif;}
+H5 {font-family: Arial, Helvetica, sans-serif;}
+H6 {font-family: Arial, Helvetica, sans-serif;}
+
+/* Learn More text */
+
+.learnmore { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; }
+
+/* List definitions */
+
+UL, OL, LI {font-family: Arial, Helvetica, sans-serif;}
+
+/* Tables */
+
+.tablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; font-size: 14px;}
+.tablecell { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 12px;}
+.grtablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #C4D58D; font-weight: bold; font-size: 16px;}
+.bltablehead { font-size: 16px; font-family: verdana, geneva, arial, helvetica, sans-serif; font-weight: bold; background: #a0c1e7; }
+.grytablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #cccccc; font-weight: bold; font-size: 16px;}
+.gtablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #ebcf8c; font-weight: bold; font-size: 14px;}
+.gvegtablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; background: #F1DEB0}
+.gtablecell { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 14px; background: #ffffff }
+.gtablecell2 { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 14px; background: #ffffcc }
+
+/* Contact Table */
+
+.contacttablehead { font-family: verdana,geneva,arial,helvetica,sans-serif; font-weight: bold; font-size: 14px;}
+.contacttable { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 12px;}
+
+/* Page footer */
+
+.footer { font-family: verdana,geneva,arial,helvetica,sans-serif; font-size: 12px; color: #FFFFFF }
+a.footer { color:#ffffff}
+a.footer:visited { color:#ffffff}
