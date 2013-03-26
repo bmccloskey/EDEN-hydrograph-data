@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block ie_hack %}
+{% endblock ie_hack %}
+
+  <meta charset="UTF-8">
+  <title>{% block title %}Exploring and Viewing EDEN (EVE) - Everglades Depth Estimation Network (EDEN){% endblock title %}</title>
+
+
+  <link rel="stylesheet" href="{{ STATIC_URL }}css/eden-dbweb.css">
+  <style type="text/css">
+a { color: #5c4d29; }
+a:visited { color: #937c43; }
+.color_0 { color: #000080 !important; }
+
+.color_1 { color: #7bff7b !important; }
+
+.color_2 { color: #800000 !important; }
+#graph .dygraph-label {
+      font-family: Arial, Helvetica, sans-serif;
+}
+
+  </style>
+{% block style %}
+{% endblock style %}
+
+{% block usgs_script %}
+  <script type="application/javascript" src="http://www.usgs.gov/scripts/analytics/usgs-analytics.js"></script>
+{% endblock usgs_script %}
+
+
+{% block script %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+{% endblock script %}
+
+</head>
+
+<body style="background-color: white;">
+  <div align="center" style="white-space: nowrap;">
+    <table border="0" cellpadding="1" cellspacing="1" width="100%">
+				<tr>
+					<td align="center" background="{{ STATIC_URL }}images/backgrounds/biscbay-blueabstract-tallbg.jpg" colspan="3">
+{% block page_header %}                      
+						<div align="left">
+							<a href="http://www.evergladesplan.org/pm/recover/recover.cfm">
+							 <img src="{{ STATIC_URL }}images/logos/recoverbl.gif" width="94" height="89" align="left" border="0" alt="The Journey to Restore America's Everglades - Recover Home Page">
+							</a>
+							<table width="280" border="0" cellspacing="0" cellpadding="0" align="right">
+								<tr>
+									<td>
+									   <a href="http://www.nps.gov/">
+									       <img src="{{ STATIC_URL }}images/logos/NPSlogosm-grbkgd.gif" alt="National Park Service Home Page" height="48" width="41" border="0">
+									   </a>
+									   <a href="http://www.sfwmd.gov/">
+									       <img src="{{ STATIC_URL }}images/logos/sfwmd-logosm-grnbkgd.gif" alt="South Florida Water Management District Home Page" height="48" width="48" border="0">
+									   </a> 
+									   <a href="http://www.usace.army.mil/">
+									       <img src="{{ STATIC_URL }}images/logos/usace-logosm.gif" width="57" height="44" border="0" alt="U.S. Army Corps of Engineers Home Page">
+									   </a>
+									   <a href="http://www.usgs.gov">
+									       <img src="{{ STATIC_URL }}images/logos/usgslogosm-greybkgrd.gif" alt="U.S. Geological Survey Home Page" height="45" width="118" border="0">
+									   </a>
+									</td>
+								</tr>
+							</table>
+							<span class="pagetopheader">Everglades Depth Estimation Network (EDEN) for Support of Biological and Ecological Assessments</span>
+							
+						</div>
+{% endblock page_header %}
+					</td>
+				</tr>
+      <tr>
+        <td valign="top" width="100%">
+<!--Begin body of page -->        
+{% block content_header %}
+{% endblock content_header %}
+
+{% block content %}
+{% endblock content %}
+
+<!--End body of page --->
+
+        </td>
+        <td width="8" bgcolor="white"> </td>
+        <td bgcolor="#ebcf8c" valign="top" width="170">
+
+{% block navigation %}
+{% include "navigation.html" %}
+{% endblock navigation %}
+
+          <table width="100%" border="0" cellspacing="1" cellpadding="1">
+            <tr>
+              <td align="center" bgcolor="#4d7c86">
+                <img src="{{ STATIC_URL }}images/photos/waterleveldatagagethf.jpg" alt="Photo of a water level gage" height="218" width="160" border="0" /></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td bgcolor="#4d7c86" colspan="3">
+{% block footer %}
+<span class="footer">Technical support for this Web site is provided by the <a href="http://www.usgs.gov/" class="footer">U.S. Geological Survey</a><br />
+This page is: http:{{ request.get_host}}{{ request.path }}<br />
+Comments and suggestions? Contact: <a href="{{ EDEN_URL }}../comments.html" class="footer">Heather Henkel - Webmaster</a><br />
+Last updated: March 25, 2013 11:12 AM (HSH)</span>
+{% endblock footer %}
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

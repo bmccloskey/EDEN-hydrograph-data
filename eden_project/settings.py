@@ -1,4 +1,5 @@
 # Django settings for eden_project project.
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 
 # DEBUG = True
 # TEMPLATE_DEBUG = DEBUG
@@ -107,6 +108,10 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = TCP + (
+    'django.core.context_processors.request',
+)
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -163,6 +168,9 @@ LOGGING = {
         },
     }
 }
+
+# work directory for Matplotlib -- must be writable by web service process
+MATPLOTLIB_WORK_DIR = "/tmp/matplotlib"
 
 try:
     from local_settings import *
