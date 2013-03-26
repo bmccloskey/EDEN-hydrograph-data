@@ -2,25 +2,12 @@ from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, D
 from models import Station
 import datetime
 
-def convert_qs_to_list(qs):
+def convert_qs_to_list_of_tuples(qs):
     """
     creates a list of tuples which is used for the multi-select list
-    on the application. The "str_object" is the site name
-    used for queries in views.py, while "display_str" is
-    the display name on the web page.
+    on the application. The first element is the key, the second is the
+    displayed name.
     """
-
-    # TODO Might prefer to use primary key?
-    choice_list = []
-    for qs_object in qs:
-        str_object = str(qs_object)
-        display_str = str_object.replace('_', ' ')
-        site_tuple = (str_object, display_str)
-        choice_list.append(site_tuple)
-    # TODO Truncate display string?
-    return choice_list
-
-def convert_qs_to_list_of_tuples(qs):
     choice_list = [ (mod_obj.station_name_web,
                      mod_obj.short_name.replace('_', ' '))
                    for mod_obj in qs]
