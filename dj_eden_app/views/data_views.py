@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 
 from dj_eden_app.models import Station
 from dj_eden_app.forms import TimeSeriesFilterForm
-import dj_eden_app.data_queries as data_queries
+import dj_eden_app.stage_queries as stage_queries
 
 import logging
 import sys
@@ -54,12 +54,12 @@ def hourly_download(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.hourly_query(*station_dict.values())
+        q, dt = stage_queries.hourly_query(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -85,12 +85,12 @@ def daily_download(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.daily_query(*station_dict.values())
+        q, dt = stage_queries.daily_query(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -117,7 +117,7 @@ def plot_data(request):
         gages = form.cleaned_data['site_list']
         _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
@@ -159,12 +159,12 @@ def plot_data_hourly(request):
         gages = form.cleaned_data['site_list']
         _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.hourly_query_split(*station_dict.values())
+        q, dt = stage_queries.hourly_query_split(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -189,12 +189,12 @@ def plot_data_daily(request):
         gages = form.cleaned_data['site_list']
         _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.daily_query_split(*station_dict.values())
+        q, dt = stage_queries.daily_query_split(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -215,11 +215,11 @@ def plot_data_daily(request):
 def _daily_plot_data(form):
     gages = form.cleaned_data['site_list']
     _logger.info("plot_data, gages is %s" % (gages))
-    station_dict = data_queries.station_dict(gages)
+    station_dict = stage_queries.station_dict(gages)
     station1 = station_dict.values()[0]
     beginDate = form.cleaned_data["timeseries_start"]
     endDate = form.cleaned_data["timeseries_end"]
-    q, dt = data_queries.daily_query_split(*station_dict.values())
+    q, dt = stage_queries.daily_query_split(*station_dict.values())
     if beginDate:
         q = q.where(dt >= beginDate)
     if endDate:
@@ -230,12 +230,12 @@ def _daily_plot_data(form):
 def _hourly_plot_data(form):
     gages = form.cleaned_data['site_list']
     _logger.info("plot_data, gages is %s" % (gages))
-    station_dict = data_queries.station_dict(gages)
+    station_dict = stage_queries.station_dict(gages)
     station1 = station_dict.values()[0]
 
     beginDate = form.cleaned_data["timeseries_start"]
     endDate = form.cleaned_data["timeseries_end"]
-    q, dt = data_queries.hourly_query_split(*station_dict.values())
+    q, dt = stage_queries.hourly_query_split(*station_dict.values())
     if beginDate:
         q = q.where(dt >= beginDate)
     if endDate:

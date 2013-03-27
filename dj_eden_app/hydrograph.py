@@ -16,7 +16,7 @@ try:
 except ImportError:
     from PIL import Image  # to deal with Windows...
 
-import dj_eden_app.data_queries as data_queries
+import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
 
@@ -109,11 +109,11 @@ def logo(fig):
     try:
         img = Image.open(filename)
     except IOError:
-        # silly windows... 
+        # silly windows...
         logo_path = django.conf.settings.SITE_HOME.replace('\\', '/').replace('eden_project', 'dj_eden_app')
         filename_win = os.path.join(logo_path, "usgs-logo.png").replace('\\', '/')
         img = Image.open(filename_win)
-        
+
 
     """
     # this did not help on windows
@@ -270,23 +270,23 @@ if __name__ == "__main__":
 
     default_show_logo = not 'windows' in sys.platform
 
-    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2010-01-01")
+    data, ss = stage_queries.data_for_plot_daily(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2010-01-01")
     ct = png_multi(data, "/tmp/hg1.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2010-01-01"), show_logo=default_show_logo)
     print "hg1.png", ct
 
-    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567'])
+    data, ss = stage_queries.data_for_plot_daily(['2A300', 'G-3567'])
     ct = png_multi(data, "/tmp/hg2.png", None, None, show_logo=default_show_logo)
     print "hg2.png", ct
 
-    data, ss = data_queries.data_for_plot_hourly(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2004-03-01")
+    data, ss = stage_queries.data_for_plot_hourly(['2A300', 'G-3567'], beginDate="2004-01-01", endDate="2004-03-01")
     ct = png_multi(data, "/tmp/hg3.png", dateutil.parser.parse("2004-01-01"), dateutil.parser.parse("2004-03-01"), show_logo=default_show_logo)
     print "hg3.png", ct
 
-    data, ss = data_queries.data_for_plot_daily(['L31NN', 'Chatham_River_near_the_Watson_Place'], beginDate="2011-09-01", endDate="2011-12-31")
+    data, ss = stage_queries.data_for_plot_daily(['L31NN', 'Chatham_River_near_the_Watson_Place'], beginDate="2011-09-01", endDate="2011-12-31")
     ct = png_multi(data, "/tmp/hg4.png", dateutil.parser.parse("2011-09-01"), dateutil.parser.parse("2011-12-31"), show_logo=False)
     print "hg4.png", ct
 
-    data, ss = data_queries.data_for_plot_daily(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"],
+    data, ss = stage_queries.data_for_plot_daily(['2A300', 'G-3567', 'L31NN', "RG3", "ANGEL", "BARW4", "TSH"],
                                           beginDate="2006-10-15",
                                           endDate="2006-11-12")
     ct = png_multi(data, "/tmp/hg5.png", None, None)
@@ -296,7 +296,7 @@ if __name__ == "__main__":
         def __init__(self, **attributes):
             self.__dict__ = attributes
 
-    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
+    data, ss = stage_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
     station = ss[0]
     mock_station = Mock(dry_elevation=station.dry_elevation,
                         ground_elevation=station.duration_elevation,
@@ -310,7 +310,7 @@ if __name__ == "__main__":
                     show_logo=default_show_logo)
     print "hg6.png", ct
 
-    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
+    data, ss = stage_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
     station = ss[0]
     mock_station = Mock(dry_elevation=station.dry_elevation,
                     ground_elevation=station.duration_elevation,
@@ -324,7 +324,7 @@ if __name__ == "__main__":
                     show_logo=default_show_logo)
     print "hg6a.png", ct
 
-    data, ss = data_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
+    data, ss = stage_queries.data_for_plot_hourly(['CV5NR'], beginDate="2006-10-15", endDate="2006-11-12")
     station = ss[0]
     ct = png_single_station(data, "/tmp/hg6b.png", station,
                     beginDate=dateutil.parser.parse("2006-10-15"),

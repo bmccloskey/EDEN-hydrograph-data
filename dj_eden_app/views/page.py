@@ -3,7 +3,7 @@
 
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
-import dj_eden_app.data_queries as data_queries
+import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from django.conf import settings
 
@@ -111,7 +111,7 @@ def eden_page(request):
                                                    'time_delta': time_delta_days,
 			}
             if len(gages) == 1:
-                station = data_queries.station_list(gages)[0]
+                station = stage_queries.station_list(gages)[0]
                 render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
                 render_params['dry_elevation'] = station.dry_elevation or "null"
                 render_params['ground_elevation'] = station.duration_elevation or "null"

@@ -1,17 +1,17 @@
-import dj_eden_app.data_queries as station_data
+import dj_eden_app.stage_queries as station_data
 import dj_eden_app.views.data_views as data_views
 try:
     from dj_eden_app.models import station_list
 except ImportError:
     pass
-import dj_eden_app.data_queries as data_queries
+import dj_eden_app.stage_queries as stage_queries
 
 from decimal import Decimal
 import unittest
 
 
 gages = ['G-3567', '2A300']
-stations = data_queries.station_list(gages)
+stations = stage_queries.station_list(gages)
 
 class TestStationData(unittest.TestCase):
 
@@ -94,7 +94,7 @@ class TestStationData(unittest.TestCase):
     def test_ambiguous_station_name(self):
         "Test for the one station name that produces two separate station records"
         names = ["S150_T"]
-        ss = data_queries.station_list(names)
+        ss = stage_queries.station_list(names)
 
         self.assertEqual(len(names), len(ss))
         self.assertEquals(names, [s.station_name_web for s in ss])
@@ -102,7 +102,7 @@ class TestStationData(unittest.TestCase):
     def test_peculiar_station_names(self):
         "Test for peculiar station names"
         names = ['C111_wetland_east_of_FIU_LTER_TSPH5', 'S343A_H']
-        ss = data_queries.station_list(names)
+        ss = stage_queries.station_list(names)
 
         self.assertEqual(len(names), len(ss))
         self.assertEquals(names, [s.station_name_web for s in ss])
@@ -110,7 +110,7 @@ class TestStationData(unittest.TestCase):
     def test_duplicate_station_names(self):
         "Test that duplicate station names are collapsed, but otherwise order is preserved"
         names = ["G-3567", "CH1", "RG3", "ANGEL", "BARW4", "TSH", "W2", "W15", "W2", "Upstream_Taylor_River", "TSH", "CH1"]
-        ss = data_queries.station_list(names)
+        ss = stage_queries.station_list(names)
 
         names_dedup = ["G-3567", "CH1", "RG3", "ANGEL", "BARW4", "TSH", "W2", "W15", "Upstream_Taylor_River"]
         # self.assertEqual(len(names) - 3, len(ss))
@@ -119,7 +119,7 @@ class TestStationData(unittest.TestCase):
     def test_station_dict(self):
         "Test for station dict"
         names = ["G-3567", "RG3", "ANGEL", "BARW4", "TSH", "W15", "W2", "Upstream_Taylor_River", "CH1"]
-        sd = data_queries.station_dict(names)
+        sd = stage_queries.station_dict(names)
 
         # self.assertEqual(len(names), len(sd))
         self.assertEquals(names, [s.station_name_web for s in sd.values()])
@@ -132,7 +132,7 @@ class TestStationData(unittest.TestCase):
                  , 'New_River_at_Sunday_Bay'  # station_datum but no vertical_conversion
                  # convert_to_navd_88 is non-null
                  ]
-        ss = data_queries.station_list(names)
+        ss = stage_queries.station_list(names)
         marker_52 = ss[0]
         barw4 = ss[1]
         new_river = ss[2]

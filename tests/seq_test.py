@@ -1,6 +1,7 @@
 import dj_eden_app.seq as seq
 import unittest
 from itertools import islice, count
+from types import GeneratorType
 
 def ident(x):
 	return x
@@ -61,6 +62,39 @@ class TestUnique(unittest.TestCase):
 	def test_changed_obj(self):
 		outlist = seq.unique([self, "abc", self, "def", "abc"])
 		self.assertEquals([self, "abc", "def"], outlist, "objects")
+
+def is_nan(x):
+	return type(x) is float and x != x
+
+class TestNullToNan(unittest.TestCase):
+	def test_empty_case(self):
+		ipt = [()]
+		expected = [()]
+		output = list(seq.null_to_nan(ipt, []))
+		self.assertEqual(output, expected)
+
+	def test_null_case_1(self):
+		ipt = [(1, None),
+				(2, 400),
+				(3, None)]
+		expected = [(1, None),
+				(2, 400),
+				(3, None)]
+		gen = seq.null_to_nan(ipt, [])
+		self.assertIsInstance(gen, GeneratorType)
+		output = list(gen)
+		self.assertEquals(output, expected)
+
+	def test_base_case_1(self):
+		ipt = [(1, None, None, 42.1),
+				(2, 400, 99.1, None),
+				(3, None, 98.6, "nan")]
+		for i, t in enumerate(seq.null_to_nan(ipt, [1, 3])):
+			for j, x in enumerate(t):
+				if j in [1, 3] and ipt[i][j] is None:
+					self.assertTrue(is_nan(x))
+				else:
+					self.assertEquals(x, ipt[i][j])
 
 if __name__ == '__main__':
 	unittest.main()
