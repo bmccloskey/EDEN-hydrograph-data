@@ -1,0 +1,269 @@
+{% extends "eden-base.html" %}
+
+{% block ie_hack %}
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
+    <!--[if IE]>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
+    <![endif]-->
+{% endblock ie_hack %}
+
+{% block title %}EDEN Multi-parameter Data{% endblock title %}
+
+{% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
+
+{% block script %}
+	<script type="text/javascript"
+	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+{% endblock script %}
+
+{% block style %}
+<style type="text/css">
+
+{% for c in color_list %}
+.color_{{ forloop.counter0 }} { color: {{ c }} !important; }
+{% endfor %}
+
+</style>
+{% endblock style %}
+
+{% block content %}
+<div style="white-space: nowrap;" id="content-block">
+<div class="form_input_field" style="vertical-align: top; display: inline-block; ">
+	<form name="param_query" id="param_form" method="GET" action="">{% csrf_token %}
+		{{ param_form.non_field_errors }}
+		{{ param_form.field_errors }}
+		<table width="150" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
+		<tbody>
+            <tr class="grtablehead">
+                <th>Data</th>
+            </tr>
+            <tr>
+                <td align="left" class="gtablecell" valign="top">
+                    <label for="{{ param_form.timeseries_start.html_name }}"><strong>Start: </strong></label>{{ param_form.timeseries_start }}<br />
+                    <label for="{{ param_form.timeseries_end.html_name }}"><strong>End: </strong></label>{{ param_form.timeseries_end }}<br />
+                </td>
+            </tr>
+                      
+            <tr class="grtablehead">
+                <th><label for="{{ param_form.site_list.html_name }}">Site List</label></th>
+            </tr>
+            <tr class="gtablecell2">
+                <td style="font-size: 75%;" align="center">Select multiple gages by<br>holding the control (PC)<br>or command (Mac) key.</td>
+            </tr>
+		    <tr>
+                <td align="center" class="gtablecell">
+				{{ param_form.site_list }}	
+                </td>
+            </tr>
+		<tr>
+		  <td>
+		  {{ param_form.params }}
+		  </td>
+		</tr>
+		<tr>
+            <td align="center" class="gtablecell2"><input name="hydrograph_query" type="submit" value="Update Graph" style="font-size: 18px; font-family: arial,helvetica,sans-serif;"></td>		
+        </tr>
+           
+{% if plot_params %}
+        <tr class="pwtablehead">
+            <th></th>
+        </tr>
+        <tr class="pwtablehead">
+            <th>Download</th>
+        </tr>
+        <tr class="pwtablehead">
+            <th></th>
+        </tr>
+        <tr class="gtablecell2">
+            <td style="font-size: 75%;" align="center">(for stations selected above)</td>
+        </tr>
+        
+		<tr>
+            <td class="gtablecell">
+                <!-- TODO Disable the next if selection period is longer than a year -->
+                - <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a><br />
+                - <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a><br />
+                - <a href="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}">High-quality Graph</a><br />
+            </td>
+        </tr>
+{% else %}
+        <tr>
+            <td>
+                <p>After site selection and update, data download will be available here.</p>
+            </td>
+        </tr>
+{% endif %}
+
+		</table>
+    <input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
+    <input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
+    <input type="hidden" id="date_delta" name="date_diff" value="{{ time_delta|safe }}" readonly>
+    <input type="hidden" id="ngvd29_series" name="ngvd29_name" value="{{ ngvd29_series|safe }}" readonly>
+	</form>
+</div>
+
+<div style="display: inline-block; margin-left: 10px; ">
+{% if plot_params %}
+    <div id="legends">
+	<div id="hydrograph_legend" style="border:solid; width: 300px; display:inline-block;">
+	   <table>
+	   {% for g in gages %}
+	       <tr class="color_{{ forloop.counter0 }}"><td>&nbsp;&mdash;&mdash;&mdash;</td><td>{{ g }}</td></tr>
+	   {% endfor %}
+        <!-- <tr><td colspan="2">&mdash;</td></tr> -->
+        <tr><td><img src="{{ STATIC_URL }}images/line-solid.png" alt="solid line" /></td><td>Observed data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-dotted.png" alt="dotted line" /></td><td>Estimated data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td>Data in "dry" range</td></tr>
+        </table>
+    </div>
+    <div id="dynamic_legend" style="border: 2px white solid; width: 200px; vertical-align: top; display:inline-block;">
+    </div>
+    </div>
+    
+	<div id="graph">
+	<noscript>
+	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}" />
+	</noscript>
+	</div>
+
+{% if not DYGRAPH_RANGE_SELECTOR %}
+	<p style="font-size: 75%;">Tip: Left-click and drag in the plot to zoom.</p>
+	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
+{% endif %}
+
+    <script type="text/javascript">
+        var color_base = {{ colors }};
+
+    function hex2rgb(hx) {
+        var re = /^#(\w{2})(\w{2})(\w{2})$/;
+        var bits = re.exec(hx);
+        if (bits) {
+            
+            var r = parseInt(bits[1], 16);
+            var g = parseInt(bits[2], 16);
+            var b = parseInt(bits[3], 16);
+            
+            return {"r":r, "g":g, "b":b};
+        } else {
+            return null;
+        }
+    }
+    
+    function soften(hx, alpha) {
+        var rgb = hex2rgb(hx);
+        
+        return "rgba("+rgb.r+","+ rgb.g+","+ rgb.b+","+ alpha+")";
+    }
+    
+    
+        var colors3 = [];
+        var i;
+        for (i = 0; i < color_base.length; i++) {
+            // copy in triplicate to account for 3 lines per gage
+            colors3.push(color_base[i]);
+            // Soften color for next two entries to distinguish from observed data
+            colors3.push(soften(color_base[i], 0.5));  
+            colors3.push(soften(color_base[i], 0.5));
+        }
+    	var dateStart = document.getElementById("start_date").value;
+    	var dateEnd = document.getElementById("end_date").value;
+    	var date_diff_str = document.getElementById("date_delta").value;
+    	//var ngvd29Series = document.getElementById("ngvd29_series").value;
+    	var ngvd29Conversion = {{ ngvd29_correction }};
+
+    	var date_diff_num = parseFloat(date_diff_str);
+    	
+    	var seriesOptions = {{ series_options }};
+    	
+    	// dry_elevation and ground_elevation line for single gage
+    	var dryElevation = {{ dry_elevation }};
+    	var groundElevation = {{ ground_elevation }};
+
+    	
+    	// note auto gear shift for daily/hourly
+    	
+
+         var g2 = new Dygraph(
+           document.getElementById("graph"),
+           "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
+           {
+            ylabel: "Water Level (NAVD88 ft)",
+            xlabel: "Date",
+            y2label: "Water Level (NGVD29 ft)",
+            yAxisLabelWidth: 60,
+            strokeWidth: 1.0,
+            colors: colors3,
+            {% if ngvd29_series != None and ngvd29_correction != None %} //tried this with JS if statement... using Django templating until I can figure it out...
+            drawCallback: function(dygraph, isInitial) {
+    			if (isInitial) {
+    			 labels = dygraph.getLabels();
+    			 labelToMove = labels[3];
+    			console.log("series: " + labelToMove);
+    			yrange = dygraph.yAxisRange();
+    			//resize(100, 100);
+    			yrange[0] -= ngvd29Conversion;
+    			yrange[1] -= ngvd29Conversion;
+    			newOptions = { 
+    			   axes: {y2: { valueRange: yrange} } 
+    			};
+    			newOptions[labelToMove] = {axis: 1};
+
+    			console.log("new options " + newOptions);
+    			dygraph.updateOptions(newOptions);
+    			props = dygraph.getPropertiesForSeries(labelToMove);
+    			console.log(labelToMove + " on axis " + props['axis']);
+    			}
+    },
+    			{% endif %}
+ 				series: seriesOptions,
+ 				
+            // options for dynamic legend
+                // hideOverlayOnMouseOut: false,
+                // legend: 'always',
+                labelsDiv: 'dynamic_legend',
+                
+            // range selector (overview graph)
+{% if DYGRAPH_RANGE_SELECTOR %}
+                showRangeSelector: true,
+{% endif %}
+
+            {% if str_tstart != None and str_tend != None %}
+            dateWindow: [ Date.parse( dateStart ),
+                          Date.parse( dateEnd )
+                         ],
+            {% endif %}
+            underlayCallback: function(canvas, area, g) {
+              if (dryElevation != null) {
+                var top_right = g.toDomCoords(0, dryElevation);
+
+                var top = top_right[1];
+
+                canvas.fillStyle = "rgba(128, 128, 128, 0.5)";
+                canvas.fillRect(area.x, top, area.w, 4);
+              }
+              
+              if (groundElevation != null) {
+                var top_right = g.toDomCoords(0, groundElevation);
+
+                var top = top_right[1];
+
+                canvas.fillStyle = "brown";
+                canvas.fillRect(area.x, top, area.w, 4);
+              }
+            },
+            // labelsDiv: document.getElementById('hydrograph_legend'),
+            labelsSeparateLines: true,
+            // legend: 'always',
+            
+            drawPoints: true   // Look, no trailing comma; make IE happy.
+           }          // options
+         );
+                  
+    </script>
+
+{% else %}
+	   <p>After site selection, a graph will be displayed here.</p>
+{% endif %}
+
+</div>
+{% endblock content %}

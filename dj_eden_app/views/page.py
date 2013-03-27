@@ -10,7 +10,8 @@ from django.conf import settings
 import json
 
 # from .. models import Station
-from .. forms import TimeSeriesFilterForm
+from .. forms import TimeSeriesFilterForm, DataParamForm
+
 import logging
 
 # Get an instance of a logger
@@ -42,6 +43,12 @@ def to_js_array(seq):
 def eden_base_page(request):
     render_params = {'EDEN_URL': settings.EDEN_URL }
     return render(request, 'eden-base.html', render_params)
+
+def param_page(request):
+    template_name = 'eve_params.html'
+    param_form = DataParamForm()
+
+    return render (request, template_name, {'param_form': param_form, })
 
 def eden_page(request):
     """

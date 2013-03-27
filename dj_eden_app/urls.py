@@ -19,6 +19,7 @@ urlpatterns = patterns('',
                        url(r'^eden-base.html$', page_views.eden_base_page),
                        url(r'^timeseries/?$', page_views.eden_page, name='eden_timeseries'),
                        url(r'^eve.html/?$', page_views.eden_page, name='eve'),
+                       url(r'^eve_params.html/?$', page_views.param_page),
     # Examples:
     # url(r'^$', 'eden_example.views.home', name='home'),
     # url(r'^eden_example/', include('eden_example.foo.urls')),

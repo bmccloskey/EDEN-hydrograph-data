@@ -190,6 +190,18 @@ def write_csv_for_plot(results, outfile, metadata=None, column_name=None):
             # have to convert to tuple because RowProxy does not support +
             csv_writer.writerow(tuple(r) + extra)
 
+def write_csv(results, outfile, metadata=None):
+    '''
+    Writes a csv file to the specified outfile file-like object.
+    '''
+
+    csv_writer = csv.writer(outfile)
+    if metadata != None:
+        csv_writer.writerow(metadata)
+    csv_writer.writerow(results.keys())
+    # Iterate, because csv.writerows pulls up all rows to a list
+    for r in results:
+        csv_writer.writerow(r)
 
 if __name__ == "__main__":
 

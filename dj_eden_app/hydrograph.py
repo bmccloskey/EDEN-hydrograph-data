@@ -245,6 +245,12 @@ _line_styles = ["-d", ":+", ":^"]
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
 
+def png(data, outfile, **kwargs):
+    if len(data) == 1:
+        return png_single_station(data, outfile, **kwargs)
+    else:
+        return png_multi(data, outfile, **kwargs)
+
 def png_multi(data, outfile, beginDate, endDate, show_logo=True):
     "Plot multiline onto outfile. Data has columns TIMESTAMP then O E D for each well."
     ct, fig = plot_multi(data, beginDate, endDate, show_logo)
