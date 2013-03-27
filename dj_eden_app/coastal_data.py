@@ -1,6 +1,7 @@
 from sqlalchemy import Table
 from sqlalchemy.sql import select
 from stage_data import meta
+from .data_params import DataParams
 
 coastal = Table('coastal', meta, autoload=True)
 
@@ -16,6 +17,9 @@ def coastal_seq(gage_name, param, **kwargs):
 
 def coastal_query(gage_name, param, beginDate=None, endDate=None):
     "Coastal data for the given gage and parameter."
+    if param not in DataParams():
+        raise TypeError
+
     sel = select([coastal.c.datetime]).order_by(coastal.c.datetime)
     sel = sel.column(coastal.c[coastal_column_name(gage_name, param)])
 

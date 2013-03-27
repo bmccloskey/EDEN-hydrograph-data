@@ -3,6 +3,8 @@ import unittest
 from itertools import islice, count
 from types import GeneratorType
 
+import datetime
+
 def ident(x):
 	return x
 
@@ -95,6 +97,99 @@ class TestNullToNan(unittest.TestCase):
 					self.assertTrue(is_nan(x))
 				else:
 					self.assertEquals(x, ipt[i][j])
+
+class TestMergeSorted(unittest.TestCase):
+	def test_simple_case(self):
+		seq1 = [
+			(1, 101, "one"),
+			(3, 301, "three"),
+			(4, 401, "four"),
+			(5, 501, "five")]
+		seq2 = [
+			(0, 1, "zero"),
+			(2, 202, "two"),
+			(4, 402, "four"),
+			(6, 602, "six")]
+
+		expected = [
+				(0, None, None, 1, "zero"),
+				(1, 101, "one", None, None),
+				(2, None, None, 202, "two"),
+				(3, 301, "three", None, None),
+				(4, 401, "four", 402, "four"),
+				(5, 501, "five", None, None),
+				(6, None, None, 602, "six")]
+
+		output = seq.merge_sorted(seq1, seq2)
+
+		self.assertEqual(list(output), expected)
+
+	def test_dates(self):
+		seq1 = [
+			(datetime.datetime(1999, 4, 1, 0, 0, 1), 101, "one"),
+			(datetime.datetime(1999, 4, 1, 0, 0, 3), 301, "three"),
+			(datetime.datetime(1999, 4, 1, 0, 0, 4), 401, "four"),
+			(datetime.datetime(1999, 4, 1, 0, 5, 0), 501, "five")]
+		seq2 = [
+			(datetime.datetime(1997, 8, 1, 0, 0, 0), 1, "zero"),
+			(datetime.datetime(1999, 4, 1, 0, 0, 2), 202, "two"),
+			(datetime.datetime(1999, 4, 1, 0, 0, 4), 402, "four"),
+			(datetime.datetime(1999, 6, 1, 0, 5, 0), 602, "six")]
+
+		expected = [
+				(datetime.datetime(1997, 8, 1, 0, 0, 0), None, None, 1, "zero"),
+				(datetime.datetime(1999, 4, 1, 0, 0, 1), 101, "one", None, None),
+				(datetime.datetime(1999, 4, 1, 0, 0, 2), None, None, 202, "two"),
+				(datetime.datetime(1999, 4, 1, 0, 0, 3), 301, "three", None, None),
+				(datetime.datetime(1999, 4, 1, 0, 0, 4), 401, "four", 402, "four"),
+				(datetime.datetime(1999, 4, 1, 0, 5, 0), 501, "five", None, None),
+				(datetime.datetime(1999, 6, 1, 0, 5, 0), None, None, 602, "six")]
+
+		output = seq.merge_sorted(seq1, seq2)
+
+		self.assertEqual(list(output), expected)
+
+	def test_empty_left(self):
+		seq1 = []
+		seq2 = [(1, 33),
+				(5, 44),
+				(101, 55)]
+		expected = [
+				(1, 33),
+				(5, 44),
+				(101, 55)]
+		output = seq.merge_sorted(seq1, seq2)
+
+		self.assertEqual(list(output), expected)
+
+	def test_empty_right(self):
+		seq1 = [(1, 33),
+				(5, 44),
+				(101, 55)]
+		seq2 = []
+		expected = [
+				(1, 33),
+				(5, 44),
+				(101, 55)]
+		output = seq.merge_sorted(seq1, seq2)
+
+		self.assertEqual(list(output), expected)
+
+	def test_preserve_nan(self):
+		nan = float('NaN')
+		seq1 = [(1, nan),
+				(5, None),
+				(101, 55)]
+		seq2 = [(1, 11.1),
+				(200.2, 200.4)]
+		expected = [
+				(1, nan, 11.1),
+				(5, None, None),
+				(101, 55, None),
+				(200.2, None, 200.4)]
+		output = seq.merge_sorted(seq1, seq2)
+
+		self.assertEqual(list(output), expected)
 
 if __name__ == '__main__':
 	unittest.main()

@@ -1,5 +1,5 @@
 from sqlalchemy import Table
-from sqlalchemy.sql import select, cast, label
+from sqlalchemy.sql import select, cast
 from sqlalchemy.types import DateTime
 from stage_data import meta
 
