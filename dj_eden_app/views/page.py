@@ -48,6 +48,23 @@ def param_page(request):
     template_name = 'eve_params.html'
     param_form = DataParamForm()
 
+    has_data = False
+    # be careful about initial get with no parameters,
+    # so we don't clobber the initial values
+    if request.method == 'GET' and request.GET :
+        param_form = DataParamForm(request.GET)
+        has_data = True
+    elif request.method == 'POST':
+        param_form = DataParamForm(request.POST)
+        has_data = True
+
+    if has_data:
+        if param_form.is_valid():
+            pass
+        else:
+            # error...
+            return render (request, template_name, {'param_form': param_form, })
+
     return render (request, template_name, {'param_form': param_form, })
 
 def eden_page(request):

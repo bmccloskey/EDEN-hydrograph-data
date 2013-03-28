@@ -23,6 +23,18 @@
 .color_{{ forloop.counter0 }} { color: {{ c }} !important; }
 {% endfor %}
 
+.grtableerr {
+background-color: white;
+color: red;
+}
+#param_form ul {
+ list-style-type: none;
+ display: inline-block;
+}
+#param_form p {
+ white-space: pre-wrap;
+ }
+ 
 </style>
 {% endblock style %}
 
@@ -32,7 +44,7 @@
 	<form name="param_query" id="param_form" method="GET" action="">{% csrf_token %}
 		{{ param_form.non_field_errors }}
 		{{ param_form.field_errors }}
-		<table width="150" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
+		<table width="150"  border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
 		<tbody>
             <tr class="grtablehead">
                 <th>Data</th>
@@ -48,18 +60,36 @@
                 <th><label for="{{ param_form.site_list.html_name }}">Site List</label></th>
             </tr>
             <tr class="gtablecell2">
-                <td style="font-size: 75%;" align="center">Select multiple gages by<br>holding the control (PC)<br>or command (Mac) key.</td>
+                <td style="font-size: 75%;" align="center">Select a single gage and parameters to view.</td>
             </tr>
+{% if param_form.site_list.errors %}
+            <tr>
+                <td class="grtableerr">
+                    {{ param_form.site_list.errors }}
+                </td>
+            </tr>
+{% endif %}
 		    <tr>
                 <td align="center" class="gtablecell">
 				{{ param_form.site_list }}	
                 </td>
             </tr>
+            <tr class="grtablehead">
+                <th><label for="{{ param_form.params.html_name }}">Parameter Selection</label></th>
+            </tr>
+{% if param_form.params.errors %}
+        <tr>
+            <td class="grtableerr">
+          {{ param_form.params.errors }}
+         </td>
+         </tr>
+{% endif %}
 		<tr>
-		  <td>
+		  <td class="gtablecell">
 		  {{ param_form.params }}
 		  </td>
 		</tr>
+            <tr><th></th></tr>
 		<tr>
             <td align="center" class="gtablecell2"><input name="hydrograph_query" type="submit" value="Update Graph" style="font-size: 18px; font-family: arial,helvetica,sans-serif;"></td>		
         </tr>
