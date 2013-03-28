@@ -1,4 +1,4 @@
-//snippet of stackoverflow -- avoids the reload from being fired multiple times during window resizing
+//snippet from stackoverflow -- avoids the reload from being fired multiple times during window resizing
 var waitForFinalEvent = (function () {
   var timers = {};
   return function (callback, ms, uniqueId) {
