@@ -30,8 +30,8 @@
 <div style="white-space: nowrap;" id="content-block">
 <div class="form_input_field" style="vertical-align: top; display: inline-block; ">
 	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">{% csrf_token %}
-		{{ query_form.non_field_errors }}
-		{{ query_form.field_errors }}
+		<div class="form_error">{{ query_form.non_field_errors }}</div>
+		<div class="form_error">{{ query_form.field_errors }}</div>
 		<table width="150" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
 		<tbody>
             <tr class="grtablehead">
@@ -93,8 +93,6 @@
 		</table>
     <input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
     <input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
-    <input type="hidden" id="date_delta" name="date_diff" value="{{ time_delta|safe }}" readonly>
-    <input type="hidden" id="ngvd29_series" name="ngvd29_name" value="{{ ngvd29_series|safe }}" readonly>
 	</form>
 </div>
 
@@ -163,11 +161,7 @@
         }
     	var dateStart = document.getElementById("start_date").value;
     	var dateEnd = document.getElementById("end_date").value;
-    	var date_diff_str = document.getElementById("date_delta").value;
-    	//var ngvd29Series = document.getElementById("ngvd29_series").value;
     	var ngvd29Conversion = {{ ngvd29_correction }};
-
-    	var date_diff_num = parseFloat(date_diff_str);
     	
     	var seriesOptions = {{ series_options }};
     	

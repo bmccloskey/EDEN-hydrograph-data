@@ -88,3 +88,7 @@ a.footer:visited { color:#ffffff}
 	min-height:400px;
 	max-height:600px;
 }
+
+.form_error {
+	color:#FF0000;
+}
