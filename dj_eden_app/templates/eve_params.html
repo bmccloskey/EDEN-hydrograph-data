@@ -110,10 +110,7 @@ color: red;
         
 		<tr>
             <td class="gtablecell">
-                <!-- TODO Disable the next if selection period is longer than a year -->
-                - <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a><br />
-                - <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a><br />
-                - <a href="{% url dj_eden_app.views.data_views.plot_image_auto %}?{{ plot_params }}">High-quality Graph</a><br />
+                - <a href="{% url dj_eden_app.views.data_views.param_data_download %}?{{ plot_params }}">Data</a><br />
             </td>
         </tr>
 {% else %}
@@ -162,7 +159,6 @@ color: red;
 {% endif %}
 
     <script type="text/javascript">
-        var color_base = {{ colors }};
 
     function hex2rgb(hx) {
         var re = /^#(\w{2})(\w{2})(\w{2})$/;
@@ -186,71 +182,22 @@ color: red;
     }
     
     
-        var colors3 = [];
-        var i;
-        for (i = 0; i < color_base.length; i++) {
-            // copy in triplicate to account for 3 lines per gage
-            colors3.push(color_base[i]);
-            // Soften color for next two entries to distinguish from observed data
-            colors3.push(soften(color_base[i], 0.5));  
-            colors3.push(soften(color_base[i], 0.5));
-        }
-    	var dateStart = document.getElementById("start_date").value;
-    	var dateEnd = document.getElementById("end_date").value;
-    	var date_diff_str = document.getElementById("date_delta").value;
-    	//var ngvd29Series = document.getElementById("ngvd29_series").value;
-    	var ngvd29Conversion = {{ ngvd29_correction }};
-
-    	var date_diff_num = parseFloat(date_diff_str);
-    	
-    	var seriesOptions = {{ series_options }};
-    	
-    	// dry_elevation and ground_elevation line for single gage
-    	var dryElevation = {{ dry_elevation }};
-    	var groundElevation = {{ ground_elevation }};
-
-    	
-    	// note auto gear shift for daily/hourly
-    	
-
          var g2 = new Dygraph(
            document.getElementById("graph"),
-           "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
+           "{% url dj_eden_app.views.data_views.plot_data_multiparam %}?{{ plot_params }}",
            {
-            ylabel: "Water Level (NAVD88 ft)",
+            ylabel: "parameter goes here",
             xlabel: "Date",
-            y2label: "Water Level (NGVD29 ft)",
+            y2label: "parameter gos here",
             yAxisLabelWidth: 60,
             strokeWidth: 1.0,
-            colors: colors3,
-            {% if ngvd29_series != None and ngvd29_correction != None %} //tried this with JS if statement... using Django templating until I can figure it out...
-            drawCallback: function(dygraph, isInitial) {
-    			if (isInitial) {
-    			 labels = dygraph.getLabels();
-    			 labelToMove = labels[3];
-    			console.log("series: " + labelToMove);
-    			yrange = dygraph.yAxisRange();
-    			//resize(100, 100);
-    			yrange[0] -= ngvd29Conversion;
-    			yrange[1] -= ngvd29Conversion;
-    			newOptions = { 
-    			   axes: {y2: { valueRange: yrange} } 
-    			};
-    			newOptions[labelToMove] = {axis: 1};
-
-    			console.log("new options " + newOptions);
-    			dygraph.updateOptions(newOptions);
-    			props = dygraph.getPropertiesForSeries(labelToMove);
-    			console.log(labelToMove + " on axis " + props['axis']);
-    			}
-    },
-    			{% endif %}
- 				series: seriesOptions,
+            // colors: colors3,
+ 				//series: seriesOptions,
  				
             // options for dynamic legend
                 // hideOverlayOnMouseOut: false,
                 // legend: 'always',
-                labelsDiv: 'dynamic_legend',
+                // labelsDiv: 'dynamic_legend',
                 
             // range selector (overview graph)
 {% if DYGRAPH_RANGE_SELECTOR %}
@@ -262,25 +209,6 @@ color: red;
                           Date.parse( dateEnd )
                          ],
             {% endif %}
-            underlayCallback: function(canvas, area, g) {
-              if (dryElevation != null) {
-                var top_right = g.toDomCoords(0, dryElevation);
-
-                var top = top_right[1];
-
-                canvas.fillStyle = "rgba(128, 128, 128, 0.5)";
-                canvas.fillRect(area.x, top, area.w, 4);
-              }
-              
-              if (groundElevation != null) {
-                var top_right = g.toDomCoords(0, groundElevation);
-
-                var top = top_right[1];
-
-                canvas.fillStyle = "brown";
-                canvas.fillRect(area.x, top, area.w, 4);
-              }
-            },
             // labelsDiv: document.getElementById('hydrograph_legend'),
             labelsSeparateLines: true,
             // legend: 'always',

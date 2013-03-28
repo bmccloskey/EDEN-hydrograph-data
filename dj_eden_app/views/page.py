@@ -60,6 +60,18 @@ def param_page(request):
 
     if has_data:
         if param_form.is_valid():
+            # Avoid the troublesome Nones.
+            plot_params = {}
+            for k, v in param_form.cleaned_data.items():
+                if v:
+                    plot_params[k] = v
+
+            plot_query_str = urllib.urlencode(plot_params, doseq=True);
+            render_params = {'query_form': param_form,
+                             'plot_params': mark_safe(plot_query_str),
+                             }
+            return render (request, template_name, render_params)
+
             pass
         else:
             # error...

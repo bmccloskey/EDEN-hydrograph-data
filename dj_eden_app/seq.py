@@ -22,7 +22,7 @@ def unique(seq):
 	od = collections.OrderedDict([(x, 1) for x in seq])
 	return od.keys()
 
-def null_to_nan(seq, columns=[]):
+def null_to_nan(seq, columns):
 	"generator over a sequence, replace nulls in specified columns to NaN"
 	nan = float("nan")
 	for t in seq:

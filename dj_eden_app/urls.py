@@ -16,10 +16,14 @@ urlpatterns = patterns('',
                        url(r'^daily_data_download$', data_views.daily_download),
                        url(r'^hourly_data_download$', data_views.hourly_download),
                        url(r'^data_download$', data_views.timeseries_csv_download),
+                       url(r'^plot_data_multiparam$', data_views.plot_data_multiparam),
+                       url(r'^param_data_download', data_views.param_data_download),
+
                        url(r'^eden-base.html$', page_views.eden_base_page),
                        url(r'^timeseries/?$', page_views.eden_page, name='eden_timeseries'),
                        url(r'^eve.html/?$', page_views.eden_page, name='eve'),
                        url(r'^eve_params.html/?$', page_views.param_page),
+
     # Examples:
     # url(r'^$', 'eden_example.views.home', name='home'),
     # url(r'^eden_example/', include('eden_example.foo.urls')),

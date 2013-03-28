@@ -2,8 +2,11 @@
 from django.http import HttpResponse, HttpResponseBadRequest
 
 from dj_eden_app.models import Station
-from dj_eden_app.forms import TimeSeriesFilterForm
+from dj_eden_app.forms import TimeSeriesFilterForm, DataParamForm
 import dj_eden_app.stage_queries as stage_queries
+import dj_eden_app.coastal_data as coastal_data
+from dj_eden_app.data_params import DataParams
+import dj_eden_app.seq as seq
 
 import logging
 import sys
@@ -133,6 +136,29 @@ def plot_data(request):
                                         )
 
         stage_data.write_csv_for_plot(results=data, outfile=response)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def param_data_download(request):
+    pass
+
+def plot_data_multiparam(request):
+    form = DataParamForm(request.GET)
+    if form.is_valid():
+        _logger.info("requested plot data for %s with params %s" % (form.cleaned_data['site_list'], form.cleaned_data['params']))
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+
+        if DataParams.salinity in form.cleaned_data['params']:
+            salinity_seq = coastal_data.coastal_seq("Lostmans_River_below_Second_Bay", DataParams.salinity, beginDate=beginDate, endDate=endDate)
+
+        # TODO merge data streams
+        merged_seq = seq.null_to_nan(salinity_seq, [1])
+
+        response = HttpResponse(content_type='text/csv')
+        stage_data.write_csv(merged_seq, response)
+
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))

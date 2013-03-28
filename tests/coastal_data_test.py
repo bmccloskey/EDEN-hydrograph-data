@@ -5,7 +5,7 @@ from dj_eden_app.data_params import DataParams
 import unittest
 import datetime
 
-class TestcoastalData(unittest.TestCase):
+class TestCoastalData(unittest.TestCase):
 
     def test_exists(self):
         self.assertTrue(coastal_data.has_coastal_data("G-3777", "salinity"))
@@ -16,7 +16,7 @@ class TestcoastalData(unittest.TestCase):
         self.assertTrue(coastal_data.has_coastal_data("EDEN_3", "salinity"))
         self.assertFalse(coastal_data.has_coastal_data("NONESUCH", "salinity"))
         self.assertFalse(coastal_data.has_coastal_data("EDEN_3", "random"))
-        self.assertFalse(coastal_data.has_coastal_data("EDEN_3", DataParams.rainfall)
+        self.assertFalse(coastal_data.has_coastal_data("EDEN_3", DataParams.rainfall))
 
     def test_query(self):
         q = coastal_data.coastal_query("Joe_Bay_2E", DataParams.temperature)

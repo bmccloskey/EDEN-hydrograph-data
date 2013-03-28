@@ -198,7 +198,11 @@ def write_csv(results, outfile, metadata=None):
     csv_writer = csv.writer(outfile)
     if metadata != None:
         csv_writer.writerow(metadata)
-    csv_writer.writerow(results.keys())
+    try:
+        csv_writer.writerow(results.keys())
+    except AttributeError:
+        pass
+
     # Iterate, because csv.writerows pulls up all rows to a list
     for r in results:
         csv_writer.writerow(r)
