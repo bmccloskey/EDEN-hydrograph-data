@@ -34,6 +34,9 @@ color: red;
 #param_form p {
  white-space: pre-wrap;
  }
+.gtablecell2 .button {
+    font-size: 18px; font-family: arial,helvetica,sans-serif;
+ }
  
 </style>
 {% endblock style %}
@@ -91,7 +94,14 @@ color: red;
 		</tr>
             <tr><th></th></tr>
 		<tr>
-            <td align="center" class="gtablecell2"><input name="hydrograph_query" type="submit" value="Update Graph" style="font-size: 18px; font-family: arial,helvetica,sans-serif;"></td>		
+            <td align="center" class="gtablecell2">
+                <input class="button" name="hydrograph_query" type="submit" value="Update Graph" />
+            </td>		
+        </tr>
+        <tr>
+            <td align="center" class="gtablecell2">
+                <input class="button" name="clear_form" type="submit" value="Clear Form" />
+            </td>       
         </tr>
            
 {% if plottables %}
@@ -99,7 +109,7 @@ color: red;
             <th></th>
         </tr>
         <tr class="pwtablehead">
-            <th>Download</th>
+            <th>Download Data</th>
         </tr>
         <tr class="pwtablehead">
             <th></th>
@@ -130,6 +140,12 @@ color: red;
 
 <div style="display: inline-block; margin-left: 10px; ">
 {% if plottables %}
+<script type="text/javascript">
+
+      var gg = [];
+      var blockRedraw = false;
+      var initialized = false;
+</script>
 
 {% for pt in plottables %}
 {% if pt.has_data %}
@@ -143,9 +159,24 @@ color: red;
            {
             ylabel: "{{ pt.label_y }}",
             xlabel: "{{ pt.label_x }}",
+            drawCallback: function(me, initial) {
+                if (blockRedraw || initial) return;
+                blockRedraw = true;
+                var range = me.xAxisRange();
+                for (var j = 0; j < gg.length; j++) {
+                  if (gg[j] == me) continue;
+                  gg[j].updateOptions( {
+                    dateWindow: range
+                  } );
+                }
+                blockRedraw = false;
+              },
+            
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
+         
+         gg.push(g_{{ pt.id }});
                   
     </script>
     {% else %}

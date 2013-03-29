@@ -49,6 +49,9 @@ def param_page(request):
     template_name = 'eve_params.html'
     param_form = DataParamForm()
 
+    if "clear_form" in request.REQUEST:
+        return render (request, template_name, {'param_form': param_form, })
+
     has_data = False
     # be careful about initial get with no parameters,
     # so we don't clobber the initial values
