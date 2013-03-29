@@ -314,7 +314,7 @@ def plot_image_simple(request):
         show_logo = decide_logo(request)
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate, show_logo=show_logo)
+        hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate, show_logo=show_logo, parameter=p, selected_gage=gage)
 
         return response
     else:

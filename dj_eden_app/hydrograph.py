@@ -19,6 +19,7 @@ except ImportError:
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
+from dj_eden_app.text_export import _generate_error_file
 
 import textwrap
 import logging
@@ -144,11 +145,22 @@ def _legend_for_line_styles(fig):
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
-def plot_simple(data, beginDate=None, endDate=None, show_logo=True):
+def create_simple_plot_title(parameter, gage):
+    parameter_title = parameter.title()
+    gage_title = gage.replace('_', ' ')
+    plot_title = '%s at %s' % (parameter_title, gage_title)
+    
+    return plot_title
+
+def plot_simple(data, parameter, selected_gage, beginDate=None, endDate=None, show_logo=True):
     "Plot a simple data series"
     f = figure()
 
     labels = data.keys()
+    
+    plot_title = create_simple_plot_title(parameter, selected_gage)
+    
+    f.suptitle(plot_title, y=0.9)
     variable = labels[1]
 
     if show_logo:
@@ -156,6 +168,8 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True):
 
     # left, bottom, width, height
     # ax1 = axes([0.1, 0.25, 0.8, 0.55])
+    
+    ax1 = axes([0.1, 0.25, 0.8, 0.55])
 
     xlabel('Date')
     if beginDate is not None:
@@ -173,6 +187,8 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True):
         yy.append(t[1])
 
     plot_date(xx, yy)
+    
+    f.subplots_adjust(bottom=0.2)
 
     return f
 
