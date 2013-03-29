@@ -79,23 +79,16 @@ a.footer:visited { color:#ffffff}
 
 /*Dygraphs will resize with the window upto certain limits*/
 #graph {
-	/*
-	position:relative;
-	left:10px;
-	right:0px;
-	top:10px;
-	bottom:300px;
-	min-width:500px;
-	min-height:400px;
-	max-height:600px;
-	*/
 	position:absolute;
 	left:375px;
 	right:350px;
-	top:290px;
+	top:310px;
 	bottom:300px;
 	min-width:500px;
 	min-height:400px;
 	max-height:600px;
+}
 
+.form_error {
+	color:#FF0000;
 }

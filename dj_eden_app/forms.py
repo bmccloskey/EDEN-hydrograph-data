@@ -1,4 +1,4 @@
-from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, DateInput, IntegerField, ChoiceField, Select, CheckboxSelectMultiple
+from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, DateInput, IntegerField, ChoiceField, Select, CheckboxSelectMultiple, ValidationError
 from models import Station
 import datetime
 from dj_eden_app.data_params import DataParams
@@ -30,6 +30,19 @@ class TimeSeriesFilterForm(Form):
                                     widget=SelectMultiple(attrs={'size':'20'}))
     max_count = IntegerField(required=False)
 
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        t_start = cleaned_data.get('timeseries_start')
+        t_end = cleaned_data.get('timeseries_end')
+        
+        if t_start != None and t_end != None:
+            if t_start > t_end:
+                raise ValidationError('Please enter a start date that precedes the end date.')
+        else:
+            pass
+        
+        return cleaned_data
+
 class DataParamForm(Form):
     stations = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
     param_choices = [ (v, string.capwords(v)) for v in DataParams()]
@@ -46,4 +59,3 @@ class DataParamForm(Form):
     params = MultipleChoiceField(choices=param_choices,
                                  required=True,
                                  widget=CheckboxSelectMultiple)
-
