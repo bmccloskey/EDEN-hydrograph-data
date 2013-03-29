@@ -45,8 +45,8 @@ color: red;
 <div style="white-space: nowrap;" id="content-block">
 <div class="form_input_field" style="vertical-align: top; display: inline-block; ">
 	<form name="param_query" id="param_form" method="GET" action="">{% csrf_token %}
-		{{ param_form.non_field_errors }}
-		{{ param_form.field_errors }}
+		<div class="form_error">{{ param_form.non_field_errors }}</div>
+		<div class="form_error">{{ param_form.field_errors }}</div>
 		<table width="150"  border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
 		<tbody>
             <tr class="grtablehead">
