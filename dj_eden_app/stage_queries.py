@@ -7,6 +7,8 @@ from dj_eden_app.models import Station
 
 
 def station_dict(gages):
+    # darn that Unicode...
+    gages = map(str, gages)
     # pull station name list up to Station objects
     stations = Station.objects.filter(station_name_web__in=gages)
     # and make a dictionary mapping names back to stations

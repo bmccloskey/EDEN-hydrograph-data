@@ -151,11 +151,6 @@ def write_rdb(results, outfile, metadata=[]):
         type_codes = len(results.keys()) * ["12s"]
     csv_writer.writerow(type_codes)
 
-    # TODO write RDB type row like 5s,10n,12s...
-    # s for string
-    # n for number
-    # d for date
-
     # Iterate, because csv.writerows pulls up all rows to a list
     for r in results:
         csv_writer.writerow(r)

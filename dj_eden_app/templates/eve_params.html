@@ -19,10 +19,6 @@
 {% block style %}
 <style type="text/css">
 
-{% for c in color_list %}
-.color_{{ forloop.counter0 }} { color: {{ c }} !important; }
-{% endfor %}
-
 .grtableerr {
 background-color: white;
 color: red;
@@ -122,7 +118,7 @@ color: red;
             <td class="gtablecell">
             
             {% for pt in plottables %}
-                - <a href="{{ pt.data_url }}">{{ pt.label_y }}</a> (<a href="{{ pt.image_url_hq }}">image</a>)<br />
+                - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a> (<a href="{{ pt.image_url_hq }}">image</a>)<br />
             {% endfor %}
             </td>
         </tr>
@@ -146,6 +142,7 @@ color: red;
       var blockRedraw = false;
       var initialized = false;
 </script>
+<h2>{{ plottables.0.title }}</h2>
 
 {% for pt in plottables %}
 {% if pt.has_data %}
@@ -174,8 +171,8 @@ color: red;
                 }
                 blockRedraw = false;
               },
-            
-            drawPoints: true   // Look, no trailing comma; make IE happy.
+              // title: "{{ pt.title }}",
+              drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
          
