@@ -299,6 +299,27 @@ def plot_image_auto(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
+def plot_image_simple(request):
+    form = DataParamForm(request.GET)
+
+    if form.is_valid():
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+        gage = form.cleaned_data['site_list']
+        p = form.cleaned_data['params'][0]
+
+        pt = Plottable(gage, p, beginDate, endDate)
+        data_seq = pt.sequence()
+
+        show_logo = decide_logo(request)
+        response = HttpResponse(content_type='image/png')
+
+        hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate, show_logo=show_logo)
+
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
 def decide_logo(request):
         show_logo = _default_show_logo
         if 'no_logo' in request.REQUEST:

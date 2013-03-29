@@ -144,6 +144,38 @@ def _legend_for_line_styles(fig):
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
+def plot_simple(data, beginDate=None, endDate=None, show_logo=True):
+    "Plot a simple data series"
+    f = figure()
+
+    labels = data.keys()
+    variable = labels[1]
+
+    if show_logo:
+        logo(f)
+
+    # left, bottom, width, height
+    # ax1 = axes([0.1, 0.25, 0.8, 0.55])
+
+    xlabel('Date')
+    if beginDate is not None:
+        xlim(xmin=beginDate)
+    if endDate is not None:
+        xlim(xmax=endDate)
+    xticks(rotation=90)
+
+    ylabel(variable)
+
+    xx = []
+    yy = []
+    for t in data:
+        xx.append(t[0])
+        yy.append(t[1])
+
+    plot_date(xx, yy)
+
+    return f
+
 def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_elevation=None, ngvd29_correction=None, show_logo=True):
     f = figure()
 
@@ -244,6 +276,10 @@ _line_styles = ["-d", ":+", ":^"]
 
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
+
+def png_simple(data, outfile, **kwargs):
+    fig = plot_simple(data, **kwargs)
+    savefig(outfile, format="png", dpi=fig.dpi)
 
 def png(data, outfile, **kwargs):
     if len(data) == 1:
