@@ -41,6 +41,20 @@ class Plottable(object):
 
         return url
 
+    def image_url(self, logo=False):
+        base = reverse("plot_image_simple")
+        url = base + "?" + "site_list=" + self.gage_name + "&" + "params=" + self.param
+        if self.beginDate:
+            url += "&timeseries_start=" + str(self.beginDate)
+        if self.endDate:
+            url += "&timeseries_end=" + str(self.endDate)
+        if not logo:
+            url += "&no_logo"
+        return url
+
+    def image_url_hq(self):
+        return self.image_url(logo=True)
+
     def label_x(self):
         return "Date"
 

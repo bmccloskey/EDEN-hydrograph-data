@@ -122,7 +122,7 @@ color: red;
             <td class="gtablecell">
             
             {% for pt in plottables %}
-                - <a href="{{ pt.data_url }}">{{ pt.label_y }}</a><br />
+                - <a href="{{ pt.data_url }}">{{ pt.label_y }}</a> (<a href="{{ pt.image_url_hq }}">image</a>)<br />
             {% endfor %}
             </td>
         </tr>
@@ -149,8 +149,11 @@ color: red;
 
 {% for pt in plottables %}
 {% if pt.has_data %}
-    <div id="graph_{{ pt.id }}"></div>
-        
+    <div id="graph_{{ pt.id }}">
+        <noscript>
+                <img id="eden_plot" src="{{ pt.image_url }}" />
+        </noscript>
+    </div>
     <script type="text/javascript">
 
          var g_{{ pt.id }} = new Dygraph(
