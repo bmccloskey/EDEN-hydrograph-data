@@ -174,6 +174,7 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
 
     ylabel(y_label)
 
+    # TODO Consider using numpy arrays for better performance
     xx = []
     yy = []
     for t in data:
