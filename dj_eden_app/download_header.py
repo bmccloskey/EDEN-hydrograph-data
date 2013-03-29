@@ -51,7 +51,7 @@ def convert_dms_string_to_decimal(geo_tuple):
     return display_number
 
 
-def create_metadata_header(message, contact, header_end, query_info, param_qs):
+def create_metadata_header(message, contact, header_end, query_info, param_qs, water_level=True):
     '''
     Generates the header for data downloads. This not
     in NWIS RDB format, but will provide the same information.
@@ -71,18 +71,18 @@ def create_metadata_header(message, contact, header_end, query_info, param_qs):
     header_list.append(download_time)
 
     header_list.append('Sites and USGS parameters:')
+    if water_level == True:
+        for qs_object in param_qs:
+            site_name = qs_object.station_name_web
+            p_code = qs_object.param
+            site_name_display = site_name.encode('utf-8').replace('_', ' ')
+            p_code_display = p_code.encode('utf-8')
+            site_p_string = 'Station Name: %s, USGS Parameter Code: %s' % (site_name_display, p_code_display)
+            header_list.append(site_p_string)
 
-    for qs_object in param_qs:
-        site_name = qs_object.station_name_web
-        p_code = qs_object.param
-        site_name_display = site_name.encode('utf-8').replace('_', ' ')
-        p_code_display = p_code.encode('utf-8')
-        site_p_string = 'Station Name: %s, USGS Parameter Code: %s' % (site_name_display, p_code_display)
-        header_list.append(site_p_string)
-
-    usgs_p_codes = 'USGS parameter codes can be searched at: http://nwis.waterdata.usgs.gov/usa/nwis/pmcodes.'
-    header_list.append(usgs_p_codes)
-    header_list.append("Note: all depth measurements have been converted to feet below NAVD88")
+            usgs_p_codes = 'USGS parameter codes can be searched at: http://nwis.waterdata.usgs.gov/usa/nwis/pmcodes.'
+            header_list.append(usgs_p_codes)
+            header_list.append("Note: all depth measurements have been converted to feet below NAVD88")
 
     query_info_list = query_info.items()
     for element in query_info_list:

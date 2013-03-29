@@ -15,7 +15,7 @@ _logger = logging.getLogger(__name__)
 import dj_eden_app.stage_data as stage_data
 import dj_eden_app.hydrograph as hydrograph
 from dj_eden_app.download_header import create_metadata_header
-from dj_eden_app.eden_headers import HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER
+from dj_eden_app.eden_headers import HEADER_MESSAGE, GENERAL_MESSAGE, EDEN_CONTACT, END_OF_HEADER
 
 _default_show_logo = not 'windows' in sys.platform
 
@@ -155,7 +155,7 @@ def param_rdb_download(request):
 
         # fifth parameter to create_metadata_header is list of Station objects
         station_list = stage_queries.station_list([gage])
-        query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_list)
+        query_metadata_list = create_metadata_header(GENERAL_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_list, water_level=False)
 
         response = HttpResponse(content_type='text/csv')
         stage_data.write_rdb(data_seq, response, metadata=query_metadata_list)
@@ -347,7 +347,6 @@ def plot_image_simple(request):
 
         response = HttpResponse(content_type='image/png')
 
-        hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate, show_logo=show_logo, parameter=p, selected_gage=gage)
         hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate,
                               show_logo=show_logo, title=title, y_label=pt.label_y())
 
