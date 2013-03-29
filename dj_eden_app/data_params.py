@@ -1,4 +1,5 @@
-class DataParams:
+
+class DataParams(object):
 
     stage = "stage"
     salinity = "salinity"

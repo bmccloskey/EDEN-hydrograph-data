@@ -17,7 +17,7 @@ urlpatterns = patterns('',
                        url(r'^hourly_data_download$', data_views.hourly_download),
                        url(r'^data_download$', data_views.timeseries_csv_download),
                        url(r'^plot_data_multiparam$', data_views.plot_data_multiparam),
-                       url(r'^param_data_download', data_views.param_data_download),
+                       url(r'^param_data_download', data_views.param_data_download, name="param_data_download"),
 
                        url(r'^eden-base.html$', page_views.eden_base_page),
                        url(r'^timeseries/?$', page_views.eden_page, name='eden_timeseries'),

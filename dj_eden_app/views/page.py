@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from django.conf import settings
+from dj_eden_app.plottable import Plottable, NoData
 
 import json
 
@@ -66,9 +67,19 @@ def param_page(request):
                 if v:
                     plot_params[k] = v
 
-            plot_query_str = urllib.urlencode(plot_params, doseq=True);
-            render_params = {'query_form': param_form,
-                             'plot_params': mark_safe(plot_query_str),
+            kwargs = {
+                      'beginDate' : param_form.cleaned_data['timeseries_start'],
+                      'endDate'   : param_form.cleaned_data['timeseries_end']
+                      }
+
+            plottables = []
+            for g in [param_form.cleaned_data['site_list']]:
+                for p in param_form.cleaned_data['params']:
+                    pt = Plottable(g, p, **kwargs)
+                    plottables.append(pt)
+
+            render_params = {'param_form': param_form,
+                             'plottables': plottables,
                              }
             return render (request, template_name, render_params)
 
