@@ -2,8 +2,9 @@
 from django.http import HttpResponse, HttpResponseBadRequest
 
 from dj_eden_app.models import Station
-from dj_eden_app.forms import TimeSeriesFilterForm
-import dj_eden_app.data_queries as data_queries
+from dj_eden_app.forms import TimeSeriesFilterForm, DataParamForm
+import dj_eden_app.stage_queries as stage_queries
+from dj_eden_app.plottable import Plottable
 
 import logging
 import sys
@@ -54,12 +55,12 @@ def hourly_download(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.hourly_query(*station_dict.values())
+        q, dt = stage_queries.hourly_query(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -85,12 +86,12 @@ def daily_download(request):
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.daily_query(*station_dict.values())
+        q, dt = stage_queries.daily_query(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -117,7 +118,7 @@ def plot_data(request):
         gages = form.cleaned_data['site_list']
         _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
@@ -133,6 +134,29 @@ def plot_data(request):
                                         )
 
         stage_data.write_csv_for_plot(results=data, outfile=response)
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def param_data_download(request):
+    return plot_data_multiparam(request)
+
+def plot_data_multiparam(request):
+    form = DataParamForm(request.GET)
+    if form.is_valid():
+        _logger.info("requested plot data for %s with params %s" % (form.cleaned_data['site_list'], form.cleaned_data['params']))
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+        gage = form.cleaned_data['site_list']
+        p = form.cleaned_data['params'][0]
+
+        pt = Plottable(gage, p, beginDate, endDate)
+        data_seq = pt.sequence()
+
+        response = HttpResponse(content_type='text/csv')
+        stage_data.write_csv(data_seq, response)
+
         return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
@@ -159,12 +183,12 @@ def plot_data_hourly(request):
         gages = form.cleaned_data['site_list']
         _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.hourly_query_split(*station_dict.values())
+        q, dt = stage_queries.hourly_query_split(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -189,12 +213,12 @@ def plot_data_daily(request):
         gages = form.cleaned_data['site_list']
         _logger.info("plot_data, gages is %s" % (gages))
 
-        station_dict = data_queries.station_dict(gages)
+        station_dict = stage_queries.station_dict(gages)
 
         beginDate = form.cleaned_data["timeseries_start"]
         endDate = form.cleaned_data["timeseries_end"]
 
-        q, dt = data_queries.daily_query_split(*station_dict.values())
+        q, dt = stage_queries.daily_query_split(*station_dict.values())
         if beginDate:
             q = q.where(dt >= beginDate)
         if endDate:
@@ -215,11 +239,11 @@ def plot_data_daily(request):
 def _daily_plot_data(form):
     gages = form.cleaned_data['site_list']
     _logger.info("plot_data, gages is %s" % (gages))
-    station_dict = data_queries.station_dict(gages)
+    station_dict = stage_queries.station_dict(gages)
     station1 = station_dict.values()[0]
     beginDate = form.cleaned_data["timeseries_start"]
     endDate = form.cleaned_data["timeseries_end"]
-    q, dt = data_queries.daily_query_split(*station_dict.values())
+    q, dt = stage_queries.daily_query_split(*station_dict.values())
     if beginDate:
         q = q.where(dt >= beginDate)
     if endDate:
@@ -230,12 +254,12 @@ def _daily_plot_data(form):
 def _hourly_plot_data(form):
     gages = form.cleaned_data['site_list']
     _logger.info("plot_data, gages is %s" % (gages))
-    station_dict = data_queries.station_dict(gages)
+    station_dict = stage_queries.station_dict(gages)
     station1 = station_dict.values()[0]
 
     beginDate = form.cleaned_data["timeseries_start"]
     endDate = form.cleaned_data["timeseries_end"]
-    q, dt = data_queries.hourly_query_split(*station_dict.values())
+    q, dt = stage_queries.hourly_query_split(*station_dict.values())
     if beginDate:
         q = q.where(dt >= beginDate)
     if endDate:
@@ -272,6 +296,27 @@ def plot_image_auto(request):
                 return plot_image_daily_single(request)
             else:
                 return plot_image_daily_multi(request)
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def plot_image_simple(request):
+    form = DataParamForm(request.GET)
+
+    if form.is_valid():
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+        gage = form.cleaned_data['site_list']
+        p = form.cleaned_data['params'][0]
+
+        pt = Plottable(gage, p, beginDate, endDate)
+        data_seq = pt.sequence()
+
+        show_logo = decide_logo(request)
+        response = HttpResponse(content_type='image/png')
+
+        hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate, show_logo=show_logo)
+
+        return response
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 

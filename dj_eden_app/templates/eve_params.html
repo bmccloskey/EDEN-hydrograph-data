@@ -1,0 +1,199 @@
+{% extends "eden-base.html" %}
+
+{% block ie_hack %}
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
+    <!--[if IE]>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
+    <![endif]-->
+{% endblock ie_hack %}
+
+{% block title %}EDEN Multi-parameter Data{% endblock title %}
+
+{% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
+
+{% block script %}
+	<script type="text/javascript"
+	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+{% endblock script %}
+
+{% block style %}
+<style type="text/css">
+
+{% for c in color_list %}
+.color_{{ forloop.counter0 }} { color: {{ c }} !important; }
+{% endfor %}
+
+.grtableerr {
+background-color: white;
+color: red;
+}
+#param_form ul {
+ list-style-type: none;
+ display: inline-block;
+}
+#param_form p {
+ white-space: pre-wrap;
+ }
+.gtablecell2 .button {
+    font-size: 18px; font-family: arial,helvetica,sans-serif;
+ }
+ 
+</style>
+{% endblock style %}
+
+{% block content %}
+<div style="white-space: nowrap;" id="content-block">
+<div class="form_input_field" style="vertical-align: top; display: inline-block; ">
+	<form name="param_query" id="param_form" method="GET" action="">{% csrf_token %}
+		{{ param_form.non_field_errors }}
+		{{ param_form.field_errors }}
+		<table width="150"  border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
+		<tbody>
+            <tr class="grtablehead">
+                <th>Data</th>
+            </tr>
+            <tr>
+                <td align="left" class="gtablecell" valign="top">
+                    <label for="{{ param_form.timeseries_start.html_name }}"><strong>Start: </strong></label>{{ param_form.timeseries_start }}<br />
+                    <label for="{{ param_form.timeseries_end.html_name }}"><strong>End: </strong></label>{{ param_form.timeseries_end }}<br />
+                </td>
+            </tr>
+                      
+            <tr class="grtablehead">
+                <th><label for="{{ param_form.site_list.html_name }}">Site List</label></th>
+            </tr>
+            <tr class="gtablecell2">
+                <td style="font-size: 75%;" align="center"><p>Select a single gage and one or more parameters to view.</p></td>
+            </tr>
+{% if param_form.site_list.errors %}
+            <tr>
+                <td class="grtableerr">
+                    {{ param_form.site_list.errors }}
+                </td>
+            </tr>
+{% endif %}
+		    <tr>
+                <td align="center" class="gtablecell">
+				{{ param_form.site_list }}	
+                </td>
+            </tr>
+            <tr class="grtablehead">
+                <th><label for="{{ param_form.params.html_name }}">Parameter Selection</label></th>
+            </tr>
+{% if param_form.params.errors %}
+        <tr>
+            <td class="grtableerr">
+          {{ param_form.params.errors }}
+         </td>
+         </tr>
+{% endif %}
+		<tr>
+		  <td class="gtablecell">
+		  {{ param_form.params }}
+		  </td>
+		</tr>
+            <tr><th></th></tr>
+		<tr>
+            <td align="center" class="gtablecell2">
+                <input class="button" name="hydrograph_query" type="submit" value="Update Graph" />
+            </td>		
+        </tr>
+        <tr>
+            <td align="center" class="gtablecell2">
+                <input class="button" name="clear_form" type="submit" value="Clear Form" />
+            </td>       
+        </tr>
+           
+{% if plottables %}
+        <tr class="pwtablehead">
+            <th></th>
+        </tr>
+        <tr class="pwtablehead">
+            <th>Download Data</th>
+        </tr>
+        <tr class="pwtablehead">
+            <th></th>
+        </tr>
+        <tr class="gtablecell2">
+            <td style="font-size: 75%;" align="center">(for station {{ plottables.0.gage_name }})</td>
+        </tr>
+        
+		<tr>
+            <td class="gtablecell">
+            
+            {% for pt in plottables %}
+                - <a href="{{ pt.data_url }}">{{ pt.label_y }}</a> (<a href="{{ pt.image_url_hq }}">image</a>)<br />
+            {% endfor %}
+            </td>
+        </tr>
+{% else %}
+        <tr>
+            <td>
+                <p>After site selection and update, data download will be available here.</p>
+            </td>
+        </tr>
+{% endif %}
+
+		</table>
+	</form>
+</div>
+
+<div style="display: inline-block; margin-left: 10px; ">
+{% if plottables %}
+<script type="text/javascript">
+
+      var gg = [];
+      var blockRedraw = false;
+      var initialized = false;
+</script>
+
+{% for pt in plottables %}
+{% if pt.has_data %}
+    <div id="graph_{{ pt.id }}">
+        <noscript>
+                <img id="eden_plot" src="{{ pt.image_url }}" />
+        </noscript>
+    </div>
+    <script type="text/javascript">
+
+         var g_{{ pt.id }} = new Dygraph(
+           document.getElementById("graph_{{ pt.id }}"),
+           "{{ pt.data_url|safe }}",
+           {
+            ylabel: "{{ pt.label_y }}",
+            xlabel: "{{ pt.label_x }}",
+            drawCallback: function(me, initial) {
+                if (blockRedraw || initial) return;
+                blockRedraw = true;
+                var range = me.xAxisRange();
+                for (var j = 0; j < gg.length; j++) {
+                  if (gg[j] == me) continue;
+                  gg[j].updateOptions( {
+                    dateWindow: range
+                  } );
+                }
+                blockRedraw = false;
+              },
+            
+            drawPoints: true   // Look, no trailing comma; make IE happy.
+           }          // options
+         );
+         
+         gg.push(g_{{ pt.id }});
+                  
+    </script>
+    {% else %}
+    <div class="no-data" id="graph_{{ pt.id }}">
+    <p>
+    No {{ pt.label_y }} data available for {{ pt.gage_name }}.
+    </p>
+    </div>
+    {% endif %}
+{% endfor %}
+
+{% else %}
+	   <p>After site selection, a graph will be displayed here.</p>
+{% endif %}
+
+</div>
+{% endblock content %}

@@ -1,6 +1,8 @@
-from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, DateInput, IntegerField, ValidationError
+from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, DateInput, IntegerField, ChoiceField, Select, CheckboxSelectMultiple, ValidationError
 from models import Station
 import datetime
+from dj_eden_app.data_params import DataParams
+import string
 
 def convert_qs_to_list_of_tuples(qs):
     """
@@ -15,15 +17,15 @@ def convert_qs_to_list_of_tuples(qs):
 
 class TimeSeriesFilterForm(Form):
 
-    queryset = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
+    stations = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
     today = datetime.date.today()
     timeseries_start = DateField(required=False,
-                                 initial=today.replace(year=today.year - 1),
+                                 initial=today.replace(month=today.month - 1),
                                  widget=DateInput(attrs={"size":"10"}))
     timeseries_end = DateField(required=False,
                                initial=today,
                                widget=DateInput(attrs={"size":"10"}))
-    site_list = MultipleChoiceField(choices=convert_qs_to_list_of_tuples(queryset),
+    site_list = MultipleChoiceField(choices=convert_qs_to_list_of_tuples(stations),
                                     required=True,
                                     widget=SelectMultiple(attrs={'size':'20'}))
     max_count = IntegerField(required=False)
@@ -40,5 +42,20 @@ class TimeSeriesFilterForm(Form):
             pass
         
         return cleaned_data
- 
-            
+
+class DataParamForm(Form):
+    stations = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
+    param_choices = [ (v, string.capwords(v)) for v in DataParams()]
+    today = datetime.date.today()
+    timeseries_start = DateField(required=False,
+                                 initial=today.replace(month=today.month - 1),
+                                 widget=DateInput(attrs={"size":"10"}))
+    timeseries_end = DateField(required=False,
+                               initial=today,
+                               widget=DateInput(attrs={"size":"10"}))
+    site_list = ChoiceField(choices=convert_qs_to_list_of_tuples(stations),
+                                    required=True,
+                                    widget=Select(attrs={'size':'20'}))
+    params = MultipleChoiceField(choices=param_choices,
+                                 required=True,
+                                 widget=CheckboxSelectMultiple)

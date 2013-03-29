@@ -3,14 +3,16 @@
 
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
-import dj_eden_app.data_queries as data_queries
+import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from django.conf import settings
+from dj_eden_app.plottable import Plottable, NoData
 
 import json
 
 # from .. models import Station
-from .. forms import TimeSeriesFilterForm
+from .. forms import TimeSeriesFilterForm, DataParamForm
+
 import logging
 
 # Get an instance of a logger
@@ -42,6 +44,54 @@ def to_js_array(seq):
 def eden_base_page(request):
     render_params = {'EDEN_URL': settings.EDEN_URL }
     return render(request, 'eden-base.html', render_params)
+
+def param_page(request):
+    template_name = 'eve_params.html'
+    param_form = DataParamForm()
+
+    if "clear_form" in request.REQUEST:
+        return render (request, template_name, {'param_form': param_form, })
+
+    has_data = False
+    # be careful about initial get with no parameters,
+    # so we don't clobber the initial values
+    if request.method == 'GET' and request.GET :
+        param_form = DataParamForm(request.GET)
+        has_data = True
+    elif request.method == 'POST':
+        param_form = DataParamForm(request.POST)
+        has_data = True
+
+    if has_data:
+        if param_form.is_valid():
+            # Avoid the troublesome Nones.
+            plot_params = {}
+            for k, v in param_form.cleaned_data.items():
+                if v:
+                    plot_params[k] = v
+
+            kwargs = {
+                      'beginDate' : param_form.cleaned_data['timeseries_start'],
+                      'endDate'   : param_form.cleaned_data['timeseries_end']
+                      }
+
+            plottables = []
+            for g in [param_form.cleaned_data['site_list']]:
+                for p in param_form.cleaned_data['params']:
+                    pt = Plottable(g, p, **kwargs)
+                    plottables.append(pt)
+
+            render_params = {'param_form': param_form,
+                             'plottables': plottables,
+                             }
+            return render (request, template_name, render_params)
+
+            pass
+        else:
+            # error...
+            return render (request, template_name, {'param_form': param_form, })
+
+    return render (request, template_name, {'param_form': param_form, })
 
 def eden_page(request):
     """
@@ -106,7 +156,7 @@ def eden_page(request):
                                                    #'EDEN_URL': settings.EDEN_URL,
 			}
             if len(gages) == 1:
-                station = data_queries.station_list(gages)[0]
+                station = stage_queries.station_list(gages)[0]
                 render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
                 render_params['dry_elevation'] = station.dry_elevation or "null"
                 render_params['ground_elevation'] = station.duration_elevation or "null"

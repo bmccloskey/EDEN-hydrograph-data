@@ -2,7 +2,6 @@ from sqlalchemy import *
 from secure import DB_HOST, DB_PASSWORD, DB_SCHEMA, DB_USER
 from sqlalchemy.sql import *
 from sqlalchemy.sql.functions import GenericFunction, min, max
-from seq import prepend
 from dj_eden_app.gap_fill import gap_fill_by_3
 
 import csv
@@ -56,7 +55,7 @@ def _columns(gage, station):
     return (data_col, flag_col, data_corrected)
 
 def _query_for_plot(stations, beginDate=None, endDate=None, maxCount=None, station_dict={}):
-    # TODO Use queries from data_queries, separating daily and hourly
+    # TODO Use queries from stage_queries, separating daily and hourly
     sel = select([stage.c.datetime]).order_by(stage.c.datetime)
 
     # make the world safe for simple calls like _query_for_plot("2A300")
@@ -191,6 +190,22 @@ def write_csv_for_plot(results, outfile, metadata=None, column_name=None):
             # have to convert to tuple because RowProxy does not support +
             csv_writer.writerow(tuple(r) + extra)
 
+def write_csv(results, outfile, metadata=None):
+    '''
+    Writes a csv file to the specified outfile file-like object.
+    '''
+
+    csv_writer = csv.writer(outfile)
+    if metadata != None:
+        csv_writer.writerow(metadata)
+    try:
+        csv_writer.writerow(results.keys())
+    except AttributeError:
+        pass
+
+    # Iterate, because csv.writerows pulls up all rows to a list
+    for r in results:
+        csv_writer.writerow(r)
 
 if __name__ == "__main__":
 

@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.safestring import mark_safe
 
-from forms import TimeSeriesFilterForm
+from forms import TimeSeriesFilterForm, DataParamForm
 
 import stage_data
 import exceptions
@@ -80,6 +80,7 @@ def plot_image(request):
     else:
         return HttpResponseBadRequest(form.errors)
 
+
 def eden_page(request):
     """
     Allows a user to select a site,
@@ -110,7 +111,7 @@ def eden_page(request):
                 str_tstart = '%s' % query_form.cleaned_data['timeseries_start']
             else:
                 str_tstart = None
-                
+
             if query_form.cleaned_data['timeseries_end']:
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
             else:
