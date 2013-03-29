@@ -1,4 +1,4 @@
-from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, DateInput, IntegerField
+from django.forms import Form, DateField, MultipleChoiceField, SelectMultiple, DateInput, IntegerField, ValidationError
 from models import Station
 import datetime
 
@@ -27,3 +27,18 @@ class TimeSeriesFilterForm(Form):
                                     required=True,
                                     widget=SelectMultiple(attrs={'size':'20'}))
     max_count = IntegerField(required=False)
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        t_start = cleaned_data.get('timeseries_start')
+        t_end = cleaned_data.get('timeseries_end')
+        
+        if t_start != None and t_end != None:
+            if t_start > t_end:
+                raise ValidationError('Please enter a start date that precedes the end date.')
+        else:
+            pass
+        
+        return cleaned_data
+ 
+            
