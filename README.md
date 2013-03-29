@@ -18,7 +18,7 @@ Certain files will need to be created before the application can be run. These f
 
 2. secure.py  
 
-	a. Copy the 'secure_template.py' file to "secure.py" and correct the database credentials in the copy.
+	a. Copy the 'secure_template.py' file to "secure.py" and correct the database credentials in the copy. This file can be kept its current directory location.
 
 Remember, don't check any security credentials (passwords, user names, private URLs) in to version control.
 
