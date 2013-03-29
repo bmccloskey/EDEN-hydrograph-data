@@ -6,6 +6,7 @@ Created on Mar 4, 2013
 import matplotlib
 import django.conf
 import os.path
+import numpy
 
 matplotlib.use('Cairo')
 
@@ -54,8 +55,9 @@ def plot_multi(data, beginDate, endDate, show_logo=True):
 
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
-    if beginDate != None and endDate != None:
-        xlim(xmin=beginDate, xmax=endDate)
+    # xlim handles None gracefully
+    xlim(beginDate, endDate)
+
     # axhline(y = 0.5) could be used for depicting ground elevation
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
@@ -166,22 +168,26 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
     grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
 
     xlabel('Date')
-    if beginDate is not None:
-        xlim(xmin=beginDate)
-    if endDate is not None:
-        xlim(xmax=endDate)
+
+    xlim(beginDate, endDate)
+
     xticks(rotation=90)
 
     ylabel(y_label)
 
-    # TODO Consider using numpy arrays for better performance
-    xx = []
-    yy = []
-    for t in data:
-        xx.append(t[0])
-        yy.append(t[1])
+    # Try to use numpy arrays for better performance
+    try:
+        as_array = numpy.array(data.fetchall())
+        plot_date(as_array[:, 0], as_array[:, 1], linestyle="-", marker=".", markersize=2.5)
+    except AttributeError:
+        _logger.info("Not able to use numpy array")
+        xx = []
+        yy = []
+        for t in data:
+            xx.append(t[0])
+            yy.append(t[1])
 
-    plot_date(xx, yy, linestyle="-", marker=".", markersize=2.5)
+        plot_date(xx, yy, linestyle="-", marker=".", markersize=2.5)
 
     return f
 
@@ -200,8 +206,8 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
-    if beginDate != None and endDate != None:
-        xlim(xmin=beginDate, xmax=endDate)
+    xlim(beginDate, endDate)
+
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=90)

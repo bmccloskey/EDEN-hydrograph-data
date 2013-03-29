@@ -149,7 +149,7 @@ def param_rdb_download(request):
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
 
-        station_list = stage_queries.station_list([str(gage)])
+        station_list = stage_queries.station_list([gage])
         pt = Plottable(station_list[0], p, beginDate, endDate)
         data_seq = pt.sequence()
 
@@ -334,7 +334,7 @@ def plot_image_simple(request):
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
 
-        station_list = stage_queries.station_list([str(gage)])
+        station_list = stage_queries.station_list([gage])
         pt = Plottable(station_list[0], p, beginDate, endDate)
 
         data_seq = pt.sequence()
