@@ -2,3 +2,4 @@ play
 secure.py
 *.pyc
 .pydevproject
+/secret_key.py

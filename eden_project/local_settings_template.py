@@ -7,6 +7,7 @@
 
 import os.path
 import secure
+import secret_key
 
 PROJECT_HOME = os.path.dirname(__file__)
 SITE_HOME = os.path.join(PROJECT_HOME, "..")
@@ -25,7 +26,7 @@ DATABASES = {
         'USER': secure.DB_USER,  # Not used with sqlite3.
         'PASSWORD': secure.DB_PASSWORD,  # Not used with sqlite3.
         'HOST': secure.DB_HOST,  # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '3306',  # Set to empty string for default. Not used with sqlite3.
+        'PORT': '',  # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -83,5 +84,5 @@ STATICFILES_FINDERS = (
 MATPLOTLIB_WORK_DIR = "/tmp/matplotlib"
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = secure.DJ_SECRET_KEY
+SECRET_KEY = secret_key.SECRET_KEY
 
