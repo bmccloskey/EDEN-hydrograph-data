@@ -1,8 +1,9 @@
 from django.core.urlresolvers import reverse
 from dj_eden_app.data_params import DataParams
-from dj_eden_app.models import Station
 from dj_eden_app.coastal_data import coastal_seq
 from dj_eden_app.rainfall_data import rainfall_seq
+
+import string
 
 class NoData(Exception):
     def __init__(self, gage, param):
@@ -17,9 +18,9 @@ class Plottable(object):
     """
     def __init__(self, station=None, param=None, beginDate=None, endDate=None):
         self.station = station
-        if isinstance(station, Station):
+        try:
             self.gage_name = station.station_name_web
-        else:
+        except AttributeError:
             self.gage_name = str(station)
         self.param = param
         self.beginDate = beginDate
@@ -33,6 +34,16 @@ class Plottable(object):
 
     def data_url(self):
         base = reverse("param_data_download")
+        url = base + "?" + "site_list=" + self.gage_name + "&" + "params=" + self.param
+        if self.beginDate:
+            url += "&timeseries_start=" + str(self.beginDate)
+        if self.endDate:
+            url += "&timeseries_end=" + str(self.endDate)
+
+        return url
+
+    def rdb_url(self):
+        base = reverse("param_rdb_download")
         url = base + "?" + "site_list=" + self.gage_name + "&" + "params=" + self.param
         if self.beginDate:
             url += "&timeseries_start=" + str(self.beginDate)
@@ -60,6 +71,17 @@ class Plottable(object):
 
     def label_y(self):
         return str(self.param).capitalize()
+
+    def title(self):
+        try:
+            name = self.station.short_name
+        except AttributeError:
+            name = self.gage_name
+        name = name.replace("_", " ")
+        name = string.capwords(name)
+
+        # TODO Perhaps add date params?
+        return name
 
     def has_data(self):
         # TODO Make this less wasteful

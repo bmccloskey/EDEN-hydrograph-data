@@ -76,9 +76,10 @@ def param_page(request):
                       }
 
             plottables = []
-            for g in [param_form.cleaned_data['site_list']]:
+            station_list = stage_queries.station_list([param_form.cleaned_data['site_list']])
+            for s in station_list:
                 for p in param_form.cleaned_data['params']:
-                    pt = Plottable(g, p, **kwargs)
+                    pt = Plottable(s, p, **kwargs)
                     plottables.append(pt)
 
             render_params = {'param_form': param_form,
@@ -144,7 +145,7 @@ def eden_page(request):
             colors = ColorRange(count=len(gages))
 
             _logger.debug("In page generation, colors = %s", list(colors))
-            
+
             try:
                 eden_url = settings.EDEN_URL
             except AttributeError:

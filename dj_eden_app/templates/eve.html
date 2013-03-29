@@ -23,6 +23,10 @@
 .color_{{ forloop.counter0 }} { color: {{ c }} !important; }
 {% endfor %}
 
+#hydrograph_form p {
+ white-space: pre-wrap;
+ }
+
 </style>
 {% endblock style %}
 
@@ -48,7 +52,7 @@
                 <th><label for="{{ query_form.site_list.html_name }}">Site List</label></th>
             </tr>
             <tr class="gtablecell2">
-                <td style="font-size: 75%;" align="center">Select multiple gages by<br>holding the control (PC)<br>or command (Mac) key.</td>
+                <td style="font-size: 75%;" align="center"><p>Select multiple gages by<br>holding the control (PC)<br>or command (Mac) key.</p></td>
             </tr>
 		    <tr>
                 <td align="center" class="gtablecell">
