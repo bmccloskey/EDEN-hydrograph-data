@@ -145,31 +145,27 @@ def _legend_for_line_styles(fig):
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
-def create_simple_plot_title(parameter, gage):
-    parameter_title = parameter.title()
-    gage_title = gage.replace('_', ' ')
-    plot_title = '%s at %s' % (parameter_title, gage_title)
-    
-    return plot_title
-
-def plot_simple(data, parameter, selected_gage, beginDate=None, endDate=None, show_logo=True):
+def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, y_label=None):
     "Plot a simple data series"
     f = figure()
 
     labels = data.keys()
-    
-    plot_title = create_simple_plot_title(parameter, selected_gage)
-    
-    f.suptitle(plot_title, y=0.9)
-    variable = labels[1]
+    if not y_label:
+        y_label = labels[1]
 
     if show_logo:
         logo(f)
 
+    axes([0.1, 0.25, 0.8, 0.55])
+
+    if title:
+        f.suptitle(title, y=0.9)
+
     # left, bottom, width, height
     # ax1 = axes([0.1, 0.25, 0.8, 0.55])
     
-    ax1 = axes([0.1, 0.25, 0.8, 0.55])
+
+    grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
 
     xlabel('Date')
     if beginDate is not None:
@@ -178,7 +174,7 @@ def plot_simple(data, parameter, selected_gage, beginDate=None, endDate=None, sh
         xlim(xmax=endDate)
     xticks(rotation=90)
 
-    ylabel(variable)
+    ylabel(y_label)
 
     xx = []
     yy = []
@@ -186,7 +182,7 @@ def plot_simple(data, parameter, selected_gage, beginDate=None, endDate=None, sh
         xx.append(t[0])
         yy.append(t[1])
 
-    plot_date(xx, yy)
+    plot_date(xx, yy, linestyle="-", marker=".", markersize=2.5)
     
     f.subplots_adjust(bottom=0.2)
 

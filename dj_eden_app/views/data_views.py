@@ -138,10 +138,34 @@ def plot_data(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
-def param_data_download(request):
-    return plot_data_multiparam(request)
 
-def plot_data_multiparam(request):
+def param_rdb_download(request):
+    form = DataParamForm(request.GET)
+    if form.is_valid():
+        _logger.info("requested data download for %s with params %s" % (form.cleaned_data['site_list'], form.cleaned_data['params']))
+
+        beginDate = form.cleaned_data["timeseries_start"]
+        endDate = form.cleaned_data["timeseries_end"]
+        gage = form.cleaned_data['site_list']
+        p = form.cleaned_data['params'][0]
+
+        station_list = stage_queries.station_list([str(gage)])
+        pt = Plottable(station_list[0], p, beginDate, endDate)
+        data_seq = pt.sequence()
+
+        # fifth parameter to create_metadata_header is list of Station objects
+        station_list = stage_queries.station_list([gage])
+        query_metadata_list = create_metadata_header(HEADER_MESSAGE, EDEN_CONTACT, END_OF_HEADER, form.cleaned_data, station_list)
+
+        response = HttpResponse(content_type='text/csv')
+        stage_data.write_rdb(data_seq, response, metadata=query_metadata_list)
+
+        return response
+    else:
+        return HttpResponseBadRequest(",".join(form.errors))
+
+def param_data_download(request):
+
     form = DataParamForm(request.GET)
     if form.is_valid():
         _logger.info("requested plot data for %s with params %s" % (form.cleaned_data['site_list'], form.cleaned_data['params']))
@@ -151,7 +175,9 @@ def plot_data_multiparam(request):
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
 
-        pt = Plottable(gage, p, beginDate, endDate)
+        station_list = stage_queries.station_list([gage])
+        pt = Plottable(station_list[0], p, beginDate, endDate)
+
         data_seq = pt.sequence()
 
         response = HttpResponse(content_type='text/csv')
@@ -308,13 +334,22 @@ def plot_image_simple(request):
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
 
-        pt = Plottable(gage, p, beginDate, endDate)
+        station_list = stage_queries.station_list([str(gage)])
+        pt = Plottable(station_list[0], p, beginDate, endDate)
+
         data_seq = pt.sequence()
 
         show_logo = decide_logo(request)
+
+        # Let logo also drive title display
+        if show_logo:
+            title = pt.title()
+
         response = HttpResponse(content_type='image/png')
 
         hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate, show_logo=show_logo, parameter=p, selected_gage=gage)
+        hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate,
+                              show_logo=show_logo, title=title, y_label=pt.label_y())
 
         return response
     else:
