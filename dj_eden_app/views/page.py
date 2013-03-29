@@ -144,6 +144,11 @@ def eden_page(request):
             colors = ColorRange(count=len(gages))
 
             _logger.debug("In page generation, colors = %s", list(colors))
+            
+            try:
+                eden_url = settings.EDEN_URL
+            except AttributeError:
+                eden_url = None
 
             render_params = {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),
@@ -154,7 +159,7 @@ def eden_page(request):
                                                    'colors': mark_safe(json.dumps(list(colors))),
                                                    'color_list': list(colors),
                                                    'DYGRAPH_RANGE_SELECTOR':settings.DYGRAPH_RANGE_SELECTOR,
-                                                   'EDEN_URL': settings.EDEN_URL,
+                                                   'EDEN_URL': eden_url,
 			}
             if len(gages) == 1:
                 station = stage_queries.station_list(gages)[0]

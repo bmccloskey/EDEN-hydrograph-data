@@ -41,7 +41,7 @@ class TimeSeriesFilterForm(Form):
             selected_sites = None
 
         if selected_sites == None: 
-            raise ValidationError('Please selected a site.')
+            raise ValidationError('Please select a site.')
 
         if t_start != None and t_end != None:
             if t_start > t_end:
@@ -78,7 +78,7 @@ class DataParamForm(Form):
             selected_sites = None
             
         if selected_sites == None: 
-            raise ValidationError('Please selected a site.')
+            raise ValidationError('Please select a site.')
         
         if t_start != None and t_end != None:
             if t_start > t_end:
