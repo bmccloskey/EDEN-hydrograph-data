@@ -118,7 +118,7 @@ color: red;
             <td class="gtablecell">
             
             {% for pt in plottables %}
-                - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a> (<a href="{{ pt.image_url_hq }}">image</a>)<br />
+                - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a><br />
             {% endfor %}
             </td>
         </tr>
@@ -184,6 +184,12 @@ color: red;
          gg.push(g_{{ pt.id }});
                   
     </script>
+    <div style="text-align:right; margin-bottom: 12px;">
+     <a class="image-button" href="{{ pt.image_url_hq }}&format=png">PNG</a> 
+     <a class="image-button" href="{{ pt.image_url_hq }}&format=svg">SVG</a> 
+     <a class="image-button" href="{{ pt.image_url_hq }}&format=pdf">PDF</a> 
+     </div>
+     
     {% else %}
     <div class="no-data" id="graph_{{ pt.id }}">
     <p>

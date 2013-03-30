@@ -20,8 +20,10 @@ except ImportError:
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
+from dj_eden_app.plottable import Plottable
 
 import textwrap
+import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -292,9 +294,9 @@ _line_styles = ["-d", ":+", ":^"]
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
 
-def png_simple(data, outfile, **kwargs):
+def png_simple(data, outfile, format="png", **kwargs):
     fig = plot_simple(data, **kwargs)
-    savefig(outfile, format="png", dpi=fig.dpi)
+    savefig(outfile, format=format, dpi=fig.dpi)
 
 def png(data, outfile, **kwargs):
     if len(data) == 1:
@@ -388,4 +390,33 @@ if __name__ == "__main__":
                     endDate=dateutil.parser.parse("2006-11-12"),
                     show_logo=False)
     print "hg6b.png", ct
+
+    gage = "EDEN_3"
+    p = "rainfall"
+    beginDate = datetime.date(2013, 01, 01)
+    endDate = datetime.date(2013, 3, 1)
+    station_list = stage_queries.station_list([gage])
+    pt = Plottable(station_list[0], p, beginDate, endDate)
+
+    data_seq = pt.sequence()
+
+    show_logo = True
+
+    # Let logo also drive title display
+    if show_logo:
+        title = pt.title()
+
+    png_simple(data_seq, "/tmp/hg7.png", beginDate=beginDate, endDate=endDate,
+                              show_logo=show_logo, title=title, y_label=pt.label_y())
+    print "hg7.png"
+
+    data_seq = pt.sequence()
+    png_simple(data_seq, "/tmp/hg7.svg", format="svg", beginDate=beginDate, endDate=endDate,
+                              show_logo=show_logo, title=title, y_label=pt.label_y())
+    print "hg7.svg"
+
+    data_seq = pt.sequence()
+    png_simple(data_seq, "/tmp/hg7.pdf", format="pdf", beginDate=beginDate, endDate=endDate,
+                              show_logo=show_logo, title=title, y_label=pt.label_y())
+    print "hg7.pdf"
 
