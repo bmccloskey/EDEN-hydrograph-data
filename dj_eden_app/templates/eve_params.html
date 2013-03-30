@@ -118,7 +118,9 @@ color: red;
             <td class="gtablecell">
             
             {% for pt in plottables %}
+                {% if pt.has_data %}
                 - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a><br />
+                {% endif %}
             {% endfor %}
             </td>
         </tr>
