@@ -10,7 +10,7 @@ import numpy
 
 matplotlib.use('Cairo')
 
-from matplotlib.pyplot import savefig, figure, plot_date, xticks, axes, axhline, xlim, xlabel, ylabel, draw, grid
+from matplotlib.pyplot import savefig, figure, plot_date, xticks, axes, axhline, xlim, xlabel, ylabel, draw, grid, imread, imshow
 from matplotlib.lines import Line2D
 try:
     import Image
@@ -45,7 +45,7 @@ def plot_multi(data, beginDate, endDate, show_logo=True):
     fig = figure()
 
     if show_logo:
-        logo(fig)
+        logo_im(fig)
 
     # axx = axes([0.1, 0.3, 0.5, 0.5])
     # left, bottom, width, height
@@ -104,38 +104,28 @@ def plot_multi(data, beginDate, endDate, show_logo=True):
 
     return len(columns[0]), fig
 
-def logo(fig):
+def logo_im(fig):
     filename = "usgs-logo.png"
     if not os.path.exists(filename):
         if django.conf.settings.SITE_HOME:
             filename = os.path.join(django.conf.settings.SITE_HOME, "dj_eden_app", filename)
 
     try:
-        img = Image.open(filename)
+        img = imread(filename)
     except IOError:
         # silly windows...
         logo_path = django.conf.settings.SITE_HOME.replace('\\', '/').replace('eden_project', 'dj_eden_app')
         filename_win = os.path.join(logo_path, "usgs-logo.png").replace('\\', '/')
         img = Image.open(filename_win)
 
+    # TODO use image dimension transform to get height in units
+    im_height = 0.07
+    image_axes = axes([0.05, 1.0 - im_height, 0.9, im_height])
+    image_axes.axis('off')
 
-    """
-    # this did not help on windows
-    try:
-        img = Image.open(filename)
-    except IOError:
-        backslash_string = '\\'
-        backslash_replace = '/'
-        filename_windows = filename.replace(backslash_string, backslash_replace).replace('C:', '')
-        img = Image.open(filename_windows)
-    """
-    height = img.size[1]
+    imshow(img, aspect='equal', axes=image_axes, origin='upper')
 
-    bbox = fig.bbox
-    bbox = bbox.anchored("NW")
-
-    fig.figimage(img, 0, int(bbox.ymax) - height, zorder=None)
-
+    return image_axes
 
 def _legend_for_line_styles(fig):
     fig.legend([Line2D([0, 1], [0, 1], color="black", linestyle=_line_styles[0][:-1], marker=_line_styles[0][-1:]),
@@ -157,7 +147,7 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
         y_label = labels[1]
 
     if show_logo:
-        logo(f)
+        logo_im(f)
 
     axes([0.1, 0.25, 0.8, 0.55])
 
@@ -199,7 +189,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
     labels = data.keys()
 
     if show_logo:
-        logo(f)
+        logo_im(f)
 
     # left, bottom, width, height
     ax1 = axes([0.1, 0.25, 0.8, 0.55])
