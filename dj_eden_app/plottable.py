@@ -70,6 +70,20 @@ class Plottable(object):
         return "Date"
 
     def label_y(self):
+        unit_dict = {DataParams.temperature: 'degrees C',
+                  DataParams.rainfall: None,
+                  DataParams.salinity: None,
+                  DataParams.stage: 'ft'}
+        label_unit = unit_dict[self.param]
+        nm = self.name()
+
+        if label_unit:
+            y_axis_label = '%s (%s)' % (nm, label_unit)
+        else:
+            y_axis_label = nm
+        return y_axis_label
+
+    def name(self):
         return str(self.param).capitalize()
 
     def title(self):

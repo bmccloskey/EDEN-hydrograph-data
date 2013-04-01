@@ -12,10 +12,6 @@ matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, xticks, axes, axhline, xlim, xlabel, ylabel, draw, grid, imread, imshow
 from matplotlib.lines import Line2D
-try:
-    import Image
-except ImportError:
-    from PIL import Image  # to deal with Windows...
 
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange

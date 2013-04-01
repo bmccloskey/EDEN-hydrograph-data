@@ -119,7 +119,7 @@ color: red;
             
             {% for pt in plottables %}
                 {% if pt.has_data %}
-                - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a><br />
+                - <a href="{{ pt.rdb_url }}">{{ pt.name }}</a><br />
                 {% endif %}
             {% endfor %}
             </td>
