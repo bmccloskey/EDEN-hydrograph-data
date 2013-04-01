@@ -6,6 +6,7 @@ Created on Mar 4, 2013
 import matplotlib
 import django.conf
 import os.path
+import numpy
 
 matplotlib.use('Cairo')
 
@@ -19,8 +20,10 @@ except ImportError:
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
+from dj_eden_app.plottable import Plottable
 
 import textwrap
+import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -54,8 +57,9 @@ def plot_multi(data, beginDate, endDate, show_logo=True):
 
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
-    if beginDate != None and endDate != None:
-        xlim(xmin=beginDate, xmax=endDate)
+    # xlim handles None gracefully
+    xlim(beginDate, endDate)
+
     # axhline(y = 0.5) could be used for depicting ground elevation
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
@@ -166,21 +170,26 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
     grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
 
     xlabel('Date')
-    if beginDate is not None:
-        xlim(xmin=beginDate)
-    if endDate is not None:
-        xlim(xmax=endDate)
+
+    xlim(beginDate, endDate)
+
     xticks(rotation=90)
 
     ylabel(y_label)
 
-    xx = []
-    yy = []
-    for t in data:
-        xx.append(t[0])
-        yy.append(t[1])
+    # Try to use numpy arrays for better performance
+    try:
+        as_array = numpy.array(data.fetchall())
+        plot_date(as_array[:, 0], as_array[:, 1], linestyle="-", marker=".", markersize=2.5)
+    except AttributeError:
+        _logger.info("Not able to use numpy array")
+        xx = []
+        yy = []
+        for t in data:
+            xx.append(t[0])
+            yy.append(t[1])
 
-    plot_date(xx, yy, linestyle="-", marker=".", markersize=2.5)
+        plot_date(xx, yy, linestyle="-", marker=".", markersize=2.5)
 
     return f
 
@@ -199,8 +208,8 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     xlabel('Date')
     ylabel('Water Level (NAVD88 ft)')
-    if beginDate != None and endDate != None:
-        xlim(xmin=beginDate, xmax=endDate)
+    xlim(beginDate, endDate)
+
     # labels = [ _clean_label(s) for s in keys[1:] ]
     # legend(labels, loc='upper left', bbox_to_anchor=(1, 1))
     xticks(rotation=90)
@@ -285,9 +294,9 @@ _line_styles = ["-d", ":+", ":^"]
 def line_style(flag):
     return _line_style_dict.get(flag) or "-"
 
-def png_simple(data, outfile, **kwargs):
+def png_simple(data, outfile, format="png", **kwargs):
     fig = plot_simple(data, **kwargs)
-    savefig(outfile, format="png", dpi=fig.dpi)
+    savefig(outfile, format=format, dpi=fig.dpi)
 
 def png(data, outfile, **kwargs):
     if len(data) == 1:
@@ -381,4 +390,33 @@ if __name__ == "__main__":
                     endDate=dateutil.parser.parse("2006-11-12"),
                     show_logo=False)
     print "hg6b.png", ct
+
+    gage = "EDEN_3"
+    p = "rainfall"
+    beginDate = datetime.date(2013, 01, 01)
+    endDate = datetime.date(2013, 3, 1)
+    station_list = stage_queries.station_list([gage])
+    pt = Plottable(station_list[0], p, beginDate, endDate)
+
+    data_seq = pt.sequence()
+
+    show_logo = True
+
+    # Let logo also drive title display
+    if show_logo:
+        title = pt.title()
+
+    png_simple(data_seq, "/tmp/hg7.png", beginDate=beginDate, endDate=endDate,
+                              show_logo=show_logo, title=title, y_label=pt.label_y())
+    print "hg7.png"
+
+    data_seq = pt.sequence()
+    png_simple(data_seq, "/tmp/hg7.svg", format="svg", beginDate=beginDate, endDate=endDate,
+                              show_logo=show_logo, title=title, y_label=pt.label_y())
+    print "hg7.svg"
+
+    data_seq = pt.sequence()
+    png_simple(data_seq, "/tmp/hg7.pdf", format="pdf", beginDate=beginDate, endDate=endDate,
+                              show_logo=show_logo, title=title, y_label=pt.label_y())
+    print "hg7.pdf"
 
