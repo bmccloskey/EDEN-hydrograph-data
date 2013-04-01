@@ -13,6 +13,7 @@ urlpatterns = patterns('',
                        url(r'^daily_plot_data', data_views.plot_data_daily),
                        url(r'^hourly_plot_data', data_views.plot_data_hourly),
                        url(r'^plot_image$', data_views.plot_image_auto),
+                       # Could use URL decomposition to match file-like URL for images
                        url(r'^plot_image_simple$', data_views.plot_image_simple, name="plot_image_simple"),
 
                        url(r'^daily_data_download$', data_views.daily_download),

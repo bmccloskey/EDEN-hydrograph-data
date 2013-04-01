@@ -118,7 +118,9 @@ color: red;
             <td class="gtablecell">
             
             {% for pt in plottables %}
-                - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a> (<a href="{{ pt.image_url_hq }}">image</a>)<br />
+                {% if pt.has_data %}
+                - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a><br />
+                {% endif %}
             {% endfor %}
             </td>
         </tr>
@@ -171,6 +173,11 @@ color: red;
                 }
                 blockRedraw = false;
               },
+{% if pt.beginDate and pt.endDate %}
+            dateWindow: [ Date.parse( "{{ pt.beginDate }}" ),
+                          Date.parse( "{{ pt.endDate }}" )
+                         ],
+{% endif %}
               // title: "{{ pt.title }}",
               drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
@@ -179,6 +186,12 @@ color: red;
          gg.push(g_{{ pt.id }});
                   
     </script>
+    <div style="text-align:right; margin-bottom: 12px;">
+     <a class="image-button" href="{{ pt.image_url_hq }}&format=png">PNG</a> 
+     <a class="image-button" href="{{ pt.image_url_hq }}&format=svg">SVG</a> 
+     <a class="image-button" href="{{ pt.image_url_hq }}&format=pdf">PDF</a> 
+     </div>
+     
     {% else %}
     <div class="no-data" id="graph_{{ pt.id }}">
     <p>

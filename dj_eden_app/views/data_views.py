@@ -149,7 +149,7 @@ def param_rdb_download(request):
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
 
-        station_list = stage_queries.station_list([str(gage)])
+        station_list = stage_queries.station_list([gage])
         pt = Plottable(station_list[0], p, beginDate, endDate)
         data_seq = pt.sequence()
 
@@ -325,6 +325,12 @@ def plot_image_auto(request):
     else:
         return HttpResponseBadRequest(",".join(form.errors))
 
+_mime_types = {
+               'pdf':'application/pdf',
+               'png':'image/png',
+               'svg':'image/svg+xml'
+               }
+
 def plot_image_simple(request):
     form = DataParamForm(request.GET)
 
@@ -334,7 +340,7 @@ def plot_image_simple(request):
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
 
-        station_list = stage_queries.station_list([str(gage)])
+        station_list = stage_queries.station_list([gage])
         pt = Plottable(station_list[0], p, beginDate, endDate)
 
         data_seq = pt.sequence()
@@ -345,9 +351,12 @@ def plot_image_simple(request):
         if show_logo:
             title = pt.title()
 
-        response = HttpResponse(content_type='image/png')
+        format = request.GET['format'] or 'png'
+
+        response = HttpResponse(content_type=_mime_types[format])
 
         hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate,
+                              format=format,
                               show_logo=show_logo, title=title, y_label=pt.label_y())
 
         return response
