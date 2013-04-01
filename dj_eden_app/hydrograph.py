@@ -116,10 +116,15 @@ def logo_im(fig):
         # silly windows...
         logo_path = django.conf.settings.SITE_HOME.replace('\\', '/').replace('eden_project', 'dj_eden_app')
         filename_win = os.path.join(logo_path, "usgs-logo.png").replace('\\', '/')
-        img = Image.open(filename_win)
+        img = imread(filename_win)
 
     # TODO use image dimension transform to get height in units
-    im_height = 0.07
+    shape = img.shape
+    aspect = float(shape[0]) / shape[1]
+    margin = 0.05
+
+    # figure dimensions are 0..1
+    im_height = (aspect * 1.0) + margin
     image_axes = axes([0.05, 1.0 - im_height, 0.9, im_height])
     image_axes.axis('off')
 
