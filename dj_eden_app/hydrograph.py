@@ -20,6 +20,7 @@ except ImportError:
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
+from dj_eden_app.plottable import Plottable
 
 
 import textwrap
