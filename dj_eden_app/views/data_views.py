@@ -337,9 +337,9 @@ def plot_image(request, gage, param, extension):
     df = DateField(required=False)
     date_input = None
     try:
-        date_input = request.REQUEST['timeseries_start']
+        date_input = request.REQUEST.get('timeseries_start', None)
         beginDate = df.clean(date_input)
-        date_input = request.REQUEST['timeseries_end']
+        date_input = request.REQUEST.get('timeseries_end', None)
         endDate = df.clean(date_input)
     except ValidationError:
         return HttpResponseBadRequest("Bad date input: " + date_input)
