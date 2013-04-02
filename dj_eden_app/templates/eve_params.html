@@ -40,7 +40,9 @@ color: red;
 {% block content %}
 <div style="white-space: nowrap;" id="content-block">
 <div class="form_input_field" style="vertical-align: top; display: inline-block; ">
-	<form name="param_query" id="param_form" method="GET" action="">{% csrf_token %}
+	<form name="param_query" id="param_form" method="GET" action="">
+	   {# if method="POST", add this tag: {% csrf_token %} #}
+	   
 		<div class="form_error">{{ param_form.non_field_errors }}</div>
 		<div class="form_error">{{ param_form.field_errors }}</div>
 		<table width="150"  border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
@@ -119,7 +121,7 @@ color: red;
             
             {% for pt in plottables %}
                 {% if pt.has_data %}
-                - <a href="{{ pt.rdb_url }}">{{ pt.label_y }}</a><br />
+                - <a href="{{ pt.rdb_url }}">{{ pt.name }}</a><br />
                 {% endif %}
             {% endfor %}
             </td>
@@ -187,9 +189,9 @@ color: red;
                   
     </script>
     <div style="text-align:right; margin-bottom: 12px;">
-     <a class="image-button" href="{{ pt.image_url_hq }}&format=png">PNG</a> 
-     <a class="image-button" href="{{ pt.image_url_hq }}&format=svg">SVG</a> 
-     <a class="image-button" href="{{ pt.image_url_hq }}&format=pdf">PDF</a> 
+     <a class="image-button" href="{% url plot_image_rest pt.gage_name pt.param "png" %}?filler{{ pt.url_query }}">PNG</a> 
+     <a class="image-button" href="{% url plot_image_rest pt.gage_name pt.param "svg" %}?filler{{ pt.url_query }}">SVG</a> 
+     <a class="image-button" href="{% url plot_image_rest pt.gage_name pt.param "pdf" %}?filler{{ pt.url_query }}">PDF</a> 
      </div>
      
     {% else %}

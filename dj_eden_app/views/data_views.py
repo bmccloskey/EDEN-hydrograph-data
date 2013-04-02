@@ -1,5 +1,7 @@
 # Create your views here.
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.forms import DateField
+from django.core.exceptions import ValidationError
 
 from dj_eden_app.models import Station
 from dj_eden_app.forms import TimeSeriesFilterForm, DataParamForm
@@ -331,6 +333,36 @@ _mime_types = {
                'svg':'image/svg+xml'
                }
 
+def plot_image(request, gage, param, extension):
+    df = DateField(required=False)
+    date_input = None
+    try:
+        date_input = request.REQUEST.get('timeseries_start', None)
+        beginDate = df.clean(date_input)
+        date_input = request.REQUEST.get('timeseries_end', None)
+        endDate = df.clean(date_input)
+    except ValidationError:
+        return HttpResponseBadRequest("Bad date input: " + date_input)
+
+    return _plot_simple(gage, param, beginDate=beginDate, endDate=endDate, format=extension, show_logo=decide_logo(request))
+
+def _plot_simple(gage, p, beginDate=None, endDate=None, format='png', show_logo=True):
+    station_list = stage_queries.station_list([gage])
+    pt = Plottable(station_list[0], p, beginDate, endDate)
+    data_seq = pt.sequence()
+
+
+    if show_logo:
+        title = pt.title()
+
+    if not format in _mime_types:
+        return HttpResponseBadRequest("Unknown image format: " + format)
+
+    response = HttpResponse(content_type=_mime_types[format])
+    hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate,
+                          format=format, show_logo=show_logo, title=title, y_label=pt.label_y())
+    return response
+
 def plot_image_simple(request):
     form = DataParamForm(request.GET)
 
@@ -339,25 +371,9 @@ def plot_image_simple(request):
         endDate = form.cleaned_data["timeseries_end"]
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
-
-        station_list = stage_queries.station_list([gage])
-        pt = Plottable(station_list[0], p, beginDate, endDate)
-
-        data_seq = pt.sequence()
-
-        show_logo = decide_logo(request)
-
-        # Let logo also drive title display
-        if show_logo:
-            title = pt.title()
-
         format = request.GET['format'] or 'png'
 
-        response = HttpResponse(content_type=_mime_types[format])
-
-        hydrograph.png_simple(data_seq, response, beginDate=beginDate, endDate=endDate,
-                              format=format,
-                              show_logo=show_logo, title=title, y_label=pt.label_y())
+        response = _plot_simple(gage, p, beginDate=beginDate, endDate=endDate, format=format, show_logo=decide_logo(request))
 
         return response
     else:

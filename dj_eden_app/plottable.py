@@ -42,23 +42,25 @@ class Plottable(object):
 
         return url
 
+    def url_query(self):
+        "Query for URL -- does not include the ?"
+        query = ''
+        if self.beginDate:
+            query += "&timeseries_start=" + str(self.beginDate)
+        if self.endDate:
+            query += "&timeseries_end=" + str(self.endDate)
+        return query
+
     def rdb_url(self):
         base = reverse("param_rdb_download")
         url = base + "?" + "site_list=" + self.gage_name + "&" + "params=" + self.param
-        if self.beginDate:
-            url += "&timeseries_start=" + str(self.beginDate)
-        if self.endDate:
-            url += "&timeseries_end=" + str(self.endDate)
 
-        return url
+        return url + self.url_query()
 
     def image_url(self, logo=False):
         base = reverse("plot_image_simple")
         url = base + "?" + "site_list=" + self.gage_name + "&" + "params=" + self.param
-        if self.beginDate:
-            url += "&timeseries_start=" + str(self.beginDate)
-        if self.endDate:
-            url += "&timeseries_end=" + str(self.endDate)
+        url += self.url_query()
         if not logo:
             url += "&no_logo"
         return url
@@ -70,6 +72,20 @@ class Plottable(object):
         return "Date"
 
     def label_y(self):
+        unit_dict = {DataParams.temperature: 'degrees C',
+                  DataParams.rainfall: None,
+                  DataParams.salinity: None,
+                  DataParams.stage: 'ft'}
+        label_unit = unit_dict[self.param]
+        nm = self.name()
+
+        if label_unit:
+            y_axis_label = '%s (%s)' % (nm, label_unit)
+        else:
+            y_axis_label = nm
+        return y_axis_label
+
+    def name(self):
         return str(self.param).capitalize()
 
     def title(self):

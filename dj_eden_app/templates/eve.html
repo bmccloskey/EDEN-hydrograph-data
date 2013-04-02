@@ -33,7 +33,8 @@
 {% block content %}
 <div style="white-space: nowrap;" id="content-block">
 <div class="form_input_field" style="vertical-align: top; display: inline-block; ">
-	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">{% csrf_token %}
+	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">
+	{# if method="POST", add this tag: {% csrf_token %} #}
 		<div class="form_error">{{ query_form.non_field_errors }}</div>
 		<div class="form_error">{{ query_form.field_errors }}</div>
 		<table width="150" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">

@@ -172,6 +172,9 @@ LOGGING = {
 # work directory for Matplotlib -- must be writable by web service process
 MATPLOTLIB_WORK_DIR = "/tmp/matplotlib"
 
+# External URL for EDEN project at SOFIA
+EDEN_URL = "//sofia.usgs.gov/eden/"
+
 try:
     from local_settings import *
 except ImportError:

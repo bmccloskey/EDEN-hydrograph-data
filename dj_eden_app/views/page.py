@@ -1,7 +1,7 @@
 # Create your views here.
 
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
@@ -50,7 +50,7 @@ def param_page(request):
     param_form = DataParamForm()
 
     if "clear_form" in request.REQUEST:
-        return render (request, template_name, {'param_form': param_form, })
+        return redirect(param_page)
 
     has_data = False
     # be careful about initial get with no parameters,
@@ -84,15 +84,16 @@ def param_page(request):
 
             render_params = {'param_form': param_form,
                              'plottables': plottables,
+                             'EDEN_URL': settings.EDEN_URL,
                              }
             return render (request, template_name, render_params)
 
             pass
         else:
             # error...
-            return render (request, template_name, {'param_form': param_form, })
+            return render (request, template_name, {'param_form': param_form, 'EDEN_URL': settings.EDEN_URL })
 
-    return render (request, template_name, {'param_form': param_form, })
+    return render (request, template_name, {'param_form': param_form, 'EDEN_URL': settings.EDEN_URL })
 
 def eden_page(request):
     """
@@ -146,10 +147,7 @@ def eden_page(request):
 
             _logger.debug("In page generation, colors = %s", list(colors))
 
-            try:
-                eden_url = settings.EDEN_URL
-            except AttributeError:
-                eden_url = None
+            eden_url = settings.EDEN_URL
 
             render_params = {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),
@@ -177,4 +175,4 @@ def eden_page(request):
     else:
         pass
 
-    return render (request, template_name, {'query_form': query_form, })
+    return render (request, template_name, {'query_form': query_form, 'EDEN_URL': eden_url})

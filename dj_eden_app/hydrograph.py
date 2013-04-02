@@ -8,14 +8,10 @@ import django.conf
 import os.path
 import numpy
 
-matplotlib.use('Cairo')
+# matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, xticks, axes, axhline, xlim, xlabel, ylabel, draw, grid, imread, imshow
 from matplotlib.lines import Line2D
-try:
-    import Image
-except ImportError:
-    from PIL import Image  # to deal with Windows...
 
 import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
@@ -145,8 +141,8 @@ brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
 def find_y_axis_units(parameter):
-    unit_dict = {'Temperature': 'degreesC', 
-                 'Salinity': None, 
+    unit_dict = {'Temperature': 'degreesC',
+                 'Salinity': None,
                  'Stage': 'ft'}
     try:
         label_unit = unit_dict[str(parameter)]
@@ -156,15 +152,15 @@ def find_y_axis_units(parameter):
             y_axis_label = parameter
     except KeyError:
         y_axis_label = parameter
-        
+
     return y_axis_label
 
 def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, y_label=None):
     "Plot a simple data series"
     f = figure()
-    
-    #if y_label:
-        #y_label = find_y_axis_units(y_label)
+
+    # if y_label:
+        # y_label = find_y_axis_units(y_label)
 
     labels = data.keys()
     if not y_label:
@@ -180,7 +176,7 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
 
     # left, bottom, width, height
     # ax1 = axes([0.1, 0.25, 0.8, 0.55])
-    
+
 
     grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
 
@@ -205,7 +201,7 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
             yy.append(t[1])
 
         plot_date(xx, yy, linestyle="-", marker=".", markersize=2.5)
-    
+
 
     return f
 
