@@ -18,6 +18,7 @@ from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
 from dj_eden_app.plottable import Plottable
 
+
 import textwrap
 import datetime
 import logging
@@ -139,9 +140,27 @@ def _legend_for_line_styles(fig):
 brown_ish = matplotlib.colors.colorConverter.to_rgba("brown", alpha=0.3)
 gray_ish = matplotlib.colors.colorConverter.to_rgba("gray", alpha=0.3)
 
+def find_y_axis_units(parameter):
+    unit_dict = {'Temperature': 'degreesC', 
+                 'Salinity': None, 
+                 'Stage': 'ft'}
+    try:
+        label_unit = unit_dict[str(parameter)]
+        if label_unit != None:
+            y_axis_label = '%s (%s)' % (parameter, label_unit)
+        else:
+            y_axis_label = parameter
+    except KeyError:
+        y_axis_label = parameter
+        
+    return y_axis_label
+
 def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, y_label=None):
     "Plot a simple data series"
     f = figure()
+    
+    #if y_label:
+        #y_label = find_y_axis_units(y_label)
 
     labels = data.keys()
     if not y_label:
@@ -157,6 +176,7 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
 
     # left, bottom, width, height
     # ax1 = axes([0.1, 0.25, 0.8, 0.55])
+    
 
     grid(color="0.7", linestyle="-")  # float-ish color is interpreted as gray level, 1.0=white
 
@@ -181,6 +201,7 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
             yy.append(t[1])
 
         plot_date(xx, yy, linestyle="-", marker=".", markersize=2.5)
+    
 
     return f
 
