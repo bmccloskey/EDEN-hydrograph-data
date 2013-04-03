@@ -175,4 +175,4 @@ def eden_page(request):
     else:
         pass
 
-    return render (request, template_name, {'query_form': query_form, 'EDEN_URL': eden_url})
+    return render (request, template_name, {'query_form': query_form, 'EDEN_URL': settings.EDEN_URL})
