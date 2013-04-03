@@ -106,6 +106,8 @@ def eden_page(request):
 
     template_name = 'eve.html'
     query_form = TimeSeriesFilterForm()
+    
+    eden_url = settings.EDEN_URL
 
     has_data = False
     # be careful about initial get with no parameters,
@@ -146,8 +148,6 @@ def eden_page(request):
             colors = ColorRange(count=len(gages))
 
             _logger.debug("In page generation, colors = %s", list(colors))
-
-            eden_url = settings.EDEN_URL
 
             render_params = {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),

@@ -8,7 +8,7 @@ import django.conf
 import os.path
 import numpy
 
-# matplotlib.use('Cairo')
+matplotlib.use('Cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, xticks, axes, axhline, xlim, xlabel, ylabel, draw, grid, imread, imshow
 from matplotlib.lines import Line2D
@@ -17,7 +17,6 @@ import dj_eden_app.stage_queries as stage_queries
 from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
 from dj_eden_app.plottable import Plottable
-
 
 import textwrap
 import datetime

@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+import csv
 
 class VerticalDatum(models.Model):
     vertical_datum_id = models.IntegerField(primary_key=True)
