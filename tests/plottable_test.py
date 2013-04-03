@@ -41,7 +41,7 @@ class TestPlottable(unittest.TestCase):
         pt = Plottable(MockStation(), "temperature", "2004-02-01", "2004-04-01")
         self.assertEquals("A Test Name", pt.title())
         self.assertEquals("EDEN_3", pt.gage_name)
-        self.assertEquals("Temperature", pt.label_y())
+        self.assertIn("Temperature", pt.label_y())
 
     def test_no_data_pos(self):
         pt = Plottable("EDEN_3", "salinity", "2012-03-01", "2012-04-01")

@@ -88,10 +88,9 @@ def param_page(request):
                              }
             return render (request, template_name, render_params)
 
-            pass
         else:
-            # error...
-            return render (request, template_name, {'param_form': param_form, 'EDEN_URL': settings.EDEN_URL })
+            # error in input
+            return render(request, template_name, {'param_form': param_form, 'EDEN_URL': settings.EDEN_URL }, status=400)
 
     return render (request, template_name, {'param_form': param_form, 'EDEN_URL': settings.EDEN_URL })
 
@@ -106,7 +105,7 @@ def eden_page(request):
 
     template_name = 'eve.html'
     query_form = TimeSeriesFilterForm()
-    
+
     eden_url = settings.EDEN_URL
 
     has_data = False
@@ -172,7 +171,7 @@ def eden_page(request):
                 render_params['ngvd29_correction'] = "null"
 
             return render(request, template_name, render_params)
-    else:
-        pass
+        else:
+            return render(request, template_name, {'query_form': query_form, 'EDEN_URL': eden_url}, status=400)
 
-    return render (request, template_name, {'query_form': query_form, 'EDEN_URL': eden_url})
+    return render(request, template_name, {'query_form': query_form, 'EDEN_URL': eden_url})

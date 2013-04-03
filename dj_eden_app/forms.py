@@ -21,7 +21,7 @@ class TimeSeriesFilterForm(Form):
     stations = Station.objects.filter(edenmaster_start__isnull=False).order_by('station_name_web')  # returns stations where data collection has started
     today = datetime.date.today()
     timeseries_start = DateField(required=False,
-                                 initial=today-relativedelta(months=1),
+                                 initial=today - relativedelta(months=1),
                                  widget=DateInput(attrs={"size":"10"}))
     timeseries_end = DateField(required=False,
                                initial=today,
@@ -32,23 +32,18 @@ class TimeSeriesFilterForm(Form):
     max_count = IntegerField(required=False)
 
     def clean(self):
-        cleaned_data = self.cleaned_data
-        t_start = cleaned_data['timeseries_start']
-        t_end = cleaned_data['timeseries_end']
-        try:
-            selected_sites = cleaned_data['site_list']
-        except KeyError:
-            selected_sites = None
+        cleaned_data = super(TimeSeriesFilterForm, self).clean()
+        t_start = cleaned_data.get('timeseries_start')
+        t_end = cleaned_data.get('timeseries_end')
+        selected_sites = cleaned_data.get('site_list')
 
-        if selected_sites == None: 
+        if not selected_sites:
             raise ValidationError('Please select a site.')
 
-        if t_start != None and t_end != None:
+        if t_start and t_end:
             if t_start > t_end:
                 raise ValidationError('Please enter a start date that precedes the end date.')
-        else:
-            pass
-                  
+
         return cleaned_data
 
 class DataParamForm(Form):
@@ -56,7 +51,7 @@ class DataParamForm(Form):
     param_choices = [ (v, string.capwords(v)) for v in DataParams()]
     today = datetime.date.today()
     timeseries_start = DateField(required=False,
-                                 initial=today-relativedelta(months=1),
+                                 initial=today - relativedelta(months=1),
                                  widget=DateInput(attrs={"size":"10"}))
     timeseries_end = DateField(required=False,
                                initial=today,
@@ -67,23 +62,18 @@ class DataParamForm(Form):
     params = MultipleChoiceField(choices=param_choices,
                                  required=True,
                                  widget=CheckboxSelectMultiple)
-    
+
     def clean(self):
-        cleaned_data = self.cleaned_data
-        t_start = cleaned_data['timeseries_start']
-        t_end = cleaned_data['timeseries_end']
-        try:
-            selected_sites = cleaned_data['site_list']
-        except KeyError:
-            selected_sites = None
-            
-        if selected_sites == None: 
+        cleaned_data = super(DataParamForm, self).clean()
+        t_start = cleaned_data.get('timeseries_start')
+        t_end = cleaned_data.get('timeseries_end')
+        selected_sites = cleaned_data.get('site_list')
+
+        if not selected_sites:
             raise ValidationError('Please select a site.')
-        
-        if t_start != None and t_end != None:
+
+        if t_start and t_end:
             if t_start > t_end:
                 raise ValidationError('Please enter a start date that precedes the end date.')
-        else:
-            pass
-            
+
         return cleaned_data

@@ -93,6 +93,10 @@ a.footer:visited { color:#ffffff}
 	color:#FF0000;
 }
 
+.errorlist li {
+    color:#FF0000;
+}
+
 /* Image download button */
 .image-button {
     -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;

@@ -52,7 +52,9 @@ color: red;
             </tr>
             <tr>
                 <td align="left" class="gtablecell" valign="top">
+                {{ param_form.timeseries_start.errors }}
                     <label for="{{ param_form.timeseries_start.html_name }}"><strong>Start: </strong></label>{{ param_form.timeseries_start }}<br />
+                {{ param_form.timeseries_end.errors }}
                     <label for="{{ param_form.timeseries_end.html_name }}"><strong>End: </strong></label>{{ param_form.timeseries_end }}<br />
                 </td>
             </tr>
@@ -197,7 +199,7 @@ color: red;
     {% else %}
     <div class="no-data" id="graph_{{ pt.id }}">
     <p>
-    No {{ pt.label_y }} data available for {{ pt.gage_name }}.
+    No {{ pt.param|capfirst }} data available for {{ pt.gage_name }}.
     </p>
     </div>
     {% endif %}
