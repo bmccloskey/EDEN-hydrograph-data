@@ -7,8 +7,13 @@ import matplotlib
 import django.conf
 import os.path
 import numpy
+import sys
 
-matplotlib.use('Cairo')
+if sys.platform == 'darwin':
+    # magic value as documented at http://docs.python.org/2/library/sys.html#sys.platform
+    matplotlib.use('MacOSX')
+else:
+    matplotlib.use('cairo')
 
 from matplotlib.pyplot import savefig, figure, plot_date, xticks, axes, axhline, xlim, xlabel, ylabel, draw, grid, imread, imshow
 from matplotlib.lines import Line2D
