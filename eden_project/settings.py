@@ -68,7 +68,7 @@ STATIC_ROOT = ''
 STATIC_URL = '/static/'
 
 # Additional locations of static files
-STATICFILES_DIRS = ('/Users/ayan/workspace/eden/eden_project/static',)
+STATICFILES_DIRS = ('',)
 
 # List of finder classes that know how to find static files in
 # various locations.

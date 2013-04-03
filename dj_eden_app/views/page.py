@@ -106,6 +106,8 @@ def eden_page(request):
 
     template_name = 'eve.html'
     query_form = TimeSeriesFilterForm()
+    
+    eden_url = settings.EDEN_URL
 
     has_data = False
     # be careful about initial get with no parameters,
@@ -147,8 +149,6 @@ def eden_page(request):
 
             _logger.debug("In page generation, colors = %s", list(colors))
 
-            eden_url = settings.EDEN_URL
-
             render_params = {'query_form': query_form,
                                                    'plot_params': mark_safe(plot_query_str),
                                                    'series_options': mark_safe(dygraph_series_options(gages)),
@@ -175,4 +175,4 @@ def eden_page(request):
     else:
         pass
 
-    return render (request, template_name, {'query_form': query_form, 'EDEN_URL': settings.EDEN_URL})
+    return render (request, template_name, {'query_form': query_form, 'EDEN_URL': eden_url})

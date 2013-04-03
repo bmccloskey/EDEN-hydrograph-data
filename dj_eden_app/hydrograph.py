@@ -23,7 +23,6 @@ from dj_eden_app.colors import ColorRange
 from dj_eden_app.gap_fill import gap_fill
 from dj_eden_app.plottable import Plottable
 
-
 import textwrap
 import datetime
 import logging
