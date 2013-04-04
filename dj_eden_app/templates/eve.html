@@ -44,7 +44,9 @@
             </tr>
             <tr>
                 <td align="left" class="gtablecell" valign="top">
+                {{ query_form.timeseries_start.errors }}
                     <label for="{{ query_form.timeseries_start.html_name }}"><strong>Start: </strong></label>{{ query_form.timeseries_start }}<br />
+                 {{ query_form.timeseries_end.errors }}
                     <label for="{{ query_form.timeseries_end.html_name }}"><strong>End: </strong></label>{{ query_form.timeseries_end }}<br />
                 </td>
             </tr>
@@ -96,8 +98,6 @@
 {% endif %}
 
 		</table>
-    <input type="hidden" id="start_date" name="start_varible" value="{{ str_tstart|safe }}" readonly>
-    <input type="hidden" id="end_date" name="start_varible" value="{{ str_tend|safe }}" readonly>
 	</form>
 </div>
 
@@ -164,8 +164,9 @@
             colors3.push(soften(color_base[i], 0.5));  
             colors3.push(soften(color_base[i], 0.5));
         }
-    	var dateStart = document.getElementById("start_date").value;
-    	var dateEnd = document.getElementById("end_date").value;
+        
+    	var dateStart = "{{ str_tstart|safe }}";
+    	var dateEnd = "{{ str_tend|safe }}";
     	var ngvd29Conversion = {{ ngvd29_correction }};
     	
     	var seriesOptions = {{ series_options }};
