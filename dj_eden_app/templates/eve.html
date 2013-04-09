@@ -31,14 +31,13 @@
 {% endblock style %}
 
 {% block content %}
-<div style="white-space: nowrap;" id="content-block">
+<div style="position: relative; min-width: 750px;" id="content-block">
 <div class="form_input_field" style="vertical-align: top; display: inline-block; ">
 	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">
 	{# if method="POST", add this tag: {% csrf_token %} #}
 		<div class="form_error">{{ query_form.non_field_errors }}</div>
 		<div class="form_error">{{ query_form.field_errors }}</div>
 		<table width="150" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
-		<tbody>
             <tr class="grtablehead">
                 <th>Timeseries</th>
             </tr>
@@ -78,7 +77,7 @@
             <th></th>
         </tr>
         <tr class="gtablecell2">
-            <td style="font-size: 75%;" align="center">(for stations selected above)</td>
+            <td style="font-size: 75%; white-space: nowrap;" align="center">(for stations selected above)</td>
         </tr>
         
 		<tr>
@@ -100,26 +99,23 @@
 		</table>
 	</form>
 </div>
-
-<div style="display: inline-block; margin-left: 10px; ">
+<!-- TODO dynamic height for legend -->
 {% if plot_params %}
-    <div id="legends">
-	<div id="hydrograph_legend" style="border:solid; width: 300px; display:inline-block;">
+	<div id="hydrograph_legend" style="border:solid; width: 240px; padding: 3px; float: right;">
 	   <table>
 	   {% for g in gages %}
-	       <tr class="color_{{ forloop.counter0 }}"><td>&nbsp;&mdash;&mdash;&mdash;</td><td>{{ g }}</td></tr>
+	       <tr class="color_{{ forloop.counter0 }}"><td>&nbsp;&mdash;&mdash;&mdash;</td><td class="gtablecell">{{ g }}</td></tr>
 	   {% endfor %}
         <!-- <tr><td colspan="2">&mdash;</td></tr> -->
-        <tr><td><img src="{{ STATIC_URL }}images/line-solid.png" alt="solid line" /></td><td>Observed data</td></tr>
-        <tr><td><img src="{{ STATIC_URL }}images/line-dotted.png" alt="dotted line" /></td><td>Estimated data</td></tr>
-        <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td>Data in "dry" range</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-solid.png" alt="solid line" /></td><td class="gtablecell">Observed data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-dotted.png" alt="dotted line" /></td><td class="gtablecell">Estimated data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td class="gtablecell">Data in "dry" range</td></tr>
         </table>
-    </div>
-    <div id="dynamic_legend" style="border: 2px white solid; width: 200px; vertical-align: top; display:inline-block;">
-    </div>
-    </div>
+	</div>
+	<div id="dynamic_legend" style="border: 2px white solid; width: 150px; float: right; padding: 3px;"></div>
+	<div class="gtablecell" style="border: solid; float: right; padding: 3px; width: 150px; height: 100px;">[Gage data here]</div>
     
-	<div id="graph" class="dygraph_plot">
+	<div id="graph" class="dygraph_plot"></div>
 	<noscript>
 	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}" />
 	</noscript>
@@ -261,5 +257,4 @@
 	   <p>After site selection, a graph will be displayed here.</p>
 {% endif %}
 
-</div>
 {% endblock content %}
