@@ -32,7 +32,7 @@
 
 {% block content %}
 <div style="position: relative; min-width: 750px;" id="content-block">
-<div class="form_input_field" style="vertical-align: top; display: inline-block; ">
+<div class="form_input_field" style="vertical-align: top; display: inline-block; float: left; margin-bottom: 5px;">
 	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">
 	{# if method="POST", add this tag: {% csrf_token %} #}
 		<div class="form_error">{{ query_form.non_field_errors }}</div>
@@ -99,6 +99,7 @@
 		</table>
 	</form>
 </div>
+	<div class="gtablecell" style="border: solid; float: left; margin-left: 5px; padding: 3px; width: 130px; height: 100px;">[Gage data here]</div>
 <!-- TODO dynamic height for legend -->
 {% if plot_params %}
 	<div id="hydrograph_legend" style="border:solid; width: 240px; padding: 3px; float: right;">
@@ -113,7 +114,6 @@
         </table>
 	</div>
 	<div id="dynamic_legend" style="border: 2px white solid; width: 150px; float: right; padding: 3px;"></div>
-	<div class="gtablecell" style="border: solid; float: right; padding: 3px; width: 150px; height: 100px;">[Gage data here]</div>
     
 	<div id="graph" class="dygraph_plot"></div>
 	<noscript>
@@ -121,7 +121,7 @@
 	</noscript>
 	</div>
 
-	<p style="font-size: 75%;">Tip: Left-click and drag in the plot to zoom.</p>
+	<p style="font-size: 75%; clear: left;">Tip: Left-click and drag in the plot to zoom.</p>
 	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
 	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
 
