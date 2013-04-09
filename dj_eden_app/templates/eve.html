@@ -121,10 +121,9 @@
 	</noscript>
 	</div>
 
-{% if not DYGRAPH_RANGE_SELECTOR %}
 	<p style="font-size: 75%;">Tip: Left-click and drag in the plot to zoom.</p>
+	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
 	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
-{% endif %}
 
     <script type="text/javascript">
         var color_base = {{ colors }};
@@ -217,6 +216,7 @@
             // range selector (overview graph)
 {% if DYGRAPH_RANGE_SELECTOR %}
                 showRangeSelector: true,
+                interactionModel: Dygraph.defaultInteractionModel,
 {% endif %}
 
             {% if str_tstart != None and str_tend != None %}
