@@ -195,7 +195,10 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
     # Try to use numpy arrays for better performance
     try:
         as_array = numpy.array(data.fetchall())
-        plot_date(as_array[:, 0], as_array[:, 1], linestyle="-", marker=".", markersize=2.5)
+        if as_array:
+            plot_date(as_array[:, 0], as_array[:, 1], linestyle="-", marker=".", markersize=2.5)
+        else:
+            plot_date([], [], linestyle="-", marker=".", markersize=2.5)
     except AttributeError:
         _logger.info("Not able to use numpy array")
         xx = []
