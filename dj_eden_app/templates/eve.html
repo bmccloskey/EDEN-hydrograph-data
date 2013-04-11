@@ -221,6 +221,7 @@
             // range selector (overview graph)
 {% if DYGRAPH_RANGE_SELECTOR %}
                 showRangeSelector: true,
+                interactionModel: Dygraph.defaultInteractionModel,
 {% endif %}
 
             {% if str_tstart != None and str_tend != None %}
