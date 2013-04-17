@@ -102,7 +102,11 @@
 		</table>
 	</form>
 </div>
-	<div class="gtablecell" style="border: solid; float: left; margin-left: 5px; padding: 3px; width: 130px; height: 100px;">[Gage data here]</div>
+	<div class="gtablecell" style="border: solid; float: left; margin-left: 5px; padding: 3px; width: 130px; height: 100px;">
+	   <strong>Data Selected</strong><br />{% for g in gages %}
+	       <br />{{ g }}
+	   {% endfor %}
+</div>
 <!-- TODO dynamic height for legend -->
 {% if plot_params %}
 	<div id="hydrograph_legend" style="border:solid; width: 240px; padding: 3px; float: right;">
