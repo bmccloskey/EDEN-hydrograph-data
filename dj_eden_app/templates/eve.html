@@ -84,11 +84,11 @@
             <th></th>
         </tr>
         <tr class="gtablecell2">
-            <td style="font-size: 75%; white-space: nowrap;" align="center">(for stations selected above)</td>
+            <td style="font-size: 75%;" align="center">(for selected stations)</td>
         </tr>
         
 		<tr>
-            <td class="gtablecell">
+            <td class="gtablecell" style="font-size: 80%;">
                 <!-- TODO Disable the next if selection period is longer than a year -->
                 - <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a><br />
                 - <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a><br />
