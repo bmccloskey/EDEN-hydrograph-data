@@ -27,6 +27,8 @@
   border: solid;
   padding: 5px;
   background-color: white; }
+#data_selected span{
+  font-size: 12px; }
 </style>
 {% endblock style %}
 
@@ -106,10 +108,11 @@
 </div>
 <div id="graph_and_legends" style="float: left; width: 75%; margin-left: 5px;">
 {% if plot_params %}
-	<div id="data_selected" style="float: left; width: 130px;">
+	<div id="data_selected" style="float: left; width: 145px;">
 	   <strong>Data Selected</strong>{% for g in gages %}
-	       <br />{{ g }}
+	       <br><span><a href='http://sofia.usgs.gov/eden/station.php?stn_name={{ g }}'>{{g}}</a> 1990&mdash;2013</span>
 	   {% endfor %}
+	   <p style="font-size: 9px;">Go to originating agency for<br>complete datasets for this gage.</p>
   </div>
 	<div id="dynamic_legend" style="border: 2px white; width: 170px; float: left;"></div>
 	<div id="hydrograph_legend" style="width: 240px; float: right; margin-bottom: 10px;">
@@ -129,7 +132,6 @@
 	</noscript></div>
 	</div>
 </div>    
-
 	<p style="font-size: 75%; clear: left;">Tip: Left-click and drag in the plot to zoom.</p>
 	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
 	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
