@@ -79,7 +79,6 @@ a.footer:visited { color:#ffffff}
 
 /*Dygraphs will resize with the window upto certain limits*/
 #graph {
-	clear: left;
 	min-width:500px;
 	min-height:400px;
 	max-height:600px;
