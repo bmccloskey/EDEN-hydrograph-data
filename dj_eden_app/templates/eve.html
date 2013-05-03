@@ -1,44 +1,50 @@
 {% extends "eden-base.html" %}
 
 {% block ie_hack %}
-    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
-    <!--[if IE]>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
-    <![endif]-->
+  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
+  <!--[if IE]>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
+  <![endif]-->
 {% endblock ie_hack %}
 
 {% block title %}EDEN Timeseries Data{% endblock title %}
 
-{% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
-
 {% block script %}
-	<script type="text/javascript"
-	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
 {% endblock script %}
 
 {% block style %}
-<style type="text/css">
-
+<style>
 {% for c in color_list %}
-.color_{{ forloop.counter0 }} { color: {{ c }} !important; }
+.color_{{ forloop.counter0 }} {
+  color: {{ c }} !important; }
 {% endfor %}
-
 #hydrograph_form p {
- white-space: pre-wrap;
- }
-
+  white-space: pre-wrap; }
+#graph, #dynamic_legend, #data_selected {
+  font-family: Verdana, Arial, Helvetica, sans-serif; }
+#dynamic_legend, #data_selected, #hydrograph_legend {
+  border: solid;
+  padding: 5px;
+  background-color: white; }
+#data_selected span{
+  font-size: 12px; }
 </style>
 {% endblock style %}
 
+{% block content_header %}
+  <h2>Explore and View EDEN (EVE)</h2>
+  <p>EVE allows users to graph and download data for multiple gages and multiple parameters.</p>
+{% endblock content_header %}
+
 {% block content %}
 <div style="white-space: nowrap;" id="content-block">
-<div class="form_input_field" style="vertical-align: top; display: inline-block; ">
+<div class="form_input_field" style="vertical-align: top; display: inline-block; margin-bottom: 5px;">
 	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">
 	{# if method="POST", add this tag: {% csrf_token %} #}
 		<div class="form_error">{{ query_form.non_field_errors }}</div>
 		<div class="form_error">{{ query_form.field_errors }}</div>
 		<table width="150" border="2" cellspacing="0" cellpadding="1" bgcolor="#4b7e83" align="left">
-		<tbody>
             <tr class="grtablehead">
                 <th>Timeseries</th>
             </tr>
@@ -47,7 +53,7 @@
                 {{ query_form.timeseries_start.errors }}
                     <label for="{{ query_form.timeseries_start.html_name }}"><strong>Start: </strong></label>{{ query_form.timeseries_start }}<br />
                  {{ query_form.timeseries_end.errors }}
-                    <label for="{{ query_form.timeseries_end.html_name }}"><strong>End: </strong></label>{{ query_form.timeseries_end }}<br />
+                    <label for="{{ query_form.timeseries_end.html_name }}"><strong>End: &nbsp;</strong></label>{{ query_form.timeseries_end }}<br />
                 </td>
             </tr>
                       
@@ -55,7 +61,7 @@
                 <th><label for="{{ query_form.site_list.html_name }}">Site List</label></th>
             </tr>
             <tr class="gtablecell2">
-                <td style="font-size: 75%;" align="center"><p>Select multiple gages by<br>holding the control (PC)<br>or command (Mac) key.</p></td>
+                <td style="font-size: 75%;" align="center">Select multiple gages by<br>holding the control (PC)<br>or command (Mac) key.</td>
             </tr>
 		    <tr>
                 <td align="center" class="gtablecell">
@@ -78,11 +84,11 @@
             <th></th>
         </tr>
         <tr class="gtablecell2">
-            <td style="font-size: 75%;" align="center">(for stations selected above)</td>
+            <td style="font-size: 75%;" align="center">(for selected stations)</td>
         </tr>
         
 		<tr>
-            <td class="gtablecell">
+            <td class="gtablecell" style="font-size: 80%;">
                 <!-- TODO Disable the next if selection period is longer than a year -->
                 - <a href="{% url dj_eden_app.views.data_views.hourly_download %}?{{ plot_params }}">Hourly Data</a><br />
                 - <a href="{% url dj_eden_app.views.data_views.daily_download %}?{{ plot_params }}">Daily Averages</a><br />
@@ -100,35 +106,35 @@
 		</table>
 	</form>
 </div>
-
-<div style="display: inline-block; margin-left: 10px; ">
+<div id="graph_and_legends" style="display: inline-block; width: 75%; margin-left: 5px;">
 {% if plot_params %}
-    <div id="legends">
-	<div id="hydrograph_legend" style="border:solid; width: 300px; display:inline-block;">
+	<div id="data_selected" style="float: left; width: 145px;">
+	   <strong>Data Selected</strong>{% for g in gages %}
+	       <br><span><a href='http://sofia.usgs.gov/eden/station.php?stn_name={{ g }}'>{{g}}</a> 1990&mdash;2013</span>
+	   {% endfor %}
+	   <p style="font-size: 9px;">Go to originating agency for<br>complete datasets for this gage.</p>
+  </div>
+	<div id="dynamic_legend" style="border: 2px white; width: 170px; float: left;"></div>
+	<div id="hydrograph_legend" style="width: 240px; float: right; margin-bottom: 10px;">
 	   <table>
 	   {% for g in gages %}
-	       <tr class="color_{{ forloop.counter0 }}"><td>&nbsp;&mdash;&mdash;&mdash;</td><td>{{ g }}</td></tr>
+	       <tr class="color_{{ forloop.counter0 }}"><td>&nbsp;&mdash;&mdash;&mdash;</td><td class="gtablecell">{{ g }}</td></tr>
 	   {% endfor %}
         <!-- <tr><td colspan="2">&mdash;</td></tr> -->
-        <tr><td><img src="{{ STATIC_URL }}images/line-solid.png" alt="solid line" /></td><td>Observed data</td></tr>
-        <tr><td><img src="{{ STATIC_URL }}images/line-dotted.png" alt="dotted line" /></td><td>Estimated data</td></tr>
-        <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td>Data in "dry" range</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-solid.png" alt="solid line" /></td><td class="gtablecell">Observed data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-dotted.png" alt="dotted line" /></td><td class="gtablecell">Estimated data</td></tr>
+        <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td class="gtablecell">Data in "dry" range</td></tr>
         </table>
-    </div>
-    <div id="dynamic_legend" style="border: 2px white solid; width: 200px; vertical-align: top; display:inline-block;">
-    </div>
-    </div>
-    
-	<div id="graph" class="dygraph_plot">
+	</div>
+	<div id="graph" class="dygraph_plot" style="clear: right;">
 	<noscript>
 	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}" />
-	</noscript>
+	</noscript></div>
 	</div>
-
-{% if not DYGRAPH_RANGE_SELECTOR %}
-	<p style="font-size: 75%;">Tip: Left-click and drag in the plot to zoom.</p>
+</div>    
+	<p style="font-size: 75%; clear: left;">Tip: Left-click and drag in the plot to zoom.</p>
+	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
 	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
-{% endif %}
 
     <script type="text/javascript">
         var color_base = {{ colors }};
@@ -221,6 +227,7 @@
             // range selector (overview graph)
 {% if DYGRAPH_RANGE_SELECTOR %}
                 showRangeSelector: true,
+                interactionModel: Dygraph.defaultInteractionModel,
 {% endif %}
 
             {% if str_tstart != None and str_tend != None %}
@@ -258,8 +265,7 @@
     </script>
 
 {% else %}
-	   <p>After site selection, a graph will be displayed here.</p>
-{% endif %}
-
+     <p>After site selection, a graph will be displayed here.</p>
 </div>
+{% endif %}
 {% endblock content %}
