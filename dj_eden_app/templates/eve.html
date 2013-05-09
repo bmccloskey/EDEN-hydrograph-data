@@ -10,7 +10,7 @@
 {% block title %}EDEN Timeseries Data{% endblock title %}
 
 {% block script %}
-	<script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-dev.js"></script>
 {% endblock script %}
 
 {% block style %}
@@ -107,14 +107,19 @@
 	</form>
 </div>
 <div id="graph_and_legends" style="display: inline-block; width: 75%; margin-left: 5px;">
+<!--  <table id="graph_and_legends" style="position: relative; left: 0px; top: 0px; width: 75%; margin-left: 5px; ">
+      <tr>
+      <td>
+  -->
 {% if plot_params %}
 	<div id="data_selected" style="float: left; width: 145px;">
 	   <strong>Data Selected</strong>{% for g in gages %}
 	       <br><span><a href='http://sofia.usgs.gov/eden/station.php?stn_name={{ g }}'>{{g}}</a> 1990&mdash;2013</span>
 	   {% endfor %}
 	   <p style="font-size: 9px;">Go to originating agency for<br>complete datasets for this gage.</p>
-  </div>
-	<div id="dynamic_legend" style="border: 2px white; width: 170px; float: left;"></div>
+    </div>
+	<div id="dynamic_legend" style="border: 2px white; width: 170px; float: left;">
+	</div>
 	<div id="hydrograph_legend" style="width: 240px; float: right; margin-bottom: 10px;">
 	   <table>
 	   {% for g in gages %}
@@ -127,11 +132,15 @@
         </table>
 	</div>
 	<div id="graph" class="dygraph_plot" style="clear: right;">
-	<noscript>
+	  <noscript>
 	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}" />
-	</noscript></div>
+	  </noscript>
 	</div>
-</div>    
+<!-- </td>
+     </tr>
+     </table> 
+  -->
+    </div> <!-- graph_and_legends -->
 	<p style="font-size: 75%; clear: left;">Tip: Left-click and drag in the plot to zoom.</p>
 	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
 	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
@@ -195,34 +204,35 @@
             yAxisLabelWidth: 60,
             strokeWidth: 1.0,
             colors: colors3,
-            {% if ngvd29_series != None and ngvd29_correction != None %} //tried this with JS if statement... using Django templating until I can figure it out...
             drawCallback: function(dygraph, isInitial) {
     			if (isInitial) {
-    			 labels = dygraph.getLabels();
-    			 labelToMove = labels[3];
-    			console.log("series: " + labelToMove);
-    			yrange = dygraph.yAxisRange();
-    			//resize(100, 100);
-    			yrange[0] -= ngvd29Conversion;
-    			yrange[1] -= ngvd29Conversion;
-    			newOptions = { 
-    			   axes: {y2: { valueRange: yrange} } 
-    			};
-    			newOptions[labelToMove] = {axis: 1};
+    			   if (! (ngvd29Conversion === null)) {
+    			     labels = dygraph.getLabels();
+    			     labelToMove = labels[3];
+    			     console.log("series: " + labelToMove);
+    			     yrange = dygraph.yAxisRange();
+    			     //resize(100, 100);
+    			     yrange[0] -= ngvd29Conversion;
+    			     yrange[1] -= ngvd29Conversion;
+    			     newOptions = { 
+    			         axes: {y2: { valueRange: yrange} } 
+    			     };
+    			     newOptions[labelToMove] = {axis: 1};
 
-    			console.log("new options " + newOptions);
-    			dygraph.updateOptions(newOptions);
-    			props = dygraph.getPropertiesForSeries(labelToMove);
-    			console.log(labelToMove + " on axis " + props['axis']);
-    			}
-    },
-    			{% endif %}
- 				series: seriesOptions,
+    			     console.log("new options " + newOptions);
+    			     dygraph.updateOptions(newOptions);
+    			     props = dygraph.getPropertiesForSeries(labelToMove);
+    			     console.log(labelToMove + " on axis " + props['axis']);
+    		       }
+                   // dygraph.resize();
+    	       }
+            },
+ 			series: seriesOptions,
  				
             // options for dynamic legend
-                // hideOverlayOnMouseOut: false,
-                // legend: 'always',
-                labelsDiv: 'dynamic_legend',
+            // hideOverlayOnMouseOut: false,
+            // legend: 'always',
+            labelsDiv: 'dynamic_legend',
                 
             // range selector (overview graph)
 {% if DYGRAPH_RANGE_SELECTOR %}
@@ -262,6 +272,35 @@
            }          // options
          );
                   
+         // Get size of div#graph 
+         var graphdiv = document.getElementById("graph");
+         var div_width = graphdiv.clientWidth;
+         var div_height = graphdiv.clientHeight;
+         
+         // g2.resize(div_width/2,div_height/2);
+         // g2.resize();
+         
+         function fire_resize_event() {
+            var event;
+            if (document.createEvent) {
+                event = document.createEvent("HTMLEvents");
+                event.initEvent("resize", true, true);
+            } else {
+                event = document.createEventObject();
+                event.eventType = "resize";
+            }
+
+            event.eventName = "resize";
+            event.memo = { };
+
+            var element = document.body;
+            if (document.createEvent) {
+                element.dispatchEvent(event);
+            } else {
+                element.fireEvent("on" + event.eventType, event);
+            }
+         }
+         
     </script>
 
 {% else %}
@@ -269,3 +308,10 @@
 </div>
 {% endif %}
 {% endblock content %}
+
+{% block trailer %}
+<script type="text/javascript">
+   // g2.resize();
+   // fire_resize_event();
+</script>
+{% endblock trailer %}
