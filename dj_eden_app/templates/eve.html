@@ -38,8 +38,9 @@
 {% endblock content_header %}
 
 {% block content %}
-<div style="white-space: nowrap;" id="content-block">
-<div class="form_input_field" style="vertical-align: top; display: inline-block; margin-bottom: 5px;">
+<table id="content-block" style="width: 100%;" >
+<tr>
+<td>
 	<form name="hydrograph_query" id="hydrograph_form" method="GET" action="">
 	{# if method="POST", add this tag: {% csrf_token %} #}
 		<div class="form_error">{{ query_form.non_field_errors }}</div>
@@ -105,12 +106,11 @@
 
 		</table>
 	</form>
-</div>
-<div id="graph_and_legends" style="display: inline-block; width: 75%; margin-left: 5px;">
-<!--  <table id="graph_and_legends" style="position: relative; left: 0px; top: 0px; width: 75%; margin-left: 5px; ">
-      <tr>
-      <td>
-  -->
+	</td>
+	
+	<td style="vertical-align: top; ">
+<div id="graph_and_legends" style="width: 75%; margin-left: 5px;">
+
 {% if plot_params %}
 	<div id="data_selected" style="float: left; width: 145px;">
 	   <strong>Data Selected</strong>{% for g in gages %}
@@ -136,15 +136,19 @@
 	    <img id="eden_plot" src="{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}" />
 	  </noscript>
 	</div>
-<!-- </td>
-     </tr>
-     </table> 
-  -->
     </div> <!-- graph_and_legends -->
+    </td>
+    
+    <tr>
+    <td colspan="2">
 	<p style="font-size: 75%; clear: left;">Tip: Left-click and drag in the plot to zoom.</p>
 	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
 	<p style="font-size: 75%;">Tip: To reset zoom to full selected period, double left-click in the plot.</p>
-
+    </td>
+    
+    </tr>
+    
+    </table>
     <script type="text/javascript">
         var color_base = {{ colors }};
 
