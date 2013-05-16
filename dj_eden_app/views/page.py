@@ -133,18 +133,24 @@ def eden_page(request):
 
             plot_query_str = urllib.urlencode(plot_params, doseq=True);
 
+            isIE = 'MSIE' in request.META['HTTP_USER_AGENT']
+
+            gages = query_form.cleaned_data['site_list']
+            colors = ColorRange(count=len(gages))
+
             if query_form.cleaned_data['timeseries_start']:
                 str_tstart = '%s' % query_form.cleaned_data['timeseries_start']
+            # elif isIE:
+            #    str_tstart = min_date(gages)
             else:
                 str_tstart = None
 
             if query_form.cleaned_data['timeseries_end']:
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
+            # elif isIE:
+            #     str_tstart = max_date(gages)
             else:
                 str_tend = None
-
-            gages = query_form.cleaned_data['site_list']
-            colors = ColorRange(count=len(gages))
 
             _logger.debug("In page generation, colors = %s", list(colors))
 
