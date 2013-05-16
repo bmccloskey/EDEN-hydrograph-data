@@ -134,7 +134,7 @@
 	   {% endfor %}
 	   <p style="font-size: 9px;">Go to originating agency for<br>complete datasets for this gage.</p>
     </div>
-	<div id="dynamic_legend" style="border: 2px white; width: 170px; float: left;">
+	<div id="dynamic_legend" style="border: 2px white; width: 300px; float: left;">
 	</div>
 	<div id="hydrograph_legend" style="width: 240px; float: right; margin-bottom: 10px;">
 	   <table>
@@ -242,6 +242,13 @@
             xlabel: "Date",
             y2label: "Water Level (NGVD29 ft)",
             yAxisLabelWidth: 60,
+            axes: {
+                y: {
+                    valueFormatter: function(y) {
+                        return y.toFixed(2) + ' NAVD88 ft';
+                    }
+                }
+            },
             strokeWidth: 1.0,
             colors: colors3,
             drawCallback: function(dygraph, isInitial) {
