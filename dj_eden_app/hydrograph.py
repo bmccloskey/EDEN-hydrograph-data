@@ -195,7 +195,7 @@ def plot_simple(data, beginDate=None, endDate=None, show_logo=True, title=None, 
     # Try to use numpy arrays for better performance
     try:
         as_array = numpy.array(data.fetchall())
-        if as_array:
+        if as_array.size > 0:
             plot_date(as_array[:, 0], as_array[:, 1], linestyle="-", marker=".", markersize=2.5)
         else:
             plot_date([], [], linestyle="-", marker=".", markersize=2.5)
@@ -269,7 +269,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
 
     if ngvd29_correction is not None:
-        ax1 = f.axes[0]
+        # ax1 = f.axes[0]
         ax2 = ax1.twinx()  # new axis overlay, ticks on right, shared x axis
 
         lim = ax1.get_ylim()
