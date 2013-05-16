@@ -27,8 +27,24 @@
   border: solid;
   padding: 5px;
   background-color: white; }
-#data_selected span{
-  font-size: 12px; }
+#data_selected span {
+  font-size: 12px; 
+}
+.dry_stripe {
+  color: rgba(128, 128, 128, 0.5);
+  background-color: rgba(128, 128, 128, 0.5);
+  height: 4px;
+  width: 80%;
+  border: none;
+}
+.ground_stripe {
+   color: brown;
+   background-color: brown;
+   height: 4px;
+   width: 80%;
+   border: none;
+}
+  
 </style>
 {% endblock style %}
 
@@ -129,6 +145,12 @@
         <tr><td><img src="{{ STATIC_URL }}images/line-solid.png" alt="solid line" /></td><td class="gtablecell">Observed data</td></tr>
         <tr><td><img src="{{ STATIC_URL }}images/line-dotted.png" alt="dotted line" /></td><td class="gtablecell">Estimated data</td></tr>
         <tr><td><img src="{{ STATIC_URL }}images/line-dashed.png" alt="dashed line" /></td><td class="gtablecell">Data in "dry" range</td></tr>
+        {% if ground_elevation %}
+        <tr><td><hr class="ground_stripe"></td><td class="gtablecell">Ground elevation</td></tr>
+        {% endif %}
+        {% if dry_elevation %}
+        <tr><td><hr class="dry_stripe"></td><td class="gtablecell">Dry elevation</td></tr>
+        {% endif %}
         </table>
 	</div>
 	<div id="graph" class="dygraph_plot" style="clear: right;">
@@ -199,9 +221,16 @@
     	var seriesOptions = {{ series_options }};
     	
     	// dry_elevation and ground_elevation line for single gage
+    	{% if dry_elevation %}
     	var dryElevation = {{ dry_elevation }};
+    	{% else %}
+        var dryElevation = null;
+    	{% endif %}
+    	{% if ground_elevation %}
     	var groundElevation = {{ ground_elevation }};
-
+        {% else %}
+        var groundElevation = null;
+        {% endif %}
     	
     	// note auto gear shift for daily/hourly
     	
