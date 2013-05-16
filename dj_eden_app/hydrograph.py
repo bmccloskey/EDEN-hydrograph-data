@@ -80,6 +80,8 @@ def plot_multi(data, beginDate, endDate, show_logo=True):
 
     _logger.debug("In plot_multi generation, colors = %s", list(line_colors))
 
+    ax1.yaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter('%0.2f'))
+
     lines = []
     for i in range(1, len(labels)):
         marker = _line_styles[(i - 1) % 3]
@@ -267,6 +269,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
     # _legend_for_line_styles(f, [l1, l2, l3])
 
+    ax1.yaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter('%0.2f'))
 
     if ngvd29_correction is not None:
         # ax1 = f.axes[0]
@@ -278,6 +281,7 @@ def plot_single(data, beginDate=None, endDate=None, dry_elevation=None, ground_e
 
         # twinx does not preserve this, so restore it now
         ax2.xaxis_date()
+        ax2.yaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter('%0.2f'))
 
         # tight_layout()
         draw()
