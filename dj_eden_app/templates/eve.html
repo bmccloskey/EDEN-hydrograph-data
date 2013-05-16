@@ -263,15 +263,6 @@
             // dateWindow: computeDateLimits(),
             {% endif %}
             
-            highlightCallback: function(event, x, points, row, seriesName) {
-                log("highlight " + points);
-                
-                g2.clearSelection();
-                var sn = points[0].name;
-                log("set selection to row " + row + ", series " + sn);
-                g2.setSelection(row,sn);
-            },
-            
             underlayCallback: function(canvas, area, g) {
               if (dryElevation != null) {
                 var top_right = g.toDomCoords(0, dryElevation);
