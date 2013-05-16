@@ -167,6 +167,14 @@
         }
     }
     
+    function log(m) {
+        try {
+            console.log(m);
+        } catch (e) {
+            alert(m);
+        }
+    }
+    
     function soften(hx, alpha) {
         var rgb = hex2rgb(hx);
         
@@ -197,7 +205,6 @@
     	
     	// note auto gear shift for daily/hourly
     	
-
          var g2 = new Dygraph(
            document.getElementById("graph"),
            "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
@@ -210,23 +217,27 @@
             colors: colors3,
             drawCallback: function(dygraph, isInitial) {
     			if (isInitial) {
+                   xRange = dygraph.xAxisExtremes();
+                   log("x range is " + xRange);
+                   
     			   if (! (ngvd29Conversion === null)) {
     			     labels = dygraph.getLabels();
     			     labelToMove = labels[3];
-    			     console.log("series: " + labelToMove);
+        			 log("series: " + labelToMove);
     			     yrange = dygraph.yAxisRange();
     			     //resize(100, 100);
     			     yrange[0] -= ngvd29Conversion;
     			     yrange[1] -= ngvd29Conversion;
+    			     
     			     newOptions = { 
     			         axes: {y2: { valueRange: yrange} } 
     			     };
     			     newOptions[labelToMove] = {axis: 1};
 
-    			     console.log("new options " + newOptions);
+    			     log("new options " + newOptions);
     			     dygraph.updateOptions(newOptions);
     			     props = dygraph.getPropertiesForSeries(labelToMove);
-    			     console.log(labelToMove + " on axis " + props['axis']);
+    			     log(labelToMove + " on axis " + props['axis']);
     		       }
                    // dygraph.resize();
     	       }
@@ -248,7 +259,19 @@
             dateWindow: [ Date.parse( dateStart ),
                           Date.parse( dateEnd )
                          ],
+            {% else %}
+            // dateWindow: computeDateLimits(),
             {% endif %}
+            
+            highlightCallback: function(event, x, points, row, seriesName) {
+                log("highlight " + points);
+                
+                g2.clearSelection();
+                var sn = points[0].name;
+                log("set selection to row " + row + ", series " + sn);
+                g2.setSelection(row,sn);
+            },
+            
             underlayCallback: function(canvas, area, g) {
               if (dryElevation != null) {
                 var top_right = g.toDomCoords(0, dryElevation);
