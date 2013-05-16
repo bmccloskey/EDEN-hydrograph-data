@@ -246,6 +246,14 @@
                 y: {
                     valueFormatter: function(y) {
                         return y.toFixed(2) + ' NAVD88 ft';
+                    },
+                    axisLabelFormatter: function(y) {
+                        return y.toFixed(2);
+                    }
+                },
+                y2: {
+                    axisLabelFormatter: function(y) {
+                        return y.toFixed(2);
                     }
                 }
             },
