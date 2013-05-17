@@ -20,13 +20,16 @@
   color: {{ c }} !important; }
 {% endfor %}
 #hydrograph_form p {
-  white-space: pre-wrap; }
+  white-space: pre-wrap; 
+}
 #graph, #dynamic_legend, #data_selected {
-  font-family: Verdana, Arial, Helvetica, sans-serif; }
+  font-family: Verdana, Arial, Helvetica, sans-serif; 
+}
 #dynamic_legend, #data_selected, #hydrograph_legend {
   border: solid;
   padding: 5px;
-  background-color: white; }
+  background-color: white; 
+}
 #data_selected span {
   font-size: 12px; 
 }
@@ -189,11 +192,15 @@
         }
     }
     
+    var annoy = false;
+    
     function log(m) {
         try {
             console.log(m);
         } catch (e) {
-            alert(m);
+            if (annoy) {
+                alert(m);
+            }
         }
     }
     

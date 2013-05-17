@@ -703,7 +703,15 @@ Dygraph.prototype.rollPeriod = function() {
  * If the Dygraph has dates on the x-axis, these will be millis since epoch.
  */
 Dygraph.prototype.xAxisRange = function() {
-  return this.dateWindow_ ? this.dateWindow_ : this.xAxisExtremes();
+  if (this.dateWindow_) {
+	if (isNaN(this.dateWindow_[0]) || isNaN(this.dateWindow_[1])) {
+		this.dateWindow_ = null;
+		return this.xAxisExtremes();
+        } else {
+		return this.dateWindow_;
+	}
+  }
+  return this.xAxisExtremes();
 };
 
 /**
