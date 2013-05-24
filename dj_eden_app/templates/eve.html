@@ -1,17 +1,6 @@
 {% extends "eden-base.html" %}
 
-{% block ie_hack %}
-  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
-  <!--[if IE]>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
-  <![endif]-->
-{% endblock ie_hack %}
-
 {% block title %}EDEN Timeseries Data{% endblock title %}
-
-{% block script %}
-	<script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-dev.js"></script>
-{% endblock script %}
 
 {% block style %}
 <style>
@@ -128,7 +117,7 @@
 	</td>
 	
 	<td style="vertical-align: top; ">
-<div id="graph_and_legends" style="width: 75%; margin-left: 5px;">
+<div id="graph_and_legends" style="width: 75%; margin-left: 5px; min-width: 730px;">
 
 {% if plot_params %}
 	<div id="data_selected" style="float: left; width: 145px;">
