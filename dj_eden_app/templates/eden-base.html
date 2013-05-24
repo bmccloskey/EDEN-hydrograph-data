@@ -13,8 +13,15 @@
 
   <script type="text/javascript" src="{{ STATIC_URL }}js/modernizr.custom.min.js"></script>
 
+  <script type="text/javascript">
+  var preferStaticGraph = false;
+  </script>
+  
 <!--[if lt IE 9]>
   <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
+  <script type="text/javascript">
+  preferStaticGraph = true;
+  </script>
 <![endif]-->
 
   <script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
@@ -111,7 +118,5 @@ Last updated: March 25, 2013 11:12 AM (HSH)</span>
       </tr>
     </table>
   </div>
-{% block trailer %}
-{% endblock trailer %}
 </body>
 </html>

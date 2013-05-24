@@ -153,7 +153,8 @@
     </div> <!-- graph_and_legends -->
     </td>
     
-    <tr>
+
+    <tr id="dygraph-tips" style="display: none;">
     <td colspan="2">
 	<p style="font-size: 75%; clear: left;">Tip: Left-click and drag in the plot to zoom.</p>
 	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
@@ -161,7 +162,8 @@
     </td>
     
     </tr>
-    
+
+
     </table>
     <script type="text/javascript">
         var color_base = {{ colors }};
@@ -228,9 +230,12 @@
         var groundElevation = null;
         {% endif %}
     	
+    	var g2;
+    	
+    	if ( ! preferStaticGraph) {
     	// note auto gear shift for daily/hourly
     	
-         var g2 = new Dygraph(
+         g2 = new Dygraph(
            document.getElementById("graph"),
            "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
            {
@@ -329,6 +334,15 @@
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
+         
+            var tips = document.getElementById("dygraph-tips");
+            tips.style.display = "table-row";
+            
+         } else {
+           var graphdiv = document.getElementById("graph");
+           graphdiv.innerHTML = "<img id='eden_plot' src='{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}' />  ";
+            
+         }
                   
          // Get size of div#graph 
          var graphdiv = document.getElementById("graph");
@@ -367,9 +381,3 @@
 {% endif %}
 {% endblock content %}
 
-{% block trailer %}
-<script type="text/javascript">
-   // g2.resize();
-   // fire_resize_event();
-</script>
-{% endblock trailer %}
