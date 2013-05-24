@@ -140,7 +140,7 @@ color: red;
 	</form>
 	</td>
 	
-	<td style="vertical-align: top; ">
+	<td style="vertical-align: top; width: auto; ">
 
 
 <div style="display: inline-block; margin-left: 10px; width: 80%; ">
@@ -157,12 +157,14 @@ color: red;
 {% if pt.has_data %}
     <div id="graph_{{ pt.id }}" class="graph_div" style="width:100%;">
         <noscript>
-                <img id="eden_plot" src="{{ pt.image_url }}" />
+                <img id="eden_plot_{{ pt.id }}_ns" src="{{ pt.image_url }}" />
         </noscript>
     </div>
     <script type="text/javascript">
 
-         var g_{{ pt.id }} = new Dygraph(
+         var g_{{ pt.id }};
+         if ( ! preferStaticGraph) {
+         g_{{ pt.id }} = new Dygraph(
            document.getElementById("graph_{{ pt.id }}"),
            "{{ pt.data_url|safe }}",
            {
@@ -191,6 +193,10 @@ color: red;
          );
          
          gg.push(g_{{ pt.id }});
+         } else {
+            var elem = document.getElementById("graph_{{ pt.id }}");
+            elem.innerHTML = "<img id='eden_plot_{{ pt.id }}' src='{% url plot_image_rest pt.gage_name pt.param "png" %}?no_logo{{ pt.url_query }}' />";
+         };
                   
     </script>
     <div style="text-align:right; margin-bottom: 12px;">

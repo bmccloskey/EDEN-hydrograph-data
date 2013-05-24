@@ -354,6 +354,8 @@ def _plot_simple(gage, p, beginDate=None, endDate=None, format='png', show_logo=
 
     if show_logo:
         title = pt.title()
+    else:
+        title = None
 
     if not format in _mime_types:
         return HttpResponseBadRequest("Unknown image format: " + format)
@@ -371,9 +373,9 @@ def plot_image_simple(request):
         endDate = form.cleaned_data["timeseries_end"]
         gage = form.cleaned_data['site_list']
         p = form.cleaned_data['params'][0]
-        format = request.GET['format'] or 'png'
+        fmt = request.GET.get('format', 'png')
 
-        response = _plot_simple(gage, p, beginDate=beginDate, endDate=endDate, format=format, show_logo=decide_logo(request))
+        response = _plot_simple(gage, p, beginDate=beginDate, endDate=endDate, format=fmt, show_logo=decide_logo(request))
 
         return response
     else:
