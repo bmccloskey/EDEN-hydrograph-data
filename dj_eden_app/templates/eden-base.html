@@ -1,43 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% block ie_hack %}
-{% endblock ie_hack %}
+  <meta http-equiv="X-UA-Compatible" content="chrome=IE8, IE=EmulateIE7, IE=EmulateIE9">
 
   <meta charset="UTF-8">
-  <title>{% block title %}Exploring and Viewing EDEN (EVE) - Everglades Depth Estimation Network (EDEN){% endblock title %}</title>
-
-
-
+  <title>
+{% block title %}Explore and View EDEN (EVE) - Everglades Depth Estimation Network (EDEN){% endblock title %}
+  </title>
 {% block usgs_script %}
   <script type="application/javascript" src="http://www.usgs.gov/scripts/analytics/usgs-analytics.js"></script>
 {% endblock usgs_script %}
 
+  <script type="text/javascript" src="{{ STATIC_URL }}js/modernizr.custom.min.js"></script>
 
-{% block script %}
+  <script type="text/javascript">
+  var preferStaticGraph = false;
+  </script>
+  
+<!--[if lt IE 9]>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
+  <script type="text/javascript">
+  preferStaticGraph = true;
+  </script>
+<![endif]-->
+
   <script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
-{% endblock script %}
 
   <link rel="stylesheet" href="{{ STATIC_URL }}css/eden-dbweb.css">
-  <style type="text/css">
-a { color: #5c4d29; }
-a:visited { color: #937c43; }
-.color_0 { color: #000080 !important; }
-
-.color_1 { color: #7bff7b !important; }
-
-.color_2 { color: #800000 !important; }
-#graph .dygraph-label {
-      font-family: Verdana, Arial, Helvetica, sans-serif;
-}
-
-  </style>
 {% block style %}
 {% endblock style %}
 
 </head>
 
 <body style="background-color: white;">
+<!--[if IE]>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script type="text/javascript" >
+   // You may want to place these lines inside an onload handler
+   if (CFInstall) {
+       CFInstall.check({
+            mode: "overlay"
+       });
+   }
+  </script>
+<![endif]-->
+   
+   
   <div align="center">
     <table border="0" cellpadding="1" cellspacing="1" width="100%">
 				<tr>

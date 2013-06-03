@@ -1,20 +1,11 @@
 {% extends "eden-base.html" %}
 
-{% block ie_hack %}
-    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
-    <!--[if IE]>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
-    <![endif]-->
-{% endblock ie_hack %}
-
 {% block title %}EDEN Multi-parameter Data{% endblock title %}
 
-{% block content_header %} <h2>Exploring and Viewing EDEN (EVE)</h2> {% endblock content_header %}
-
-{% block script %}
-	<script type="text/javascript"
-	  src="{{ STATIC_URL }}js/dygraph-combined.js"></script>
-{% endblock script %}
+{% block content_header %}
+  <h2>Explore and View EDEN (EVE)</h2>
+  <p>EVE allows users to graph and download data for multiple gages and multiple parameters.</p>
+{% endblock content_header %}
 
 {% block style %}
 <style type="text/css">
@@ -34,12 +25,21 @@ color: red;
     font-size: 18px; font-family: arial,helvetica,sans-serif;
  }
  
+ div.graph_div div {
+    width: 100%;
+ }
+ 
+ div.graph_div {
+    width: 100%;
+ }
+ 
 </style>
 {% endblock style %}
 
 {% block content %}
-<div style="white-space: nowrap;" id="content-block">
-<div class="form_input_field" style="vertical-align: top; display: inline-block; ">
+<table id="content-block" style="width: 100%;" >
+<tr>
+<td style="width: 150px; vertical-align: top; ">
 	<form name="param_query" id="param_form" method="GET" action="">
 	   {# if method="POST", add this tag: {% csrf_token %} #}
 	   
@@ -138,9 +138,11 @@ color: red;
 
 		</table>
 	</form>
-</div>
+	</td>
+	
+	<td style="vertical-align: top; width: auto; ">
 
-<div style="display: inline-block; margin-left: 10px; ">
+<div style="display: block; margin-left: 10px; width: 80%; ">
 {% if plottables %}
 <script type="text/javascript">
 
@@ -152,14 +154,16 @@ color: red;
 
 {% for pt in plottables %}
 {% if pt.has_data %}
-    <div id="graph_{{ pt.id }}">
+    <div id="graph_{{ pt.id }}" class="graph_div" style="width:100%;">
         <noscript>
-                <img id="eden_plot" src="{{ pt.image_url }}" />
+                <img id="eden_plot_{{ pt.id }}_ns" src="{{ pt.image_url }}" />
         </noscript>
     </div>
     <script type="text/javascript">
 
-         var g_{{ pt.id }} = new Dygraph(
+         var g_{{ pt.id }};
+         if ( ! preferStaticGraph) {
+         g_{{ pt.id }} = new Dygraph(
            document.getElementById("graph_{{ pt.id }}"),
            "{{ pt.data_url|safe }}",
            {
@@ -188,6 +192,10 @@ color: red;
          );
          
          gg.push(g_{{ pt.id }});
+         } else {
+            var elem = document.getElementById("graph_{{ pt.id }}");
+            elem.innerHTML = "<img id='eden_plot_{{ pt.id }}' src='{% url plot_image_rest pt.gage_name pt.param "png" %}?no_logo{{ pt.url_query }}' />";
+         };
                   
     </script>
     <div style="text-align:right; margin-bottom: 12px;">
@@ -195,19 +203,21 @@ color: red;
      <a class="image-button" href="{% url plot_image_rest pt.gage_name pt.param "svg" %}?filler{{ pt.url_query }}">SVG</a> 
      <a class="image-button" href="{% url plot_image_rest pt.gage_name pt.param "pdf" %}?filler{{ pt.url_query }}">PDF</a> 
      </div>
-     
     {% else %}
     <div class="no-data" id="graph_{{ pt.id }}">
     <p>
     No {{ pt.param|capfirst }} data available for {{ pt.gage_name }}.
     </p>
     </div>
+    
     {% endif %}
 {% endfor %}
 
 {% else %}
 	   <p>After site selection, a graph will be displayed here.</p>
 {% endif %}
-
-</div>
+    </td>
+    </tr>
+    
+    </table>
 {% endblock content %}
