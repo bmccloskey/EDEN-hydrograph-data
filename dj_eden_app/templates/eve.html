@@ -1,17 +1,6 @@
 {% extends "eden-base.html" %}
 
-{% block ie_hack %}
-  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
-  <!--[if IE]>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.js"></script>
-  <![endif]-->
-{% endblock ie_hack %}
-
 {% block title %}EDEN Timeseries Data{% endblock title %}
-
-{% block script %}
-	<script type="text/javascript" src="{{ STATIC_URL }}js/dygraph-dev.js"></script>
-{% endblock script %}
 
 {% block style %}
 <style>
@@ -128,7 +117,7 @@
 	</td>
 	
 	<td style="vertical-align: top; ">
-<div id="graph_and_legends" style="width: 75%; margin-left: 5px;">
+<div id="graph_and_legends" style="width: 75%; margin-left: 5px; min-width: 730px;">
 
 {% if plot_params %}
 	<div id="data_selected" style="float: left; width: 145px;">
@@ -164,7 +153,8 @@
     </div> <!-- graph_and_legends -->
     </td>
     
-    <tr>
+
+    <tr id="dygraph-tips" style="display: none;">
     <td colspan="2">
 	<p style="font-size: 75%; clear: left;">Tip: Left-click and drag in the plot to zoom.</p>
 	<p style="font-size: 75%;">Tip: Option-click and drag in the plot to pan.</p>
@@ -172,7 +162,8 @@
     </td>
     
     </tr>
-    
+
+
     </table>
     <script type="text/javascript">
         var color_base = {{ colors }};
@@ -239,9 +230,12 @@
         var groundElevation = null;
         {% endif %}
     	
+    	var g2;
+    	
+    	if ( ! preferStaticGraph) {
     	// note auto gear shift for daily/hourly
     	
-         var g2 = new Dygraph(
+         g2 = new Dygraph(
            document.getElementById("graph"),
            "{% url dj_eden_app.views.data_views.plot_data_auto %}?{{ plot_params }}",
            {
@@ -340,6 +334,15 @@
             drawPoints: true   // Look, no trailing comma; make IE happy.
            }          // options
          );
+         
+            var tips = document.getElementById("dygraph-tips");
+            tips.style.display = "table-row";
+            
+         } else {
+           var graphdiv = document.getElementById("graph");
+           graphdiv.innerHTML = "<img id='eden_plot' src='{% url dj_eden_app.views.data_views.plot_image_auto %}?no_logo&{{ plot_params }}' />  ";
+            
+         }
                   
          // Get size of div#graph 
          var graphdiv = document.getElementById("graph");
@@ -378,9 +381,3 @@
 {% endif %}
 {% endblock content %}
 
-{% block trailer %}
-<script type="text/javascript">
-   // g2.resize();
-   // fire_resize_event();
-</script>
-{% endblock trailer %}
