@@ -133,18 +133,24 @@ def eden_page(request):
 
             plot_query_str = urllib.urlencode(plot_params, doseq=True);
 
+            isIE = 'MSIE' in request.META['HTTP_USER_AGENT']
+
+            gages = query_form.cleaned_data['site_list']
+            colors = ColorRange(count=len(gages))
+
             if query_form.cleaned_data['timeseries_start']:
                 str_tstart = '%s' % query_form.cleaned_data['timeseries_start']
+            # elif isIE:
+            #    str_tstart = min_date(gages)
             else:
                 str_tstart = None
 
             if query_form.cleaned_data['timeseries_end']:
                 str_tend = '%s' % query_form.cleaned_data['timeseries_end']
+            # elif isIE:
+            #     str_tstart = max_date(gages)
             else:
                 str_tend = None
-
-            gages = query_form.cleaned_data['site_list']
-            colors = ColorRange(count=len(gages))
 
             _logger.debug("In page generation, colors = %s", list(colors))
 
@@ -162,12 +168,12 @@ def eden_page(request):
             if len(gages) == 1:
                 station = stage_queries.station_list(gages)[0]
                 render_params['ngvd29_series'] = '%s%s' % (station.station_name_web, '_NGVD29')
-                render_params['dry_elevation'] = station.dry_elevation or "null"
-                render_params['ground_elevation'] = station.duration_elevation or "null"
+                render_params['dry_elevation'] = station.dry_elevation or None
+                render_params['ground_elevation'] = station.duration_elevation or None
                 render_params['ngvd29_correction'] = station.vertical_conversion or 0.0
             else:
-                render_params['dry_elevation'] = "null"
-                render_params['ground_elevation'] = "null"
+                render_params['dry_elevation'] = None
+                render_params['ground_elevation'] = None
                 render_params['ngvd29_correction'] = "null"
 
             return render(request, template_name, render_params)
